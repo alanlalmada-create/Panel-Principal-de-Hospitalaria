@@ -74,8 +74,6 @@
       margin:0 auto;
     }
 
-    /* HEADER */
-
     .topbar{
       background:var(--card);
       border-bottom:1px solid var(--line);
@@ -129,8 +127,6 @@
       gap:8px;
     }
 
-    /* BUTTONS */
-
     .btn{
       border:1px solid var(--line);
       background:var(--card);
@@ -180,8 +176,6 @@
       border-radius:8px;
     }
 
-    /* MAIN */
-
     main{
       padding:24px 0 45px;
     }
@@ -211,8 +205,6 @@
       gap:8px;
       flex-wrap:wrap;
     }
-
-    /* KPI */
 
     .kpis{
       display:grid;
@@ -256,8 +248,6 @@
       font-weight:800;
       margin-top:7px;
     }
-
-    /* FILTERS */
 
     .panel{
       background:var(--card);
@@ -330,8 +320,6 @@
       flex-wrap:wrap;
     }
 
-    /* TABLE */
-
     .table-wrapper{
       overflow:auto;
       width:100%;
@@ -390,8 +378,6 @@
       font-size:11px;
     }
 
-    /* BADGES */
-
     .badge{
       display:inline-flex;
       align-items:center;
@@ -439,8 +425,6 @@
       color:var(--muted);
     }
 
-    /* ACTIONS */
-
     .actions{
       display:flex;
       flex-wrap:wrap;
@@ -463,8 +447,6 @@
       color:var(--primary);
     }
 
-    /* EMPTY */
-
     .empty{
       padding:50px 20px;
       text-align:center;
@@ -475,8 +457,6 @@
       font-size:38px;
       margin-bottom:10px;
     }
-
-    /* MODAL */
 
     .modal{
       position:fixed;
@@ -549,8 +529,6 @@
       flex-wrap:wrap;
     }
 
-    /* LOADING */
-
     .loading{
       position:fixed;
       inset:0;
@@ -587,8 +565,6 @@
     @keyframes spin{
       to{transform:rotate(360deg);}
     }
-
-    /* TOAST */
 
     .toast{
       position:fixed;
@@ -629,8 +605,6 @@
       }
     }
 
-    /* SERVICES */
-
     .service-list{
       display:grid;
       grid-template-columns:repeat(2,1fr);
@@ -649,8 +623,6 @@
       padding:9px 11px;
       font-size:13px;
     }
-
-    /* RESPONSIVE */
 
     @media(max-width:1200px){
       .filters{
@@ -746,574 +718,655 @@
 
 <body>
 
-  <!-- HEADER -->
-  <header class="topbar">
-    <div class="container topbar-inner">
+<header class="topbar">
+  <div class="container topbar-inner">
 
-      <div class="brand">
-        <div class="brand-icon">🚚</div>
+    <div class="brand">
+      <div class="brand-icon">🚚</div>
 
-        <div>
-          <h1>Panel Principal de Cadetería Hospitalaria</h1>
-          <p>Gestión y control de traslados internos</p>
-        </div>
+      <div>
+        <h1>Panel Principal de Cadetería Hospitalaria</h1>
+        <p>Gestión y control de traslados internos</p>
       </div>
-
-      <div class="top-actions">
-        <button class="btn" onclick="abrirHistorico()">
-          📚 Ver Histórico
-        </button>
-
-        <button class="btn" onclick="alternarTema()" id="btnTema">
-          🌙
-        </button>
-      </div>
-
     </div>
-  </header>
 
+    <div class="top-actions">
 
-  <main class="container">
+      <button class="btn" onclick="abrirHistorico()">
+        📚 Ver Histórico
+      </button>
 
-    <!-- TITULO -->
-    <div class="toolbar">
-
-      <div class="toolbar-title">
-        <h2>Traslados internos</h2>
-        <p>Control operativo de pedidos de cadetería</p>
-      </div>
-
-      <div class="toolbar-actions">
-        <button class="btn" onclick="abrirServicios()">
-          ⚙ Servicios
-        </button>
-
-        <button class="btn" onclick="exportarCSV()">
-          📥 CSV
-        </button>
-
-        <button class="btn btn-primary" onclick="nuevoPedido()">
-          + Nuevo traslado
-        </button>
-      </div>
+      <button class="btn" onclick="alternarTema()" id="btnTema">
+        🌙
+      </button>
 
     </div>
 
+  </div>
+</header>
 
-    <!-- KPIs -->
-    <section class="kpis">
 
-      <div class="kpi">
-        <div class="kpi-label">Total activos</div>
-        <div class="kpi-value" id="kpiTotal">0</div>
-      </div>
+<main class="container">
 
-      <div class="kpi">
-        <div class="kpi-label">Pendientes</div>
-        <div class="kpi-value" id="kpiPendientes">0</div>
-      </div>
+  <div class="toolbar">
 
-      <div class="kpi">
-        <div class="kpi-label">Realizadas</div>
-        <div class="kpi-value" id="kpiRealizadas">0</div>
-      </div>
+    <div class="toolbar-title">
+      <h2>Traslados internos</h2>
+      <p>Control operativo de pedidos de cadetería</p>
+    </div>
 
-      <div class="kpi">
-        <div class="kpi-label">Archivados</div>
-        <div class="kpi-value" id="kpiArchivados">0</div>
-      </div>
+    <div class="toolbar-actions">
 
-    </section>
+      <button class="btn" onclick="abrirServicios()">
+        ⚙ Servicios
+      </button>
 
+      <button class="btn" onclick="exportarCSV()">
+        📥 CSV
+      </button>
 
-    <!-- FILTROS -->
-    <section class="panel">
-
-      <div class="panel-header">
-        <h3>Filtros y búsqueda</h3>
-
-        <button class="btn btn-small" onclick="cargarDatos()">
-          🔄 Actualizar
-        </button>
-      </div>
-
-      <div class="panel-body">
-
-        <div class="filters">
-
-          <div class="field search">
-            <label>Buscador</label>
-            <input
-              type="text"
-              id="filtroBuscar"
-              placeholder="Buscar origen, destino, cadete, móvil..."
-              oninput="aplicarFiltros()"
-            >
-          </div>
-
-          <div class="field">
-            <label>Estado</label>
-            <select id="filtroEstado" onchange="aplicarFiltros()">
-              <option value="">Todos</option>
-              <option value="Pendiente">Pendiente</option>
-              <option value="En curso">En curso</option>
-              <option value="Realizada">Realizada</option>
-              <option value="Cancelada">Cancelada</option>
-              <option value="No realizada">No realizada</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label>Tipo</label>
-            <select id="filtroTipo" onchange="aplicarFiltros()">
-              <option value="">Todos</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label>Prioridad</label>
-            <select id="filtroPrioridad" onchange="aplicarFiltros()">
-              <option value="">Todas</option>
-              <option value="Alta">Alta</option>
-              <option value="Media">Media</option>
-              <option value="Baja">Baja</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label>Cadete</label>
-            <select id="filtroCadete" onchange="aplicarFiltros()">
-              <option value="">Todos</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label>Móvil</label>
-            <select id="filtroMovil" onchange="aplicarFiltros()">
-              <option value="">Todos</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label>Fecha desde</label>
-            <input type="date" id="filtroDesde" onchange="aplicarFiltros()">
-          </div>
-
-          <div class="field">
-            <label>Fecha hasta</label>
-            <input type="date" id="filtroHasta" onchange="aplicarFiltros()">
-          </div>
-
-        </div>
-
-        <div class="filter-buttons" style="margin-top:12px">
-
-          <button class="btn btn-small" onclick="filtrarHoy()">
-            📅 Hoy
-          </button>
-
-          <button class="btn btn-small" onclick="limpiarFiltros()">
-            ✕ Limpiar filtros
-          </button>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- TABLA -->
-    <section class="panel">
-
-      <div class="panel-header">
-
-        <div>
-          <h3>Pedidos</h3>
-          <div class="muted" id="contadorResultados">
-            0 registros
-          </div>
-        </div>
-
-      </div>
-
-      <div class="table-wrapper">
-
-        <table>
-
-          <thead>
-            <tr>
-              <th>Fecha registro</th>
-              <th>Programado para</th>
-              <th>Origen → Destino</th>
-              <th>Tipo</th>
-              <th>Cadete</th>
-              <th>Móvil</th>
-              <th>Prioridad</th>
-              <th>Estado</th>
-              <th>Observaciones</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-
-          <tbody id="tablaPedidos"></tbody>
-
-        </table>
-
-      </div>
-
-      <div class="empty" id="emptyState" style="display:none">
-        <div class="empty-icon">📭</div>
-        <div>No hay pedidos que coincidan con los filtros.</div>
-      </div>
-
-    </section>
-
-  </main>
-
-
-  <!-- MODAL PEDIDO -->
-
-  <div class="modal" id="modalPedido">
-
-    <div class="modal-card">
-
-      <div class="modal-header">
-
-        <h3 id="tituloModalPedido">
-          Nuevo traslado
-        </h3>
-
-        <button class="modal-close" onclick="cerrarModal('modalPedido')">
-          ×
-        </button>
-
-      </div>
-
-      <div class="modal-body">
-
-        <input type="hidden" id="pedidoId">
-
-        <div class="form-grid">
-
-          <div class="field">
-            <label>Servicio origen *</label>
-
-            <select id="pedidoOrigen"></select>
-          </div>
-
-
-          <div class="field">
-            <label>Servicio destino *</label>
-
-            <select id="pedidoDestino"></select>
-          </div>
-
-
-          <div class="field">
-            <label>Tipo *</label>
-
-            <select id="pedidoTipo">
-
-              <option value="Medicamentos">Medicamentos</option>
-              <option value="Documentación">Documentación</option>
-              <option value="Insumos">Insumos</option>
-              <option value="Muestras">Muestras</option>
-              <option value="Ropa">Ropa</option>
-              <option value="Equipamiento">Equipamiento</option>
-              <option value="Otros">Otros</option>
-
-            </select>
-
-          </div>
-
-
-          <div class="field">
-            <label>Fecha / hora programada *</label>
-
-            <input
-              type="datetime-local"
-              id="pedidoProgramado"
-            >
-
-          </div>
-
-
-          <div class="field">
-            <label>Cadete responsable</label>
-
-            <input
-              type="text"
-              id="pedidoCadete"
-              placeholder="Nombre del cadete"
-            >
-
-          </div>
-
-
-          <div class="field">
-            <label>Móvil</label>
-
-            <input
-              type="text"
-              id="pedidoMovil"
-              placeholder="Móvil / vehículo"
-            >
-
-          </div>
-
-
-          <div class="field">
-            <label>Prioridad</label>
-
-            <select id="pedidoPrioridad">
-
-              <option value="Baja">Baja</option>
-              <option value="Media" selected>Media</option>
-              <option value="Alta">Alta</option>
-
-            </select>
-
-          </div>
-
-
-          <div class="field">
-            <label>Estado</label>
-
-            <select id="pedidoEstado">
-
-              <option value="Pendiente">Pendiente</option>
-              <option value="En curso">En curso</option>
-              <option value="Realizada">Realizada</option>
-              <option value="Cancelada">Cancelada</option>
-              <option value="No realizada">No realizada</option>
-
-            </select>
-
-          </div>
-
-
-          <div class="field full">
-            <label>Observaciones</label>
-
-            <textarea
-              id="pedidoObservaciones"
-              rows="4"
-              placeholder="Detalle del traslado..."
-            ></textarea>
-
-          </div>
-
-        </div>
-
-      </div>
-
-      <div class="modal-footer">
-
-        <button
-          class="btn"
-          onclick="cerrarModal('modalPedido')"
-        >
-          Cancelar
-        </button>
-
-        <button
-          class="btn btn-primary"
-          onclick="guardarPedidoFormulario()"
-        >
-          💾 Guardar traslado
-        </button>
-
-      </div>
+      <button class="btn btn-primary" onclick="nuevoPedido()">
+        + Nuevo traslado
+      </button>
 
     </div>
 
   </div>
 
 
-  <!-- MODAL FINALIZAR -->
+  <section class="kpis">
 
-  <div class="modal" id="modalFinalizar">
+    <div class="kpi">
+      <div class="kpi-label">Total activos</div>
+      <div class="kpi-value" id="kpiTotal">0</div>
+    </div>
 
-    <div class="modal-card">
+    <div class="kpi">
+      <div class="kpi-label">Pendientes</div>
+      <div class="kpi-value" id="kpiPendientes">0</div>
+    </div>
 
-      <div class="modal-header">
+    <div class="kpi">
+      <div class="kpi-label">Realizadas</div>
+      <div class="kpi-value" id="kpiRealizadas">0</div>
+    </div>
 
-        <h3>Finalizar traslado</h3>
+    <div class="kpi">
+      <div class="kpi-label">Archivados</div>
+      <div class="kpi-value" id="kpiArchivados">0</div>
+    </div>
 
-        <button
-          class="modal-close"
-          onclick="cerrarModal('modalFinalizar')"
-        >
-          ×
+  </section>
+
+
+  <section class="panel">
+
+    <div class="panel-header">
+
+      <h3>Filtros y búsqueda</h3>
+
+      <button class="btn btn-small" onclick="cargarDatos()">
+        🔄 Actualizar
+      </button>
+
+    </div>
+
+    <div class="panel-body">
+
+      <div class="filters">
+
+        <div class="field search">
+          <label>Buscador</label>
+
+          <input
+            type="text"
+            id="filtroBuscar"
+            placeholder="Buscar origen, destino, cadete, móvil..."
+            oninput="aplicarFiltros()"
+          >
+
+        </div>
+
+        <div class="field">
+          <label>Estado</label>
+
+          <select id="filtroEstado" onchange="aplicarFiltros()">
+
+            <option value="">Todos</option>
+            <option value="Pendiente">Pendiente</option>
+            <option value="En curso">En curso</option>
+            <option value="Realizada">Realizada</option>
+            <option value="Cancelada">Cancelada</option>
+            <option value="No realizada">No realizada</option>
+
+          </select>
+
+        </div>
+
+        <div class="field">
+          <label>Tipo</label>
+
+          <select id="filtroTipo" onchange="aplicarFiltros()">
+            <option value="">Todos</option>
+          </select>
+
+        </div>
+
+        <div class="field">
+          <label>Prioridad</label>
+
+          <select id="filtroPrioridad" onchange="aplicarFiltros">
+
+            <option value="">Todas</option>
+            <option value="Alta">Alta</option>
+            <option value="Media">Media</option>
+            <option value="Baja">Baja</option>
+
+          </select>
+
+        </div>
+
+        <div class="field">
+          <label>Cadete</label>
+
+          <select id="filtroCadete" onchange="aplicarFiltros()">
+            <option value="">Todos</option>
+          </select>
+
+        </div>
+
+        <div class="field">
+          <label>Móvil</label>
+
+          <select id="filtroMovil" onchange="aplicarFiltros()">
+            <option value="">Todos</option>
+          </select>
+
+        </div>
+
+        <div class="field">
+          <label>Fecha desde</label>
+
+          <input
+            type="date"
+            id="filtroDesde"
+            onchange="aplicarFiltros()"
+          >
+
+        </div>
+
+        <div class="field">
+          <label>Fecha hasta</label>
+
+          <input
+            type="date"
+            id="filtroHasta"
+            onchange="aplicarFiltros()"
+          >
+
+        </div>
+
+      </div>
+
+      <div class="filter-buttons" style="margin-top:12px">
+
+        <button class="btn btn-small" onclick="filtrarHoy()">
+          📅 Hoy
+        </button>
+
+        <button class="btn btn-small" onclick="limpiarFiltros()">
+          ✕ Limpiar filtros
         </button>
 
       </div>
 
-      <div class="modal-body">
+    </div>
+
+  </section>
+
+
+  <section class="panel">
+
+    <div class="panel-header">
+
+      <div>
+        <h3>Pedidos</h3>
+
+        <div class="muted" id="contadorResultados">
+          0 registros
+        </div>
+      </div>
+
+    </div>
+
+    <div class="table-wrapper">
+
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>Fecha registro</th>
+            <th>Programado para</th>
+            <th>Origen → Destino</th>
+            <th>Tipo</th>
+            <th>Cadete</th>
+            <th>Móvil</th>
+            <th>Prioridad</th>
+            <th>Estado</th>
+            <th>Observaciones</th>
+            <th>Acciones</th>
+          </tr>
+
+        </thead>
+
+        <tbody id="tablaPedidos"></tbody>
+
+      </table>
+
+    </div>
+
+    <div class="empty" id="emptyState" style="display:none">
+
+      <div class="empty-icon">📭</div>
+
+      <div>
+        No hay pedidos que coincidan con los filtros.
+      </div>
+
+    </div>
+
+  </section>
+
+</main>
+
+
+<div class="modal" id="modalPedido">
+
+  <div class="modal-card">
+
+    <div class="modal-header">
+
+      <h3 id="tituloModalPedido">
+        Nuevo traslado
+      </h3>
+
+      <button
+        class="modal-close"
+        onclick="cerrarModal('modalPedido')"
+      >
+        ×
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <input type="hidden" id="pedidoId">
+
+      <div class="form-grid">
 
         <div class="field">
 
-          <label>Observaciones finales</label>
+          <label>Servicio origen *</label>
+
+          <select id="pedidoOrigen"></select>
+
+        </div>
+
+        <div class="field">
+
+          <label>Servicio destino *</label>
+
+          <select id="pedidoDestino"></select>
+
+        </div>
+
+        <div class="field">
+
+          <label>Tipo *</label>
+
+          <select id="pedidoTipo">
+
+            <option value="Medicamentos">
+              Medicamentos
+            </option>
+
+            <option value="Documentación">
+              Documentación
+            </option>
+
+            <option value="Insumos">
+              Insumos
+            </option>
+
+            <option value="Muestras">
+              Muestras
+            </option>
+
+            <option value="Ropa">
+              Ropa
+            </option>
+
+            <option value="Equipamiento">
+              Equipamiento
+            </option>
+
+            <option value="Otros">
+              Otros
+            </option>
+
+          </select>
+
+        </div>
+
+        <div class="field">
+
+          <label>Fecha / hora programada *</label>
+
+          <input
+            type="datetime-local"
+            id="pedidoProgramado"
+          >
+
+        </div>
+
+        <div class="field">
+
+          <label>Cadete responsable</label>
+
+          <input
+            type="text"
+            id="pedidoCadete"
+            placeholder="Nombre del cadete"
+          >
+
+        </div>
+
+        <div class="field">
+
+          <label>Móvil</label>
+
+          <input
+            type="text"
+            id="pedidoMovil"
+            placeholder="Móvil / vehículo"
+          >
+
+        </div>
+
+        <div class="field">
+
+          <label>Prioridad</label>
+
+          <select id="pedidoPrioridad">
+
+            <option value="Baja">
+              Baja
+            </option>
+
+            <option value="Media" selected>
+              Media
+            </option>
+
+            <option value="Alta">
+              Alta
+            </option>
+
+          </select>
+
+        </div>
+
+        <div class="field">
+
+          <label>Estado</label>
+
+          <select id="pedidoEstado">
+
+            <option value="Pendiente">
+              Pendiente
+            </option>
+
+            <option value="En curso">
+              En curso
+            </option>
+
+            <option value="Realizada">
+              Realizada
+            </option>
+
+            <option value="Cancelada">
+              Cancelada
+            </option>
+
+            <option value="No realizada">
+              No realizada
+            </option>
+
+          </select>
+
+        </div>
+
+        <div class="field full">
+
+          <label>Observaciones</label>
 
           <textarea
-            id="observacionesFinales"
-            rows="5"
-            placeholder="Informar cualquier novedad del traslado..."
+            id="pedidoObservaciones"
+            rows="4"
+            placeholder="Detalle del traslado..."
           ></textarea>
 
         </div>
 
       </div>
 
-      <div class="modal-footer">
+    </div>
 
-        <button
-          class="btn"
-          onclick="cerrarModal('modalFinalizar')"
-        >
-          Cancelar
-        </button>
+    <div class="modal-footer">
 
-        <button
-          class="btn btn-success"
-          onclick="confirmarFinalizacion()"
-        >
-          ✓ Finalizar traslado
-        </button>
+      <button
+        class="btn"
+        onclick="cerrarModal('modalPedido')"
+      >
+        Cancelar
+      </button>
 
-      </div>
+      <button
+        class="btn btn-primary"
+        onclick="guardarPedidoFormulario()"
+      >
+        💾 Guardar traslado
+      </button>
 
     </div>
 
   </div>
 
+</div>
 
-  <!-- MODAL SERVICIOS -->
 
-  <div class="modal" id="modalServicios">
+<div class="modal" id="modalFinalizar">
 
-    <div class="modal-card">
+  <div class="modal-card">
 
-      <div class="modal-header">
+    <div class="modal-header">
 
-        <h3>Administrar servicios</h3>
+      <h3>Finalizar traslado</h3>
 
-        <button
-          class="modal-close"
-          onclick="cerrarModal('modalServicios')"
-        >
-          ×
-        </button>
+      <button
+        class="modal-close"
+        onclick="cerrarModal('modalFinalizar')"
+      >
+        ×
+      </button>
 
-      </div>
+    </div>
 
-      <div class="modal-body">
+    <div class="modal-body">
 
-        <div style="display:flex;gap:8px">
+      <div class="field">
 
-          <input
-            type="text"
-            id="nuevoServicio"
-            placeholder="Nombre del nuevo servicio"
-            style="
-              flex:1;
-              border:1px solid var(--line);
-              background:var(--card2);
-              color:var(--text);
-              border-radius:9px;
-              padding:10px;
-            "
-          >
+        <label>Observaciones finales</label>
 
-          <button
-            class="btn btn-primary"
-            onclick="agregarServicioFormulario()"
-          >
-            + Agregar
-          </button>
-
-        </div>
-
-        <div
-          class="service-list"
-          id="listaServicios"
-        ></div>
-
-      </div>
-
-      <div class="modal-footer">
-
-        <button
-          class="btn"
-          onclick="cerrarModal('modalServicios')"
-        >
-          Cerrar
-        </button>
+        <textarea
+          id="observacionesFinales"
+          rows="5"
+          placeholder="Informar cualquier novedad del traslado..."
+        ></textarea>
 
       </div>
 
     </div>
 
+    <div class="modal-footer">
+
+      <button
+        class="btn"
+        onclick="cerrarModal('modalFinalizar')"
+      >
+        Cancelar
+      </button>
+
+      <button
+        class="btn btn-success"
+        onclick="confirmarFinalizacion()"
+      >
+        ✓ Finalizar traslado
+      </button>
+
+    </div>
+
   </div>
 
+</div>
 
-  <!-- MODAL HISTORICO -->
 
-  <div class="modal" id="modalHistorico">
+<div class="modal" id="modalServicios">
 
-    <div class="modal-card" style="width:min(1200px,100%)">
+  <div class="modal-card">
 
-      <div class="modal-header">
+    <div class="modal-header">
 
-        <h3>Histórico de traslados</h3>
+      <h3>Administrar servicios</h3>
+
+      <button
+        class="modal-close"
+        onclick="cerrarModal('modalServicios')"
+      >
+        ×
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <div style="display:flex;gap:8px">
+
+        <input
+          type="text"
+          id="nuevoServicio"
+          placeholder="Nombre del nuevo servicio"
+          style="
+            flex:1;
+            border:1px solid var(--line);
+            background:var(--card2);
+            color:var(--text);
+            border-radius:9px;
+            padding:10px;
+          "
+        >
 
         <button
-          class="modal-close"
-          onclick="cerrarModal('modalHistorico')"
+          class="btn btn-primary"
+          onclick="agregarServicioFormulario()"
         >
-          ×
+          + Agregar
         </button>
 
       </div>
 
-      <div class="modal-body">
+      <div
+        class="service-list"
+        id="listaServicios"
+      ></div>
 
-        <div
-          class="table-wrapper"
-          id="historicoContenido"
-        ></div>
+    </div>
 
-      </div>
+    <div class="modal-footer">
+
+      <button
+        class="btn"
+        onclick="cerrarModal('modalServicios')"
+      >
+        Cerrar
+      </button>
 
     </div>
 
   </div>
 
+</div>
 
-  <!-- LOADING -->
 
-  <div class="loading" id="loading">
+<div class="modal" id="modalHistorico">
 
-    <div class="loading-card">
+  <div class="modal-card" style="width:min(1200px,100%)">
 
-      <div class="spinner"></div>
+    <div class="modal-header">
 
-      <strong id="loadingText">
-        Cargando...
-      </strong>
+      <h3>Histórico de traslados</h3>
+
+      <button
+        class="modal-close"
+        onclick="cerrarModal('modalHistorico')"
+      >
+        ×
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <div
+        class="table-wrapper"
+        id="historicoContenido"
+      ></div>
 
     </div>
 
   </div>
 
+</div>
 
-  <!-- TOAST -->
 
-  <div class="toast" id="toast"></div>
+<div class="loading" id="loading">
+
+  <div class="loading-card">
+
+    <div class="spinner"></div>
+
+    <strong id="loadingText">
+      Cargando...
+    </strong>
+
+  </div>
+
+</div>
+
+
+<div class="toast" id="toast"></div>
 
 
 <script>
+
+  /* =====================================================
+     CONFIGURACIÓN DE LA API
+     ===================================================== */
+
+  const API_URL =
+    'https://script.google.com/macros/s/AKfycbxt6N6dgwkyDc_WqjRGDuaDnfq2zyRxiQzU9yA08AspVIufhDE60k7JM_WogDZKGE5V/exec';
+
 
   let pedidos = [];
   let servicios = [];
@@ -1322,72 +1375,244 @@
   let pedidoFinalizarId = null;
 
 
-  /* ================================
+  /* =====================================================
+     COMUNICACIÓN CON GOOGLE APPS SCRIPT
+     ===================================================== */
+
+  async function apiPost(accion, parametros = {}){
+
+    try{
+
+      const respuesta =
+        await fetch(
+          API_URL,
+          {
+            method:'POST',
+
+            headers:{
+              'Content-Type':
+                'text/plain;charset=utf-8'
+            },
+
+            body:
+              JSON.stringify({
+                accion:accion,
+                parametros:parametros
+              }),
+
+            redirect:'follow'
+          }
+        );
+
+
+      const texto =
+        await respuesta.text();
+
+
+      let data;
+
+
+      try{
+
+        data =
+          JSON.parse(texto);
+
+      }catch(error){
+
+        console.error(
+          'Respuesta no válida del servidor:',
+          texto
+        );
+
+        throw new Error(
+          'El servidor devolvió una respuesta que no es JSON.'
+        );
+
+      }
+
+
+      if(
+        data &&
+        data.ok === false
+      ){
+
+        throw new Error(
+          data.error ||
+          'Error desconocido del servidor.'
+        );
+
+      }
+
+
+      return data;
+
+    }catch(error){
+
+      console.error(
+        'Error API:',
+        error
+      );
+
+      throw error;
+
+    }
+
+  }
+
+
+  async function apiGet(accion){
+
+    try{
+
+      const respuesta =
+        await fetch(
+          API_URL +
+          '?accion=' +
+          encodeURIComponent(accion),
+          {
+            method:'GET',
+            redirect:'follow'
+          }
+        );
+
+
+      const texto =
+        await respuesta.text();
+
+
+      let data;
+
+
+      try{
+
+        data =
+          JSON.parse(texto);
+
+      }catch(error){
+
+        console.error(
+          'Respuesta GET no válida:',
+          texto
+        );
+
+        throw new Error(
+          'El servidor devolvió una respuesta que no es JSON.'
+        );
+
+      }
+
+
+      if(
+        data &&
+        data.ok === false
+      ){
+
+        throw new Error(
+          data.error ||
+          'Error desconocido del servidor.'
+        );
+
+      }
+
+
+      return data;
+
+    }catch(error){
+
+      console.error(
+        'Error API GET:',
+        error
+      );
+
+      throw error;
+
+    }
+
+  }
+
+
+  /* =====================================================
      INICIO
-  ================================= */
+     ===================================================== */
 
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener(
+    'DOMContentLoaded',
+    () => {
 
-    cargarTema();
+      cargarTema();
 
-    cargarDatos();
+      cargarDatos();
 
-  });
+    }
+  );
 
 
-  /* ================================
+  /* =====================================================
      DATOS
-  ================================= */
+     ===================================================== */
 
-  function cargarDatos(){
+  async function cargarDatos(){
 
-    mostrarLoading('Cargando información...');
+    mostrarLoading(
+      'Cargando información...'
+    );
 
-    google.script.run
-      .withSuccessHandler(data => {
 
-        ocultarLoading();
+    try{
 
-        if(!data){
+      const data =
+        await apiGet(
+          'obtenerDatos'
+        );
 
-          mostrarToast(
-            'No se recibieron datos del servidor.',
-            'error'
-          );
 
-          return;
+      ocultarLoading();
 
-        }
 
-        pedidos = Array.isArray(data.pedidos)
-          ? data.pedidos
-          : [];
-
-        servicios = Array.isArray(data.servicios)
-          ? data.servicios
-          : [];
-
-        actualizarFiltros();
-
-        aplicarFiltros();
-
-        actualizarKPIs();
-
-      })
-      .withFailureHandler(error => {
-
-        ocultarLoading();
-
-        console.error(error);
+      if(!data){
 
         mostrarToast(
-          'Error al cargar los datos: ' +
-          obtenerMensajeError(error),
+          'No se recibieron datos del servidor.',
           'error'
         );
 
-      })
-      .obtenerDatos();
+        return;
+
+      }
+
+
+      pedidos =
+        Array.isArray(data.pedidos)
+          ? data.pedidos
+          : [];
+
+
+      servicios =
+        Array.isArray(data.servicios)
+          ? data.servicios
+          : [];
+
+
+      actualizarFiltros();
+
+      aplicarFiltros();
+
+      actualizarKPIs();
+
+
+    }catch(error){
+
+      ocultarLoading();
+
+      console.error(error);
+
+      mostrarToast(
+        'Error al cargar los datos: ' +
+        obtenerMensajeError(error),
+        'error'
+      );
+
+    }
 
   }
 
@@ -1409,148 +1634,238 @@
   }
 
 
-  /* ================================
+  /* =====================================================
      KPIs
-  ================================= */
+     ===================================================== */
 
   function actualizarKPIs(){
 
-    const activos = pedidos.filter(p =>
-      !esArchivado(p)
-    );
+    const activos =
+      pedidos.filter(
+        p => !esArchivado(p)
+      );
 
-    const pendientes = activos.filter(p =>
-      String(p.Estado || '') === 'Pendiente'
-    );
 
-    const realizadas = activos.filter(p =>
-      String(p.Estado || '') === 'Realizada'
-    );
+    const pendientes =
+      activos.filter(
+        p =>
+          String(p.Estado || '') ===
+          'Pendiente'
+      );
 
-    const archivados = pedidos.filter(p =>
-      esArchivado(p)
-    );
 
-    document.getElementById('kpiTotal').textContent =
+    const realizadas =
+      activos.filter(
+        p =>
+          String(p.Estado || '') ===
+          'Realizada'
+      );
+
+
+    const archivados =
+      pedidos.filter(
+        p => esArchivado(p)
+      );
+
+
+    document.getElementById(
+      'kpiTotal'
+    ).textContent =
       activos.length;
 
-    document.getElementById('kpiPendientes').textContent =
+
+    document.getElementById(
+      'kpiPendientes'
+    ).textContent =
       pendientes.length;
 
-    document.getElementById('kpiRealizadas').textContent =
+
+    document.getElementById(
+      'kpiRealizadas'
+    ).textContent =
       realizadas.length;
 
-    document.getElementById('kpiArchivados').textContent =
+
+    document.getElementById(
+      'kpiArchivados'
+    ).textContent =
       archivados.length;
 
   }
 
 
-  /* ================================
+  /* =====================================================
      FILTROS
-  ================================= */
+     ===================================================== */
 
   function actualizarFiltros(){
 
     llenarSelectUnicos(
       'filtroTipo',
-      pedidos.map(p => p.Tipo)
+      pedidos.map(
+        p => p.Tipo
+      )
     );
+
 
     llenarSelectUnicos(
       'filtroCadete',
-      pedidos.map(p => p.Cadete)
+      pedidos.map(
+        p => p.Cadete
+      )
     );
+
 
     llenarSelectUnicos(
       'filtroMovil',
-      pedidos.map(p => p.Movil)
+      pedidos.map(
+        p => p.Movil
+      )
     );
 
 
     const origen =
-      document.getElementById('pedidoOrigen');
+      document.getElementById(
+        'pedidoOrigen'
+      );
+
 
     const destino =
-      document.getElementById('pedidoDestino');
+      document.getElementById(
+        'pedidoDestino'
+      );
+
 
     const actualOrigen =
       origen.value;
 
+
     const actualDestino =
       destino.value;
+
 
     origen.innerHTML =
       '<option value="">Seleccionar...</option>';
 
+
     destino.innerHTML =
       '<option value="">Seleccionar...</option>';
 
+
     servicios
-      .sort((a,b) =>
-        String(a.nombre || a.Nombre || '')
-          .localeCompare(
-            String(b.nombre || b.Nombre || ''),
+      .sort(
+        (a,b) =>
+          String(
+            a.nombre ||
+            a.Nombre ||
+            ''
+          ).localeCompare(
+            String(
+              b.nombre ||
+              b.Nombre ||
+              ''
+            ),
             'es'
           )
       )
-      .forEach(s => {
+      .forEach(
+        s => {
 
-        const nombre =
-          s.nombre ||
-          s.Nombre ||
-          '';
+          const nombre =
+            s.nombre ||
+            s.Nombre ||
+            '';
 
-        if(!nombre){
-          return;
+
+          if(!nombre){
+            return;
+          }
+
+
+          const o =
+            document.createElement(
+              'option'
+            );
+
+
+          o.value =
+            nombre;
+
+
+          o.textContent =
+            nombre;
+
+
+          origen.appendChild(o);
+
+
+          const d =
+            document.createElement(
+              'option'
+            );
+
+
+          d.value =
+            nombre;
+
+
+          d.textContent =
+            nombre;
+
+
+          destino.appendChild(d);
+
         }
-
-        const o =
-          document.createElement('option');
-
-        o.value = nombre;
-        o.textContent = nombre;
-
-        origen.appendChild(o);
+      );
 
 
-        const d =
-          document.createElement('option');
-
-        d.value = nombre;
-        d.textContent = nombre;
-
-        destino.appendChild(d);
-
-      });
+    origen.value =
+      actualOrigen;
 
 
-    origen.value = actualOrigen;
-    destino.value = actualDestino;
+    destino.value =
+      actualDestino;
 
   }
 
 
-  function llenarSelectUnicos(id, valores){
+  function llenarSelectUnicos(
+    id,
+    valores
+  ){
 
     const select =
       document.getElementById(id);
+
 
     if(!select){
       return;
     }
 
+
     const valorActual =
       select.value;
 
+
     const unicos =
-      [...new Set(
-        valores
-          .map(v => String(v || '').trim())
-          .filter(Boolean)
-      )]
-      .sort((a,b) =>
-        a.localeCompare(b,'es')
+      [
+        ...new Set(
+          valores
+            .map(
+              v =>
+                String(
+                  v || ''
+                ).trim()
+            )
+            .filter(Boolean)
+        )
+      ]
+      .sort(
+        (a,b) =>
+          a.localeCompare(
+            b,
+            'es'
+          )
       );
 
 
@@ -1560,37 +1875,63 @@
         : 'Todos';
 
 
-    select.innerHTML = '';
+    select.innerHTML =
+      '';
+
 
     const optionTodos =
-      document.createElement('option');
+      document.createElement(
+        'option'
+      );
 
-    optionTodos.value = '';
+
+    optionTodos.value =
+      '';
+
 
     optionTodos.textContent =
       primera;
 
-    select.appendChild(optionTodos);
+
+    select.appendChild(
+      optionTodos
+    );
 
 
-    unicos.forEach(v => {
+    unicos.forEach(
+      v => {
 
-      const option =
-        document.createElement('option');
+        const option =
+          document.createElement(
+            'option'
+          );
 
-      option.value = v;
 
-      option.textContent = v;
+        option.value =
+          v;
 
-      select.appendChild(option);
 
-    });
+        option.textContent =
+          v;
+
+
+        select.appendChild(
+          option
+        );
+
+      }
+    );
 
 
     if(
-      unicos.includes(valorActual)
+      unicos.includes(
+        valorActual
+      )
     ){
-      select.value = valorActual;
+
+      select.value =
+        valorActual;
+
     }
 
   }
@@ -1601,39 +1942,47 @@
     const buscar =
       document.getElementById(
         'filtroBuscar'
-      ).value
-       .toLowerCase()
-       .trim();
+      )
+      .value
+      .toLowerCase()
+      .trim();
+
 
     const estado =
       document.getElementById(
         'filtroEstado'
       ).value;
 
+
     const tipo =
       document.getElementById(
         'filtroTipo'
       ).value;
+
 
     const prioridad =
       document.getElementById(
         'filtroPrioridad'
       ).value;
 
+
     const cadete =
       document.getElementById(
         'filtroCadete'
       ).value;
+
 
     const movil =
       document.getElementById(
         'filtroMovil'
       ).value;
 
+
     const desde =
       document.getElementById(
         'filtroDesde'
       ).value;
+
 
     const hasta =
       document.getElementById(
@@ -1642,117 +1991,136 @@
 
 
     pedidosFiltrados =
-      pedidos.filter(p => {
-
-        if(esArchivado(p)){
-          return false;
-        }
-
-
-        if(
-          estado &&
-          String(p.Estado || '') !== estado
-        ){
-          return false;
-        }
-
-
-        if(
-          tipo &&
-          String(p.Tipo || '') !== tipo
-        ){
-          return false;
-        }
-
-
-        if(
-          prioridad &&
-          String(p.Prioridad || '') !== prioridad
-        ){
-          return false;
-        }
-
-
-        if(
-          cadete &&
-          String(p.Cadete || '') !== cadete
-        ){
-          return false;
-        }
-
-
-        if(
-          movil &&
-          String(p.Movil || '') !== movil
-        ){
-          return false;
-        }
-
-
-        if(desde){
-
-          const fecha =
-            obtenerFechaComparable(
-              p['Fecha Programada']
-            );
+      pedidos.filter(
+        p => {
 
           if(
-            fecha &&
-            fecha < desde
+            esArchivado(p)
           ){
             return false;
           }
 
-        }
-
-
-        if(hasta){
-
-          const fecha =
-            obtenerFechaComparable(
-              p['Fecha Programada']
-            );
 
           if(
-            fecha &&
-            fecha > hasta
+            estado &&
+            String(
+              p.Estado || ''
+            ) !== estado
           ){
             return false;
           }
 
-        }
-
-
-        if(buscar){
-
-          const texto =
-            [
-              p.ID,
-              p.Origen,
-              p.Destino,
-              p.Tipo,
-              p.Cadete,
-              p.Movil,
-              p.Prioridad,
-              p.Estado,
-              p.Observaciones,
-              p['Observaciones Finales']
-            ]
-            .join(' ')
-            .toLowerCase();
 
           if(
-            !texto.includes(buscar)
+            tipo &&
+            String(
+              p.Tipo || ''
+            ) !== tipo
           ){
             return false;
           }
 
+
+          if(
+            prioridad &&
+            String(
+              p.Prioridad || ''
+            ) !== prioridad
+          ){
+            return false;
+          }
+
+
+          if(
+            cadete &&
+            String(
+              p.Cadete || ''
+            ) !== cadete
+          ){
+            return false;
+          }
+
+
+          if(
+            movil &&
+            String(
+              p.Movil || ''
+            ) !== movil
+          ){
+            return false;
+          }
+
+
+          if(desde){
+
+            const fecha =
+              obtenerFechaComparable(
+                p['Fecha Programada']
+              );
+
+
+            if(
+              fecha &&
+              fecha < desde
+            ){
+              return false;
+            }
+
+          }
+
+
+          if(hasta){
+
+            const fecha =
+              obtenerFechaComparable(
+                p['Fecha Programada']
+              );
+
+
+            if(
+              fecha &&
+              fecha > hasta
+            ){
+              return false;
+            }
+
+          }
+
+
+          if(buscar){
+
+            const texto =
+              [
+                p.ID,
+                p.Origen,
+                p.Destino,
+                p.Tipo,
+                p.Cadete,
+                p.Movil,
+                p.Prioridad,
+                p.Estado,
+                p.Observaciones,
+                p['Observaciones Finales']
+              ]
+              .join(' ')
+              .toLowerCase();
+
+
+            if(
+              !texto.includes(
+                buscar
+              )
+            ){
+              return false;
+            }
+
+          }
+
+
+          return true;
+
         }
-
-
-        return true;
-
-      });
+      );
 
 
     pedidosFiltrados.sort(
@@ -1768,36 +2136,58 @@
   function ordenarPorProgramado(a,b){
 
     const da =
-      convertirFecha(a['Fecha Programada']);
+      convertirFecha(
+        a['Fecha Programada']
+      );
+
 
     const db =
-      convertirFecha(b['Fecha Programada']);
+      convertirFecha(
+        b['Fecha Programada']
+      );
+
 
     return db - da;
 
   }
 
 
-  function obtenerFechaComparable(valor){
+  function obtenerFechaComparable(
+    valor
+  ){
 
     const fecha =
-      convertirFecha(valor);
+      convertirFecha(
+        valor
+      );
+
 
     if(
       !fecha ||
-      isNaN(fecha.getTime())
+      isNaN(
+        fecha.getTime()
+      )
     ){
+
       return '';
+
     }
+
 
     return [
       fecha.getFullYear(),
       String(
         fecha.getMonth()+1
-      ).padStart(2,'0'),
+      ).padStart(
+        2,
+        '0'
+      ),
       String(
         fecha.getDate()
-      ).padStart(2,'0')
+      ).padStart(
+        2,
+        '0'
+      )
     ].join('-');
 
   }
@@ -1808,24 +2198,36 @@
     const hoy =
       new Date();
 
+
     const fecha =
       [
         hoy.getFullYear(),
         String(
           hoy.getMonth()+1
-        ).padStart(2,'0'),
+        ).padStart(
+          2,
+          '0'
+        ),
         String(
           hoy.getDate()
-        ).padStart(2,'0')
+        ).padStart(
+          2,
+          '0'
+        )
       ].join('-');
+
 
     document.getElementById(
       'filtroDesde'
-    ).value = fecha;
+    ).value =
+      fecha;
+
 
     document.getElementById(
       'filtroHasta'
-    ).value = fecha;
+    ).value =
+      fecha;
+
 
     aplicarFiltros();
 
@@ -1836,44 +2238,60 @@
 
     document.getElementById(
       'filtroBuscar'
-    ).value = '';
+    ).value =
+      '';
+
 
     document.getElementById(
       'filtroEstado'
-    ).value = '';
+    ).value =
+      '';
+
 
     document.getElementById(
       'filtroTipo'
-    ).value = '';
+    ).value =
+      '';
+
 
     document.getElementById(
       'filtroPrioridad'
-    ).value = '';
+    ).value =
+      '';
+
 
     document.getElementById(
       'filtroCadete'
-    ).value = '';
+    ).value =
+      '';
+
 
     document.getElementById(
       'filtroMovil'
-    ).value = '';
+    ).value =
+      '';
+
 
     document.getElementById(
       'filtroDesde'
-    ).value = '';
+    ).value =
+      '';
+
 
     document.getElementById(
       'filtroHasta'
-    ).value = '';
+    ).value =
+      '';
+
 
     aplicarFiltros();
 
   }
 
 
-  /* ================================
+  /* =====================================================
      TABLA
-  ================================= */
+     ===================================================== */
 
   function renderTabla(){
 
@@ -1882,7 +2300,9 @@
         'tablaPedidos'
       );
 
-    tbody.innerHTML = '';
+
+    tbody.innerHTML =
+      '';
 
 
     document.getElementById(
@@ -1900,246 +2320,251 @@
         'emptyState'
       );
 
+
     if(
       !pedidosFiltrados.length
     ){
 
-      empty.style.display = 'block';
+      empty.style.display =
+        'block';
 
       return;
 
     }
 
-    empty.style.display = 'none';
+
+    empty.style.display =
+      'none';
 
 
-    pedidosFiltrados.forEach(p => {
+    pedidosFiltrados.forEach(
+      p => {
 
-      const tr =
-        document.createElement('tr');
+        const tr =
+          document.createElement(
+            'tr'
+          );
 
 
-      tr.innerHTML = `
+        tr.innerHTML = `
 
-        <td>
-          <strong>
+          <td>
+            <strong>
+              ${escapeHtml(
+                formatearFecha(
+                  p['Fecha Registro']
+                )
+              )}
+            </strong>
+          </td>
+
+          <td>
             ${escapeHtml(
               formatearFecha(
-                p['Fecha Registro']
+                p['Fecha Programada']
               )
             )}
-          </strong>
-        </td>
+          </td>
 
-        <td>
-          ${escapeHtml(
-            formatearFecha(
-              p['Fecha Programada']
-            )
-          )}
-        </td>
+          <td class="route">
 
-        <td class="route">
+            <div class="route-main">
 
-          <div class="route-main">
+              ${escapeHtml(
+                p.Origen || '-'
+              )}
 
+              <span class="route-arrow">
+                →
+              </span>
+
+              ${escapeHtml(
+                p.Destino || '-'
+              )}
+
+            </div>
+
+            <div class="route-sub">
+
+              ${
+                p['Fecha Inicio']
+                  ? 'Salida: ' +
+                    escapeHtml(
+                      formatearFecha(
+                        p['Fecha Inicio']
+                      )
+                    )
+                  : ''
+              }
+
+              ${
+                p['Fecha Finalizacion']
+                  ? '<br>Regreso: ' +
+                    escapeHtml(
+                      formatearFecha(
+                        p['Fecha Finalizacion']
+                      )
+                    )
+                  : ''
+              }
+
+            </div>
+
+          </td>
+
+          <td>
             ${escapeHtml(
-              p.Origen || '-'
+              p.Tipo || '-'
             )}
+          </td>
 
-            <span class="route-arrow">
-              →
-            </span>
-
+          <td>
             ${escapeHtml(
-              p.Destino || '-'
+              p.Cadete || '-'
             )}
+          </td>
 
-          </div>
+          <td>
+            ${escapeHtml(
+              p.Movil || '-'
+            )}
+          </td>
 
-          <div class="route-sub">
-            ${p['Fecha Inicio']
-              ? 'Salida: ' +
-                escapeHtml(
-                  formatearFecha(
-                    p['Fecha Inicio']
+          <td>
+            ${badgePrioridad(
+              p.Prioridad
+            )}
+          </td>
+
+          <td>
+            ${badgeEstado(
+              p.Estado
+            )}
+          </td>
+
+          <td style="max-width:220px">
+
+            ${
+              p.Observaciones
+                ? escapeHtml(
+                    p.Observaciones
                   )
-                )
-              : ''
+                : '<span class="muted">—</span>'
             }
 
             ${
-              p['Fecha Finalizacion']
-              ? '<br>Regreso: ' +
-                escapeHtml(
-                  formatearFecha(
-                    p['Fecha Finalizacion']
-                  )
-                )
-              : ''
-            }
-          </div>
-
-        </td>
-
-
-        <td>
-          ${escapeHtml(
-            p.Tipo || '-'
-          )}
-        </td>
-
-
-        <td>
-          ${escapeHtml(
-            p.Cadete || '-'
-          )}
-        </td>
-
-
-        <td>
-          ${escapeHtml(
-            p.Movil || '-'
-          )}
-        </td>
-
-
-        <td>
-          ${badgePrioridad(
-            p.Prioridad
-          )}
-        </td>
-
-
-        <td>
-          ${badgeEstado(
-            p.Estado
-          )}
-        </td>
-
-
-        <td style="max-width:220px">
-
-          ${
-            p.Observaciones
-              ? escapeHtml(
-                  p.Observaciones
-                )
-              : '<span class="muted">—</span>'
-          }
-
-          ${
-            p['Observaciones Finales']
-              ? '<div class="route-sub">' +
-                escapeHtml(
-                  p['Observaciones Finales']
-                ) +
-                '</div>'
-              : ''
-          }
-
-        </td>
-
-
-        <td>
-
-          <div class="actions">
-
-            <button
-              class="action"
-              onclick="editarPedido('${escapeAttr(p.ID)}')"
-            >
-              ✏ Editar
-            </button>
-
-
-            ${
-              p.Estado === 'Pendiente'
-              ? `
-                <button
-                  class="action"
-                  onclick="iniciarPedido('${escapeAttr(p.ID)}')"
-                >
-                  ▶ Iniciar
-                </button>
-              `
-              : ''
+              p['Observaciones Finales']
+                ? '<div class="route-sub">' +
+                  escapeHtml(
+                    p['Observaciones Finales']
+                  ) +
+                  '</div>'
+                : ''
             }
 
+          </td>
 
-            ${
-              p.Estado === 'En curso'
-              ? `
-                <button
-                  class="action"
-                  onclick="abrirFinalizar('${escapeAttr(p.ID)}')"
-                >
-                  ✓ Finalizar
-                </button>
-              `
-              : ''
-            }
+          <td>
+
+            <div class="actions">
+
+              <button
+                class="action"
+                onclick="editarPedido('${escapeAttr(p.ID)}')"
+              >
+                ✏ Editar
+              </button>
+
+              ${
+                p.Estado === 'Pendiente'
+                ? `
+                  <button
+                    class="action"
+                    onclick="iniciarPedido('${escapeAttr(p.ID)}')"
+                  >
+                    ▶ Iniciar
+                  </button>
+                `
+                : ''
+              }
+
+              ${
+                p.Estado === 'En curso'
+                ? `
+                  <button
+                    class="action"
+                    onclick="abrirFinalizar('${escapeAttr(p.ID)}')"
+                  >
+                    ✓ Finalizar
+                  </button>
+                `
+                : ''
+              }
+
+              ${
+                p.Estado !== 'Realizada' &&
+                p.Estado !== 'Cancelada' &&
+                p.Estado !== 'No realizada'
+                ? `
+                  <button
+                    class="action"
+                    onclick="cancelarPedido('${escapeAttr(p.ID)}')"
+                  >
+                    ✕ Cancelar
+                  </button>
+                `
+                : ''
+              }
+
+              <button
+                class="action"
+                onclick="archivarPedido('${escapeAttr(p.ID)}')"
+              >
+                📦 Archivar
+              </button>
+
+              <button
+                class="action"
+                onclick="eliminarPedido('${escapeAttr(p.ID)}')"
+              >
+                🗑 Eliminar
+              </button>
+
+            </div>
+
+          </td>
+
+        `;
 
 
-            ${
-              p.Estado !== 'Realizada' &&
-              p.Estado !== 'Cancelada' &&
-              p.Estado !== 'No realizada'
-              ? `
-                <button
-                  class="action"
-                  onclick="cancelarPedido('${escapeAttr(p.ID)}')"
-                >
-                  ✕ Cancelar
-                </button>
-              `
-              : ''
-            }
+        tbody.appendChild(
+          tr
+        );
 
-
-            <button
-              class="action"
-              onclick="archivarPedido('${escapeAttr(p.ID)}')"
-            >
-              📦 Archivar
-            </button>
-
-
-            <button
-              class="action"
-              onclick="eliminarPedido('${escapeAttr(p.ID)}')"
-            >
-              🗑 Eliminar
-            </button>
-
-          </div>
-
-        </td>
-
-      `;
-
-
-      tbody.appendChild(tr);
-
-    });
+      }
+    );
 
   }
 
 
-  /* ================================
+  /* =====================================================
      NUEVO PEDIDO
-  ================================= */
+     ===================================================== */
 
   function nuevoPedido(){
 
     limpiarFormularioPedido();
+
 
     document.getElementById(
       'tituloModalPedido'
     ).textContent =
       'Nuevo traslado';
 
-    abrirModal('modalPedido');
+
+    abrirModal(
+      'modalPedido'
+    );
 
   }
 
@@ -2148,60 +2573,79 @@
 
     document.getElementById(
       'pedidoId'
-    ).value = '';
+    ).value =
+      '';
+
 
     document.getElementById(
       'pedidoOrigen'
-    ).value = '';
+    ).value =
+      '';
+
 
     document.getElementById(
       'pedidoDestino'
-    ).value = '';
+    ).value =
+      '';
+
 
     document.getElementById(
       'pedidoTipo'
     ).value =
       'Medicamentos';
 
+
     document.getElementById(
       'pedidoProgramado'
     ).value =
       obtenerFechaHoraLocal();
 
+
     document.getElementById(
       'pedidoCadete'
-    ).value = '';
+    ).value =
+      '';
+
 
     document.getElementById(
       'pedidoMovil'
-    ).value = '';
+    ).value =
+      '';
+
 
     document.getElementById(
       'pedidoPrioridad'
-    ).value = 'Media';
+    ).value =
+      'Media';
+
 
     document.getElementById(
       'pedidoEstado'
-    ).value = 'Pendiente';
+    ).value =
+      'Pendiente';
+
 
     document.getElementById(
       'pedidoObservaciones'
-    ).value = '';
+    ).value =
+      '';
 
   }
 
 
-  function guardarPedidoFormulario(){
+  async function guardarPedidoFormulario(){
 
     const origen =
       document.getElementById(
         'pedidoOrigen'
       ).value.trim();
 
+
     const destino =
       document.getElementById(
         'pedidoDestino'
       ).value.trim();
+
 
     const programado =
       document.getElementById(
@@ -2299,48 +2743,58 @@
     );
 
 
-    google.script.run
-      .withSuccessHandler(() => {
+    try{
 
-        ocultarLoading();
+      await apiPost(
+        'guardarPedido',
+        pedido
+      );
 
-        cerrarModal(
-          'modalPedido'
-        );
 
-        mostrarToast(
-          'Traslado guardado correctamente.',
-          'success'
-        );
+      ocultarLoading();
 
-        cargarDatos();
 
-      })
-      .withFailureHandler(error => {
+      cerrarModal(
+        'modalPedido'
+      );
 
-        ocultarLoading();
 
-        mostrarToast(
-          'No se pudo guardar: ' +
-          obtenerMensajeError(error),
-          'error'
-        );
+      mostrarToast(
+        'Traslado guardado correctamente.',
+        'success'
+      );
 
-      })
-      .guardarPedido(pedido);
+
+      await cargarDatos();
+
+
+    }catch(error){
+
+      ocultarLoading();
+
+
+      mostrarToast(
+        'No se pudo guardar: ' +
+        obtenerMensajeError(error),
+        'error'
+      );
+
+    }
 
   }
 
 
-  /* ================================
+  /* =====================================================
      EDITAR
-  ================================= */
+     ===================================================== */
 
   function editarPedido(id){
 
     const pedido =
       pedidos.find(
-        p => String(p.ID) === String(id)
+        p =>
+          String(p.ID) ===
+          String(id)
       );
 
 
@@ -2356,7 +2810,9 @@
     }
 
 
-    if(!pedirClaveAdmin()){
+    if(
+      !pedirClaveAdmin()
+    ){
 
       return;
 
@@ -2431,16 +2887,18 @@
       'Editar traslado';
 
 
-    abrirModal('modalPedido');
+    abrirModal(
+      'modalPedido'
+    );
 
   }
 
 
-  /* ================================
+  /* =====================================================
      INICIAR
-  ================================= */
+     ===================================================== */
 
-  function iniciarPedido(id){
+  async function iniciarPedido(id){
 
     if(
       !confirm(
@@ -2458,46 +2916,59 @@
     );
 
 
-    google.script.run
-      .withSuccessHandler(() => {
+    try{
 
-        ocultarLoading();
+      await apiPost(
+        'iniciarPedido',
+        {
+          id:id
+        }
+      );
 
-        mostrarToast(
-          'Traslado iniciado.',
-          'success'
-        );
 
-        cargarDatos();
+      ocultarLoading();
 
-      })
-      .withFailureHandler(error => {
 
-        ocultarLoading();
+      mostrarToast(
+        'Traslado iniciado.',
+        'success'
+      );
 
-        mostrarToast(
-          'No se pudo iniciar: ' +
-          obtenerMensajeError(error),
-          'error'
-        );
 
-      })
-      .iniciarPedido(id);
+      await cargarDatos();
+
+
+    }catch(error){
+
+      ocultarLoading();
+
+
+      mostrarToast(
+        'No se pudo iniciar: ' +
+        obtenerMensajeError(error),
+        'error'
+      );
+
+    }
 
   }
 
 
-  /* ================================
+  /* =====================================================
      FINALIZAR
-  ================================= */
+     ===================================================== */
 
   function abrirFinalizar(id){
 
-    pedidoFinalizarId = id;
+    pedidoFinalizarId =
+      id;
+
 
     document.getElementById(
       'observacionesFinales'
-    ).value = '';
+    ).value =
+      '';
+
 
     abrirModal(
       'modalFinalizar'
@@ -2506,7 +2977,7 @@
   }
 
 
-  function confirmarFinalizacion(){
+  async function confirmarFinalizacion(){
 
     if(!pedidoFinalizarId){
 
@@ -2521,56 +2992,73 @@
       ).value.trim();
 
 
+    const id =
+      pedidoFinalizarId;
+
+
     mostrarLoading(
       'Finalizando traslado...'
     );
 
 
-    google.script.run
-      .withSuccessHandler(() => {
+    try{
 
-        ocultarLoading();
-
-        cerrarModal(
-          'modalFinalizar'
-        );
-
-        pedidoFinalizarId = null;
-
-        mostrarToast(
-          'Traslado finalizado correctamente.',
-          'success'
-        );
-
-        cargarDatos();
-
-      })
-      .withFailureHandler(error => {
-
-        ocultarLoading();
-
-        mostrarToast(
-          'No se pudo finalizar: ' +
-          obtenerMensajeError(error),
-          'error'
-        );
-
-      })
-      .finalizarPedido(
-        pedidoFinalizarId,
-        observaciones
+      await apiPost(
+        'finalizarPedido',
+        {
+          id:id,
+          observacionesFinales:
+            observaciones
+        }
       );
+
+
+      ocultarLoading();
+
+
+      cerrarModal(
+        'modalFinalizar'
+      );
+
+
+      pedidoFinalizarId =
+        null;
+
+
+      mostrarToast(
+        'Traslado finalizado correctamente.',
+        'success'
+      );
+
+
+      await cargarDatos();
+
+
+    }catch(error){
+
+      ocultarLoading();
+
+
+      mostrarToast(
+        'No se pudo finalizar: ' +
+        obtenerMensajeError(error),
+        'error'
+      );
+
+    }
 
   }
 
 
-  /* ================================
+  /* =====================================================
      CANCELAR
-  ================================= */
+     ===================================================== */
 
-  function cancelarPedido(id){
+  async function cancelarPedido(id){
 
-    if(!pedirClaveAdmin()){
+    if(
+      !pedirClaveAdmin()
+    ){
 
       return;
 
@@ -2584,7 +3072,9 @@
       );
 
 
-    if(observaciones === null){
+    if(
+      observaciones === null
+    ){
 
       return;
 
@@ -2596,46 +3086,57 @@
     );
 
 
-    google.script.run
-      .withSuccessHandler(() => {
+    try{
 
-        ocultarLoading();
-
-        mostrarToast(
-          'Traslado cancelado.',
-          'success'
-        );
-
-        cargarDatos();
-
-      })
-      .withFailureHandler(error => {
-
-        ocultarLoading();
-
-        mostrarToast(
-          'No se pudo cancelar: ' +
-          obtenerMensajeError(error),
-          'error'
-        );
-
-      })
-      .cambiarEstado(
-        id,
-        'Cancelada',
-        observaciones
+      await apiPost(
+        'cambiarEstado',
+        {
+          id:id,
+          nuevoEstado:
+            'Cancelada',
+          observacionesFinales:
+            observaciones
+        }
       );
+
+
+      ocultarLoading();
+
+
+      mostrarToast(
+        'Traslado cancelado.',
+        'success'
+      );
+
+
+      await cargarDatos();
+
+
+    }catch(error){
+
+      ocultarLoading();
+
+
+      mostrarToast(
+        'No se pudo cancelar: ' +
+        obtenerMensajeError(error),
+        'error'
+      );
+
+    }
 
   }
 
 
-  /* ================================
+  /* =====================================================
      ARCHIVAR
-  ================================= */
+     ===================================================== */
 
-  function archivarPedido(id){
+  async function archivarPedido(id){
 
-    if(!pedirClaveAdmin()){
+    if(
+      !pedirClaveAdmin()
+    ){
 
       return;
 
@@ -2658,42 +3159,53 @@
     );
 
 
-    google.script.run
-      .withSuccessHandler(() => {
+    try{
 
-        ocultarLoading();
+      await apiPost(
+        'alternarArchivo',
+        {
+          id:id
+        }
+      );
 
-        mostrarToast(
-          'Traslado archivado.',
-          'success'
-        );
 
-        cargarDatos();
+      ocultarLoading();
 
-      })
-      .withFailureHandler(error => {
 
-        ocultarLoading();
+      mostrarToast(
+        'Traslado archivado.',
+        'success'
+      );
 
-        mostrarToast(
-          'No se pudo archivar: ' +
-          obtenerMensajeError(error),
-          'error'
-        );
 
-      })
-      .alternarArchivo(id);
+      await cargarDatos();
+
+
+    }catch(error){
+
+      ocultarLoading();
+
+
+      mostrarToast(
+        'No se pudo archivar: ' +
+        obtenerMensajeError(error),
+        'error'
+      );
+
+    }
 
   }
 
 
-  /* ================================
+  /* =====================================================
      ELIMINAR
-  ================================= */
+     ===================================================== */
 
-  function eliminarPedido(id){
+  async function eliminarPedido(id){
 
-    if(!pedirClaveAdmin()){
+    if(
+      !pedirClaveAdmin()
+    ){
 
       return;
 
@@ -2718,42 +3230,53 @@
     );
 
 
-    google.script.run
-      .withSuccessHandler(() => {
+    try{
 
-        ocultarLoading();
+      await apiPost(
+        'eliminarPedido',
+        {
+          id:id
+        }
+      );
 
-        mostrarToast(
-          'Traslado eliminado.',
-          'success'
-        );
 
-        cargarDatos();
+      ocultarLoading();
 
-      })
-      .withFailureHandler(error => {
 
-        ocultarLoading();
+      mostrarToast(
+        'Traslado eliminado.',
+        'success'
+      );
 
-        mostrarToast(
-          'No se pudo eliminar: ' +
-          obtenerMensajeError(error),
-          'error'
-        );
 
-      })
-      .eliminarPedido(id);
+      await cargarDatos();
+
+
+    }catch(error){
+
+      ocultarLoading();
+
+
+      mostrarToast(
+        'No se pudo eliminar: ' +
+        obtenerMensajeError(error),
+        'error'
+      );
+
+    }
 
   }
 
 
-  /* ================================
+  /* =====================================================
      HISTÓRICO
-  ================================= */
+     ===================================================== */
 
   function abrirHistorico(){
 
-    if(!pedirClaveAdmin()){
+    if(
+      !pedirClaveAdmin()
+    ){
 
       return;
 
@@ -2762,8 +3285,13 @@
 
     const archivados =
       pedidos
-        .filter(p => esArchivado(p))
-        .sort(ordenarPorProgramado);
+        .filter(
+          p =>
+            esArchivado(p)
+        )
+        .sort(
+          ordenarPorProgramado
+        );
 
 
     const contenedor =
@@ -2772,18 +3300,31 @@
       );
 
 
-    if(!archivados.length){
+    if(
+      !archivados.length
+    ){
 
       contenedor.innerHTML = `
+
         <div class="empty">
-          <div class="empty-icon">📭</div>
-          <div>No hay traslados archivados.</div>
+
+          <div class="empty-icon">
+            📭
+          </div>
+
+          <div>
+            No hay traslados archivados.
+          </div>
+
         </div>
+
       `;
+
 
       abrirModal(
         'modalHistorico'
       );
+
 
       return;
 
@@ -2814,78 +3355,84 @@
     `;
 
 
-    archivados.forEach(p => {
+    archivados.forEach(
+      p => {
 
-      html += `
+        html += `
 
-        <tr>
+          <tr>
 
-          <td>
-            ${escapeHtml(
-              formatearFecha(
-                p['Fecha Programada']
-              )
-            )}
-          </td>
+            <td>
+              ${escapeHtml(
+                formatearFecha(
+                  p['Fecha Programada']
+                )
+              )}
+            </td>
 
-          <td>
-            ${escapeHtml(
-              p.Origen || '-'
-            )}
-          </td>
+            <td>
+              ${escapeHtml(
+                p.Origen || '-'
+              )}
+            </td>
 
-          <td>
-            ${escapeHtml(
-              p.Destino || '-'
-            )}
-          </td>
+            <td>
+              ${escapeHtml(
+                p.Destino || '-'
+              )}
+            </td>
 
-          <td>
-            ${escapeHtml(
-              p.Tipo || '-'
-            )}
-          </td>
+            <td>
+              ${escapeHtml(
+                p.Tipo || '-'
+              )}
+            </td>
 
-          <td>
-            ${escapeHtml(
-              p.Cadete || '-'
-            )}
-          </td>
+            <td>
+              ${escapeHtml(
+                p.Cadete || '-'
+              )}
+            </td>
 
-          <td>
-            ${escapeHtml(
-              p.Movil || '-'
-            )}
-          </td>
+            <td>
+              ${escapeHtml(
+                p.Movil || '-'
+              )}
+            </td>
 
-          <td>
-            ${badgeEstado(
-              p.Estado
-            )}
-          </td>
+            <td>
+              ${badgeEstado(
+                p.Estado
+              )}
+            </td>
 
-          <td>
-            ${escapeHtml(
-              p['Observaciones Finales'] ||
-              p.Observaciones ||
-              '-'
-            )}
-          </td>
+            <td>
+              ${escapeHtml(
+                p['Observaciones Finales'] ||
+                p.Observaciones ||
+                '-'
+              )}
+            </td>
 
-        </tr>
+          </tr>
 
-      `;
+        `;
 
-    });
+      }
+    );
 
 
     html += `
+
         </tbody>
+
       </table>
+
     `;
 
 
-    contenedor.innerHTML = html;
+    contenedor.innerHTML =
+      html;
 
 
     abrirModal(
@@ -2895,13 +3442,15 @@
   }
 
 
-  /* ================================
+  /* =====================================================
      SERVICIOS
-  ================================= */
+     ===================================================== */
 
   function abrirServicios(){
 
-    if(!pedirClaveAdmin()){
+    if(
+      !pedirClaveAdmin()
+    ){
 
       return;
 
@@ -2909,6 +3458,7 @@
 
 
     renderServicios();
+
 
     abrirModal(
       'modalServicios'
@@ -2924,66 +3474,85 @@
         'listaServicios'
       );
 
-    contenedor.innerHTML = '';
+
+    contenedor.innerHTML =
+      '';
 
 
     servicios
-      .sort((a,b) =>
-        String(a.nombre || a.Nombre || '')
-          .localeCompare(
-            String(b.nombre || b.Nombre || ''),
+      .sort(
+        (a,b) =>
+          String(
+            a.nombre ||
+            a.Nombre ||
+            ''
+          ).localeCompare(
+            String(
+              b.nombre ||
+              b.Nombre ||
+              ''
+            ),
             'es'
           )
       )
-      .forEach(s => {
+      .forEach(
+        s => {
 
-        const id =
-          s.id ||
-          s.ID ||
-          '';
-
-        const nombre =
-          s.nombre ||
-          s.Nombre ||
-          '';
+          const id =
+            s.id ||
+            s.ID ||
+            '';
 
 
-        const div =
-          document.createElement('div');
-
-        div.className =
-          'service-item';
-
-
-        div.innerHTML = `
-
-          <span>
-            ${escapeHtml(nombre)}
-          </span>
-
-          <button
-            class="btn btn-danger btn-small"
-            onclick="eliminarServicioFormulario('${escapeAttr(id)}')"
-          >
-            Eliminar
-          </button>
-
-        `;
+          const nombre =
+            s.nombre ||
+            s.Nombre ||
+            '';
 
 
-        contenedor.appendChild(div);
+          const div =
+            document.createElement(
+              'div'
+            );
 
-      });
+
+          div.className =
+            'service-item';
+
+
+          div.innerHTML = `
+
+            <span>
+              ${escapeHtml(nombre)}
+            </span>
+
+            <button
+              class="btn btn-danger btn-small"
+              onclick="eliminarServicioFormulario('${escapeAttr(id)}')"
+            >
+              Eliminar
+            </button>
+
+          `;
+
+
+          contenedor.appendChild(
+            div
+          );
+
+        }
+      );
 
   }
 
 
-  function agregarServicioFormulario(){
+  async function agregarServicioFormulario(){
 
     const input =
       document.getElementById(
         'nuevoServicio'
       );
+
 
     const nombre =
       input.value.trim();
@@ -3006,48 +3575,61 @@
     );
 
 
-    google.script.run
-      .withSuccessHandler(() => {
+    try{
 
-        ocultarLoading();
+      await apiPost(
+        'agregarServicio',
+        {
+          nombre:nombre
+        }
+      );
 
-        input.value = '';
 
-        mostrarToast(
-          'Servicio agregado.',
-          'success'
-        );
+      ocultarLoading();
 
-        cargarDatos();
 
-        setTimeout(
-          renderServicios,
-          400
-        );
+      input.value =
+        '';
 
-      })
-      .withFailureHandler(error => {
 
-        ocultarLoading();
+      mostrarToast(
+        'Servicio agregado.',
+        'success'
+      );
 
-        mostrarToast(
-          'No se pudo agregar: ' +
-          obtenerMensajeError(error),
-          'error'
-        );
 
-      })
-      .agregarServicio(nombre);
+      await cargarDatos();
+
+
+      renderServicios();
+
+
+    }catch(error){
+
+      ocultarLoading();
+
+
+      mostrarToast(
+        'No se pudo agregar: ' +
+        obtenerMensajeError(error),
+        'error'
+      );
+
+    }
 
   }
 
 
-  function eliminarServicioFormulario(id){
+  async function eliminarServicioFormulario(
+    id
+  ){
 
-    if(!confirm(
-      '¿Eliminar este servicio?\n\n' +
-      'No se borrarán los pedidos existentes.'
-    )){
+    if(
+      !confirm(
+        '¿Eliminar este servicio?\n\n' +
+        'No se borrarán los pedidos existentes.'
+      )
+    ){
 
       return;
 
@@ -3059,47 +3641,56 @@
     );
 
 
-    google.script.run
-      .withSuccessHandler(() => {
+    try{
 
-        ocultarLoading();
+      await apiPost(
+        'eliminarServicio',
+        {
+          id:id
+        }
+      );
 
-        mostrarToast(
-          'Servicio eliminado.',
-          'success'
-        );
 
-        cargarDatos();
+      ocultarLoading();
 
-        setTimeout(
-          renderServicios,
-          400
-        );
 
-      })
-      .withFailureHandler(error => {
+      mostrarToast(
+        'Servicio eliminado.',
+        'success'
+      );
 
-        ocultarLoading();
 
-        mostrarToast(
-          'No se pudo eliminar: ' +
-          obtenerMensajeError(error),
-          'error'
-        );
+      await cargarDatos();
 
-      })
-      .eliminarServicio(id);
+
+      renderServicios();
+
+
+    }catch(error){
+
+      ocultarLoading();
+
+
+      mostrarToast(
+        'No se pudo eliminar: ' +
+        obtenerMensajeError(error),
+        'error'
+      );
+
+    }
 
   }
 
 
-  /* ================================
+  /* =====================================================
      CSV
-  ================================= */
+     ===================================================== */
 
   function exportarCSV(){
 
-    if(!pedidosFiltrados.length){
+    if(
+      !pedidosFiltrados.length
+    ){
 
       mostrarToast(
         'No hay registros para exportar.',
@@ -3112,6 +3703,7 @@
 
 
     const encabezados = [
+
       'ID',
       'Fecha Registro',
       'Fecha Programada',
@@ -3126,50 +3718,64 @@
       'Estado',
       'Observaciones',
       'Observaciones Finales'
+
     ];
 
 
     const filas =
-      pedidosFiltrados.map(p => [
+      pedidosFiltrados.map(
+        p => [
 
-        p.ID,
-        p['Fecha Registro'],
-        p['Fecha Programada'],
-        p['Fecha Inicio'],
-        p['Fecha Finalizacion'],
-        p.Origen,
-        p.Destino,
-        p.Tipo,
-        p.Cadete,
-        p.Movil,
-        p.Prioridad,
-        p.Estado,
-        p.Observaciones,
-        p['Observaciones Finales']
+          p.ID,
+          p['Fecha Registro'],
+          p['Fecha Programada'],
+          p['Fecha Inicio'],
+          p['Fecha Finalizacion'],
+          p.Origen,
+          p.Destino,
+          p.Tipo,
+          p.Cadete,
+          p.Movil,
+          p.Prioridad,
+          p.Estado,
+          p.Observaciones,
+          p['Observaciones Finales']
 
-      ]);
+        ]
+      );
 
 
-    const csv = [
-      encabezados,
-      ...filas
-    ]
-    .map(fila =>
-      fila
-        .map(valor =>
-          '"' +
-          String(valor ?? '')
-            .replace(/"/g,'""') +
-          '"'
-        )
-        .join(';')
-    )
-    .join('\r\n');
+    const csv =
+      [
+        encabezados,
+        ...filas
+      ]
+      .map(
+        fila =>
+          fila
+            .map(
+              valor =>
+                '"' +
+                String(
+                  valor ?? ''
+                )
+                .replace(
+                  /"/g,
+                  '""'
+                ) +
+                '"'
+            )
+            .join(';')
+      )
+      .join('\r\n');
 
 
     const blob =
       new Blob(
-        ['\ufeff' + csv],
+        [
+          '\ufeff' +
+          csv
+        ],
         {
           type:
             'text/csv;charset=utf-8;'
@@ -3178,33 +3784,48 @@
 
 
     const url =
-      URL.createObjectURL(blob);
+      URL.createObjectURL(
+        blob
+      );
 
 
     const a =
-      document.createElement('a');
+      document.createElement(
+        'a'
+      );
 
-    a.href = url;
+
+    a.href =
+      url;
+
 
     a.download =
       'cadeteria_' +
       obtenerFechaArchivo() +
       '.csv';
 
-    document.body.appendChild(a);
+
+    document.body.appendChild(
+      a
+    );
+
 
     a.click();
 
+
     a.remove();
 
-    URL.revokeObjectURL(url);
+
+    URL.revokeObjectURL(
+      url
+    );
 
   }
 
 
-  /* ================================
+  /* =====================================================
      TEMA
-  ================================= */
+     ===================================================== */
 
   function cargarTema(){
 
@@ -3214,15 +3835,19 @@
       );
 
 
-    if(tema === 'dark'){
+    if(
+      tema === 'dark'
+    ){
 
       document.body.classList.add(
         'dark'
       );
 
+
       document.getElementById(
         'btnTema'
-      ).textContent = '☀️';
+      ).textContent =
+        '☀️';
 
     }
 
@@ -3244,21 +3869,25 @@
 
     localStorage.setItem(
       'temaCadeteria',
-      oscuro ? 'dark' : 'light'
+      oscuro
+        ? 'dark'
+        : 'light'
     );
 
 
     document.getElementById(
       'btnTema'
     ).textContent =
-      oscuro ? '☀️' : '🌙';
+      oscuro
+        ? '☀️'
+        : '🌙';
 
   }
 
 
-  /* ================================
+  /* =====================================================
      SEGURIDAD ADMIN
-  ================================= */
+     ===================================================== */
 
   function pedirClaveAdmin(){
 
@@ -3283,19 +3912,24 @@
       );
 
 
-    if(clave === null){
+    if(
+      clave === null
+    ){
 
       return false;
 
     }
 
 
-    if(clave === '1234'){
+    if(
+      clave === '1234'
+    ){
 
       sessionStorage.setItem(
         'cadeteriaAdmin',
         'true'
       );
+
 
       return true;
 
@@ -3307,20 +3941,23 @@
       'error'
     );
 
+
     return false;
 
   }
 
 
-  /* ================================
+  /* =====================================================
      MODALES
-  ================================= */
+     ===================================================== */
 
   function abrirModal(id){
 
     document.getElementById(
       id
-    ).classList.add('show');
+    ).classList.add(
+      'show'
+    );
 
   }
 
@@ -3329,7 +3966,9 @@
 
     document.getElementById(
       id
-    ).classList.remove('show');
+    ).classList.remove(
+      'show'
+    );
 
   }
 
@@ -3354,20 +3993,24 @@
   );
 
 
-  /* ================================
+  /* =====================================================
      LOADING
-  ================================= */
+     ===================================================== */
 
   function mostrarLoading(texto){
 
     document.getElementById(
       'loadingText'
     ).textContent =
-      texto || 'Cargando...';
+      texto ||
+      'Cargando...';
+
 
     document.getElementById(
       'loading'
-    ).classList.add('show');
+    ).classList.add(
+      'show'
+    );
 
   }
 
@@ -3376,14 +4019,16 @@
 
     document.getElementById(
       'loading'
-    ).classList.remove('show');
+    ).classList.remove(
+      'show'
+    );
 
   }
 
 
-  /* ================================
+  /* =====================================================
      TOAST
-  ================================= */
+     ===================================================== */
 
   function mostrarToast(
     mensaje,
@@ -3411,22 +4056,27 @@
 
 
     window.toastTimer =
-      setTimeout(() => {
+      setTimeout(
+        () => {
 
-        toast.classList.remove(
-          'show'
-        );
+          toast.classList.remove(
+            'show'
+          );
 
-      },3500);
+        },
+        3500
+      );
 
   }
 
 
-  /* ================================
+  /* =====================================================
      BADGES
-  ================================= */
+     ===================================================== */
 
-  function badgeEstado(estado){
+  function badgeEstado(
+    estado
+  ){
 
     const mapa = {
 
@@ -3454,17 +4104,22 @@
 
 
     return `
+
       <span class="badge ${clase}">
         ${escapeHtml(
-          estado || 'Sin estado'
+          estado ||
+          'Sin estado'
         )}
       </span>
+
     `;
 
   }
 
 
-  function badgePrioridad(prioridad){
+  function badgePrioridad(
+    prioridad
+  ){
 
     const mapa = {
 
@@ -3486,21 +4141,26 @@
 
 
     return `
+
       <span class="badge ${clase}">
         ${escapeHtml(
-          prioridad || 'Baja'
+          prioridad ||
+          'Baja'
         )}
       </span>
+
     `;
 
   }
 
 
-  /* ================================
+  /* =====================================================
      FECHAS
-  ================================= */
+     ===================================================== */
 
-  function convertirFecha(valor){
+  function convertirFecha(
+    valor
+  ){
 
     if(!valor){
 
@@ -3528,10 +4188,6 @@
         valor.trim();
 
 
-      /*
-       * ISO
-       */
-
       if(
         /^\d{4}-\d{2}-\d{2}/.test(
           texto
@@ -3539,9 +4195,16 @@
       ){
 
         const d =
-          new Date(texto);
+          new Date(
+            texto
+          );
 
-        if(!isNaN(d.getTime())){
+
+        if(
+          !isNaN(
+            d.getTime()
+          )
+        ){
 
           return d;
 
@@ -3549,10 +4212,6 @@
 
       }
 
-
-      /*
-       * dd/mm/yyyy hh:mm
-       */
 
       const match =
         texto.match(
@@ -3563,12 +4222,31 @@
       if(match){
 
         return new Date(
-          Number(match[3]),
-          Number(match[2])-1,
-          Number(match[1]),
-          Number(match[4] || 0),
-          Number(match[5] || 0),
-          Number(match[6] || 0)
+
+          Number(
+            match[3]
+          ),
+
+          Number(
+            match[2]
+          ) - 1,
+
+          Number(
+            match[1]
+          ),
+
+          Number(
+            match[4] || 0
+          ),
+
+          Number(
+            match[5] || 0
+          ),
+
+          Number(
+            match[6] || 0
+          )
+
         );
 
       }
@@ -3576,23 +4254,28 @@
     }
 
 
-    const d =
-      new Date(valor);
-
-    return d;
+    return new Date(
+      valor
+    );
 
   }
 
 
-  function formatearFecha(valor){
+  function formatearFecha(
+    valor
+  ){
 
     const fecha =
-      convertirFecha(valor);
+      convertirFecha(
+        valor
+      );
 
 
     if(
       !fecha ||
-      isNaN(fecha.getTime())
+      isNaN(
+        fecha.getTime()
+      )
     ){
 
       return valor || '-';
@@ -3621,22 +4304,30 @@
       );
 
 
-    return fechaTexto +
+    return (
+      fechaTexto +
       ' ' +
-      horaTexto;
+      horaTexto
+    );
 
   }
 
 
-  function convertirAInputDatetime(valor){
+  function convertirAInputDatetime(
+    valor
+  ){
 
     const fecha =
-      convertirFecha(valor);
+      convertirFecha(
+        valor
+      );
 
 
     if(
       !fecha ||
-      isNaN(fecha.getTime())
+      isNaN(
+        fecha.getTime()
+      )
     ){
 
       return '';
@@ -3645,24 +4336,47 @@
 
 
     return [
+
       fecha.getFullYear(),
+
       String(
         fecha.getMonth()+1
-      ).padStart(2,'0'),
+      ).padStart(
+        2,
+        '0'
+      ),
+
       String(
         fecha.getDate()
-      ).padStart(2,'0')
+      ).padStart(
+        2,
+        '0'
+      )
+
     ].join('-')
+
     +
+
     'T'
+
     +
+
     [
+
       String(
         fecha.getHours()
-      ).padStart(2,'0'),
+      ).padStart(
+        2,
+        '0'
+      ),
+
       String(
         fecha.getMinutes()
-      ).padStart(2,'0')
+      ).padStart(
+        2,
+        '0'
+      )
+
     ].join(':');
 
   }
@@ -3675,24 +4389,47 @@
 
 
     return [
+
       d.getFullYear(),
+
       String(
         d.getMonth()+1
-      ).padStart(2,'0'),
+      ).padStart(
+        2,
+        '0'
+      ),
+
       String(
         d.getDate()
-      ).padStart(2,'0')
+      ).padStart(
+        2,
+        '0'
+      )
+
     ].join('-')
+
     +
+
     'T'
+
     +
+
     [
+
       String(
         d.getHours()
-      ).padStart(2,'0'),
+      ).padStart(
+        2,
+        '0'
+      ),
+
       String(
         d.getMinutes()
-      ).padStart(2,'0')
+      ).padStart(
+        2,
+        '0'
+      )
+
     ].join(':');
 
   }
@@ -3705,66 +4442,110 @@
 
 
     return [
+
       d.getFullYear(),
+
       String(
         d.getMonth()+1
-      ).padStart(2,'0'),
+      ).padStart(
+        2,
+        '0'
+      ),
+
       String(
         d.getDate()
-      ).padStart(2,'0')
+      ).padStart(
+        2,
+        '0'
+      )
+
     ].join('');
 
   }
 
 
-  /* ================================
+  /* =====================================================
      ARCHIVADO
-  ================================= */
+     ===================================================== */
 
   function esArchivado(p){
 
     const valor =
       String(
         p.Archivado || ''
-      ).toLowerCase();
+      )
+      .toLowerCase();
 
 
     return (
+
       valor === 'true' ||
+
       valor === 'sí' ||
+
       valor === 'si' ||
+
       valor === '1'
+
     );
 
   }
 
 
-  /* ================================
+  /* =====================================================
      SEGURIDAD HTML
-  ================================= */
+     ===================================================== */
 
-  function escapeHtml(valor){
+  function escapeHtml(
+    valor
+  ){
 
     return String(
       valor ?? ''
     )
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;')
-    .replace(/'/g,'&#039;');
+    .replace(
+      /&/g,
+      '&amp;'
+    )
+    .replace(
+      /</g,
+      '&lt;'
+    )
+    .replace(
+      />/g,
+      '&gt;'
+    )
+    .replace(
+      /"/g,
+      '&quot;'
+    )
+    .replace(
+      /'/g,
+      '&#039;'
+    );
 
   }
 
 
-  function escapeAttr(valor){
+  function escapeAttr(
+    valor
+  ){
 
     return String(
       valor ?? ''
     )
-    .replace(/\\/g,'\\\\')
-    .replace(/'/g,"\\'")
-    .replace(/"/g,'&quot;');
+    .replace(
+      /\\/g,
+      '\\\\'
+    )
+    .replace(
+      /'/g,
+      "\\'"
+    )
+    .replace(
+      /"/g,
+      '&quot;'
+    );
 
   }
 
