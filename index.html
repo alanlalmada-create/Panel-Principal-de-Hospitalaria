@@ -498,7 +498,7 @@
     .modal-close{
       width:35px;
       height:35px;
-      border-radius:9px;
+      border-radius:99px;
       border:1px solid var(--line);
       background:var(--card2);
       color:var(--text);
@@ -1009,7 +1009,9 @@
 
           <label>Servicio origen *</label>
 
-          <select id="pedidoOrigen"></select>
+          <select id="pedidoOrigen">
+            <option value="">Seleccionar...</option>
+          </select>
 
         </div>
 
@@ -1017,7 +1019,9 @@
 
           <label>Servicio destino *</label>
 
-          <select id="pedidoDestino"></select>
+          <select id="pedidoDestino">
+            <option value="">Seleccionar...</option>
+          </select>
 
         </div>
 
@@ -1706,131 +1710,63 @@
 
     llenarSelectUnicos(
       'filtroTipo',
-      pedidos.map(
-        p => p.Tipo
-      )
+      pedidos.map(p => p.Tipo)
     );
-
 
     llenarSelectUnicos(
       'filtroCadete',
-      pedidos.map(
-        p => p.Cadete
-      )
+      pedidos.map(p => p.Cadete)
     );
-
 
     llenarSelectUnicos(
       'filtroMovil',
-      pedidos.map(
-        p => p.Movil
-      )
+      pedidos.map(p => p.Movil)
     );
 
+    const origen = document.getElementById('pedidoOrigen');
+    const destino = document.getElementById('pedidoDestino');
 
-    const origen =
-      document.getElementById(
-        'pedidoOrigen'
-      );
+    if(!origen || !destino) return;
 
+    const actualOrigen = origen.value;
+    const actualDestino = destino.value;
 
-    const destino =
-      document.getElementById(
-        'pedidoDestino'
-      );
+    origen.innerHTML = '<option value="">Seleccionar...</option>';
+    destino.innerHTML = '<option value="">Seleccionar...</option>';
 
+    if(!Array.isArray(servicios) || servicios.length === 0){
+      console.warn("La variable 'servicios' está vacía o no es un arreglo:", servicios);
+      return;
+    }
 
-    const actualOrigen =
-      origen.value;
-
-
-    const actualDestino =
-      destino.value;
-
-
-    origen.innerHTML =
-      '<option value="">Seleccionar...</option>';
-
-
-    destino.innerHTML =
-      '<option value="">Seleccionar...</option>';
-
-
-    servicios
-      .slice()
-      .sort(
-        (a,b) =>
-          String(
-            a.nombre ||
-            a.Nombre ||
-            ''
-          ).localeCompare(
-            String(
-              b.nombre ||
-              b.Nombre ||
-              ''
-            ),
-            'es'
-          )
-      )
-      .forEach(
-        s => {
-
-          const nombre =
-            s.nombre ||
-            s.Nombre ||
-            '';
-
-
-          if(!nombre){
-            return;
-          }
-
-
-          const o =
-            document.createElement(
-              'option'
-            );
-
-
-          o.value =
-            nombre;
-
-
-          o.textContent =
-            nombre;
-
-
-          origen.appendChild(o);
-
-
-          const d =
-            document.createElement(
-              'option'
-            );
-
-
-          d.value =
-            nombre;
-
-
-          d.textContent =
-            nombre;
-
-
-          destino.appendChild(d);
-
+    // Extrae el texto del servicio sea un string directo, un objeto o una tupla/arreglo
+    const listaNombres = servicios
+      .map(s => {
+        if (typeof s === 'string') return s.trim();
+        if (typeof s === 'object' && s !== null) {
+          return String(s.nombre || s.Nombre || s.servicio || s.Servicio || s[0] || '').trim();
         }
-      );
+        return '';
+      })
+      .filter(nombre => nombre.length > 0);
 
+    // Elimina duplicados y ordena alfabéticamente
+    const nombresUnicos = [...new Set(listaNombres)].sort((a, b) => a.localeCompare(b, 'es'));
 
-    origen.value =
-      actualOrigen;
+    nombresUnicos.forEach(nombre => {
+      const optO = document.createElement('option');
+      optO.value = nombre;
+      optO.textContent = nombre;
+      origen.appendChild(optO);
 
+      const optD = document.createElement('option');
+      optD.value = nombre;
+      optD.textContent = nombre;
+      destino.appendChild(optD);
+    });
 
-    destino.value =
-      actualDestino;
-
+    origen.value = actualOrigen;
+    destino.value = actualDestino;
   }
 
 
@@ -2189,14 +2125,24 @@
     contenedor.innerHTML = '';
 
     servicios.forEach(s => {
-      const nombre = s.nombre || s.Nombre || '';
-      const id = s.id || s.ID || nombre;
+      let nombre = '';
+      let id = '';
+
+      if (typeof s === 'string') {
+        nombre = s;
+        id = s;
+      } else if (typeof s === 'object' && s !== null) {
+        nombre = s.nombre || s.Nombre || s.servicio || s.Servicio || s[0] || '';
+        id = s.id || s.ID || nombre;
+      }
+
+      if(!nombre) return;
 
       const item = document.createElement('div');
       item.className = 'service-item';
       item.innerHTML = `
         <span>${escapeHTML(nombre)}</span>
-        <button class="btn btn-small btn-danger" onclick="eliminarServicioFormulario('${id}')">✕</button>
+        <button class="btn btn-small btn-danger" onclick="eliminarServicioFormulario('${escapeHTML(id)}')">✕</button>
       `;
       contenedor.appendChild(item);
     });
