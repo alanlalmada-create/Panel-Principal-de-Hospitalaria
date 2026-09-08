@@ -1,2315 +1,794 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <base target="_top">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>Panel Principal de Cadetería Hospitalaria</title>
-
-  <style>
-    :root{
-      --bg:#f4f6f9;
-      --card:#ffffff;
-      --card2:#f8fafc;
-      --text:#17212b;
-      --muted:#697586;
-      --line:#dfe5eb;
-      --primary:#1769e0;
-      --primary-dark:#0f4fae;
-      --success:#168a4a;
-      --warning:#c47a00;
-      --danger:#c62828;
-      --info:#007c91;
-      --shadow:0 8px 25px rgba(15,23,42,.08);
-      --radius:16px;
-    }
-
-    body.dark{
-      --bg:#101418;
-      --card:#171c22;
-      --card2:#1d232b;
-      --text:#f1f5f9;
-      --muted:#a8b2bf;
-      --line:#303842;
-      --primary:#5b9cff;
-      --primary-dark:#8bb8ff;
-      --success:#43c77a;
-      --warning:#f2b84b;
-      --danger:#ff6b6b;
-      --info:#55c7dc;
-      --shadow:0 8px 25px rgba(0,0,0,.25);
-    }
-
-    *{
-      box-sizing:border-box;
-    }
-
-    html{
-      scroll-behavior:smooth;
-    }
-
-    body{
-      margin:0;
-      font-family:Arial,Helvetica,sans-serif;
-      background:var(--bg);
-      color:var(--text);
-      transition:.2s ease;
-    }
-
-    button,
-    input,
-    select,
-    textarea{
-      font:inherit;
-    }
-
-    button{
-      cursor:pointer;
-    }
-
-    .container{
-      width:min(1500px,94%);
-      margin:0 auto;
-    }
-
-    .topbar{
-      background:var(--card);
-      border-bottom:1px solid var(--line);
-      position:sticky;
-      top:0;
-      z-index:100;
-      box-shadow:0 2px 12px rgba(0,0,0,.04);
-    }
-
-    .topbar-inner{
-      min-height:76px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:20px;
-    }
-
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:14px;
-    }
-
-    .brand-icon{
-      width:48px;
-      height:48px;
-      border-radius:14px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:var(--primary);
-      color:#fff;
-      font-size:23px;
-      font-weight:800;
-    }
-
-    .brand h1{
-      margin:0;
-      font-size:20px;
-    }
-
-    .brand p{
-      margin:4px 0 0;
-      color:var(--muted);
-      font-size:13px;
-    }
-
-    .top-actions{
-      display:flex;
-      align-items:center;
-      gap:8px;
-    }
-
-    .btn{
-      border:1px solid var(--line);
-      background:var(--card);
-      color:var(--text);
-      border-radius:10px;
-      padding:10px 14px;
-      font-weight:700;
-      transition:.15s ease;
-    }
-
-    .btn:hover{
-      transform:translateY(-1px);
-      border-color:var(--primary);
-    }
-
-    .btn-primary{
-      background:var(--primary);
-      color:#fff;
-      border-color:var(--primary);
-    }
-
-    .btn-primary:hover{
-      background:var(--primary-dark);
-    }
-
-    .btn-success{
-      background:var(--success);
-      color:#fff;
-      border-color:var(--success);
-    }
-
-    .btn-danger{
-      background:var(--danger);
-      color:#fff;
-      border-color:var(--danger);
-    }
-
-    .btn-warning{
-      background:var(--warning);
-      color:#fff;
-      border-color:var(--warning);
-    }
-
-    .btn-small{
-      padding:7px 10px;
-      font-size:12px;
-      border-radius:8px;
-    }
-
-    main{
-      padding:24px 0 45px;
-    }
-
-    .toolbar{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:15px;
-      margin-bottom:20px;
-      flex-wrap:wrap;
-    }
-
-    .toolbar-title h2{
-      margin:0;
-      font-size:24px;
-    }
-
-    .toolbar-title p{
-      margin:5px 0 0;
-      color:var(--muted);
-      font-size:14px;
-    }
-
-    .toolbar-actions{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-    }
-
-    .kpis{
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:15px;
-      margin-bottom:20px;
-    }
-
-    .kpi{
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      padding:18px;
-      box-shadow:var(--shadow);
-      position:relative;
-      overflow:hidden;
-    }
-
-    .kpi::after{
-      content:"";
-      position:absolute;
-      right:-20px;
-      top:-20px;
-      width:80px;
-      height:80px;
-      border-radius:50%;
-      background:var(--primary);
-      opacity:.08;
-    }
-
-    .kpi-label{
-      color:var(--muted);
-      font-size:13px;
-      font-weight:700;
-      text-transform:uppercase;
-      letter-spacing:.4px;
-    }
-
-    .kpi-value{
-      font-size:31px;
-      font-weight:800;
-      margin-top:7px;
-    }
-
-    .panel{
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      margin-bottom:20px;
-    }
-
-    .panel-header{
-      padding:17px 18px;
-      border-bottom:1px solid var(--line);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-
-    .panel-header h3{
-      margin:0;
-      font-size:16px;
-    }
-
-    .panel-body{
-      padding:18px;
-    }
-
-    .filters{
-      display:grid;
-      grid-template-columns:2fr repeat(7,1fr);
-      gap:10px;
-    }
-
-    .field{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-    }
-
-    .field label{
-      font-size:12px;
-      font-weight:700;
-      color:var(--muted);
-    }
-
-    .field input,
-    .field select,
-    .field textarea{
-      width:100%;
-      border:1px solid var(--line);
-      background:var(--card2);
-      color:var(--text);
-      border-radius:9px;
-      padding:10px 11px;
-      outline:none;
-    }
-
-    .field input:focus,
-    .field select:focus,
-    .field textarea:focus{
-      border-color:var(--primary);
-      box-shadow:0 0 0 3px rgba(23,105,224,.12);
-    }
-
-    .filter-buttons{
-      display:flex;
-      gap:8px;
-      align-items:end;
-      flex-wrap:wrap;
-    }
-
-    .table-wrapper{
-      overflow:auto;
-      width:100%;
-    }
-
-    table{
-      width:100%;
-      border-collapse:collapse;
-      min-width:1100px;
-    }
-
-    th{
-      background:var(--card2);
-      color:var(--muted);
-      text-align:left;
-      font-size:11px;
-      text-transform:uppercase;
-      letter-spacing:.4px;
-      padding:12px;
-      border-bottom:1px solid var(--line);
-      white-space:nowrap;
-    }
-
-    td{
-      padding:12px;
-      border-bottom:1px solid var(--line);
-      vertical-align:middle;
-      font-size:13px;
-    }
-
-    tbody tr:hover{
-      background:rgba(23,105,224,.035);
-    }
-
-    .muted{
-      color:var(--muted);
-    }
-
-    .route{
-      min-width:210px;
-    }
-
-    .route-main{
-      font-weight:700;
-    }
-
-    .route-arrow{
-      color:var(--primary);
-      font-weight:900;
-      margin:0 5px;
-    }
-
-    .route-sub{
-      color:var(--muted);
-      margin-top:4px;
-      font-size:11px;
-    }
-
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      border-radius:999px;
-      padding:5px 9px;
-      font-size:11px;
-      font-weight:800;
-      white-space:nowrap;
-    }
-
-    .badge-pendiente{
-      background:rgba(196,122,0,.14);
-      color:var(--warning);
-    }
-
-    .badge-curso{
-      background:rgba(0,124,145,.14);
-      color:var(--info);
-    }
-
-    .badge-realizada{
-      background:rgba(22,138,74,.14);
-      color:var(--success);
-    }
-
-    .badge-cancelada,
-    .badge-no-realizada{
-      background:rgba(198,40,40,.14);
-      color:var(--danger);
-    }
-
-    .badge-alta{
-      background:rgba(198,40,40,.13);
-      color:var(--danger);
-    }
-
-    .badge-media{
-      background:rgba(196,122,0,.13);
-      color:var(--warning);
-    }
-
-    .badge-baja{
-      background:rgba(105,117,134,.14);
-      color:var(--muted);
-    }
-
-    .actions{
-      display:flex;
-      flex-wrap:wrap;
-      gap:5px;
-      min-width:210px;
-    }
-
-    .action{
-      border:1px solid var(--line);
-      background:var(--card);
-      color:var(--text);
-      border-radius:7px;
-      padding:6px 8px;
-      font-size:11px;
-      font-weight:700;
-    }
-
-    .action:hover{
-      border-color:var(--primary);
-      color:var(--primary);
-    }
-
-    .empty{
-      padding:50px 20px;
-      text-align:center;
-      color:var(--muted);
-    }
-
-    .empty-icon{
-      font-size:38px;
-      margin-bottom:10px;
-    }
-
-    .modal{
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,.55);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding:20px;
-      z-index:500;
-    }
-
-    .modal.show{
-      display:flex;
-    }
-
-    .modal-card{
-      background:var(--card);
-      color:var(--text);
-      width:min(850px,100%);
-      max-height:92vh;
-      overflow:auto;
-      border-radius:18px;
-      box-shadow:0 25px 70px rgba(0,0,0,.3);
-    }
-
-    .modal-header{
-      padding:18px 20px;
-      border-bottom:1px solid var(--line);
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-    }
-
-    .modal-header h3{
-      margin:0;
-    }
-
-    .modal-close{
-      width:35px;
-      height:35px;
-      border-radius:99px;
-      border:1px solid var(--line);
-      background:var(--card2);
-      color:var(--text);
-      font-size:18px;
-    }
-
-    .modal-body{
-      padding:20px;
-    }
-
-    .form-grid{
-      display:grid;
-      grid-template-columns:repeat(2,1fr);
-      gap:15px;
-    }
-
-    .form-grid .full{
-      grid-column:1/-1;
-    }
-
-    .modal-footer{
-      padding:15px 20px;
-      border-top:1px solid var(--line);
-      display:flex;
-      justify-content:flex-end;
-      gap:8px;
-      flex-wrap:wrap;
-    }
-
-    .loading{
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,.38);
-      z-index:900;
-      display:none;
-      align-items:center;
-      justify-content:center;
-    }
-
-    .loading.show{
-      display:flex;
-    }
-
-    .loading-card{
-      background:var(--card);
-      color:var(--text);
-      padding:25px 30px;
-      border-radius:15px;
-      box-shadow:var(--shadow);
-      text-align:center;
-    }
-
-    .spinner{
-      width:38px;
-      height:38px;
-      border:4px solid var(--line);
-      border-top-color:var(--primary);
-      border-radius:50%;
-      animation:spin .8s linear infinite;
-      margin:0 auto 12px;
-    }
-
-    @keyframes spin{
-      to{transform:rotate(360deg);}
-    }
-
-    .toast{
-      position:fixed;
-      right:20px;
-      bottom:20px;
-      background:var(--card);
-      color:var(--text);
-      border:1px solid var(--line);
-      box-shadow:var(--shadow);
-      padding:14px 17px;
-      border-radius:11px;
-      z-index:1000;
-      display:none;
-      max-width:380px;
-    }
-
-    .toast.show{
-      display:block;
-      animation:toastIn .2s ease;
-    }
-
-    .toast.success{
-      border-left:5px solid var(--success);
-    }
-
-    .toast.error{
-      border-left:5px solid var(--danger);
-    }
-
-    @keyframes toastIn{
-      from{
-        opacity:0;
-        transform:translateY(10px);
-      }
-      to{
-        opacity:1;
-        transform:translateY(0);
-      }
-    }
-
-    .service-list{
-      display:grid;
-      grid-template-columns:repeat(2,1fr);
-      gap:8px;
-      margin-top:15px;
-    }
-
-    .service-item{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      background:var(--card2);
-      border:1px solid var(--line);
-      border-radius:9px;
-      padding:9px 11px;
-      font-size:13px;
-    }
-
-    @media(max-width:1200px){
-      .filters{
-        grid-template-columns:repeat(4,1fr);
-      }
-
-      .filters .search{
-        grid-column:1/-1;
-      }
-    }
-
-    @media(max-width:900px){
-      .kpis{
-        grid-template-columns:repeat(2,1fr);
-      }
-
-      .form-grid{
-        grid-template-columns:1fr;
-      }
-
-      .form-grid .full{
-        grid-column:auto;
-      }
-
-      .service-list{
-        grid-template-columns:1fr;
-      }
-    }
-
-    @media(max-width:650px){
-      .topbar-inner{
-        padding:10px 0;
-        align-items:flex-start;
-      }
-
-      .brand h1{
-        font-size:16px;
-      }
-
-      .brand p{
-        font-size:11px;
-      }
-
-      .brand-icon{
-        width:40px;
-        height:40px;
-        font-size:18px;
-      }
-
-      .top-actions{
-        flex-direction:column;
-      }
-
-      .top-actions .btn{
-        width:100%;
-      }
-
-      .kpis{
-        grid-template-columns:1fr 1fr;
-        gap:10px;
-      }
-
-      .kpi{
-        padding:14px;
-      }
-
-      .kpi-value{
-        font-size:25px;
-      }
-
-      .filters{
-        grid-template-columns:1fr;
-      }
-
-      .filter-buttons{
-        align-items:stretch;
-      }
-
-      .filter-buttons .btn{
-        flex:1;
-      }
-
-      main{
-        padding-top:15px;
-      }
-
-      .toolbar-title h2{
-        font-size:20px;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏥 Panel de Cadetería Hospitalaria</title>
+    <!-- Bootstrap 5 CSS y Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #f4f7f6;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        /* KPIs con indicador lateral */
+        .card-kpi {
+            border: none;
+            border-left: 5px solid;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .kpi-activos { border-color: #0d6efd; }
+        .kpi-pendientes { border-color: #ffc107; }
+        .kpi-realizadas { border-color: #198754; }
+        .kpi-archivados { border-color: #6c757d; }
+        
+        .table-responsive {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            padding: 15px;
+        }
+        .encabezado-semana {
+            background-color: #eef2f7 !important;
+            font-weight: 600;
+            color: #344767;
+        }
+        .fila-archivada {
+            opacity: 0.7;
+            background-color: #f8f9fa;
+        }
+        /* Badges de estado */
+        .badge-estado-Pendiente { background-color: #fff3cd; color: #856404; font-weight: 600; }
+        .badge-estado-Realizada { background-color: #d4edda; color: #155724; font-weight: 600; }
+        .badge-estado-Cancelada { background-color: #f8d7da; color: #721c24; font-weight: 600; }
+    </style>
 </head>
-
 <body>
 
-<header class="topbar">
-  <div class="container topbar-inner">
-
-    <div class="brand">
-      <div class="brand-icon">🚚</div>
-
-      <div>
-        <h1>Panel Principal de Cadetería Hospitalaria</h1>
-        <p>Gestión y control de traslados internos</p>
-      </div>
-    </div>
-
-    <div class="top-actions">
-
-      <button class="btn" onclick="abrirHistorico()">
-        📚 Ver Histórico
-      </button>
-
-      <button class="btn" onclick="alternarTema()" id="btnTema">
-        🌙
-      </button>
-
-    </div>
-
-  </div>
-</header>
-
-
-<main class="container">
-
-  <div class="toolbar">
-
-    <div class="toolbar-title">
-      <h2>Traslados internos</h2>
-      <p>Control operativo de pedidos de cadetería</p>
-    </div>
-
-    <div class="toolbar-actions">
-
-      <button class="btn" onclick="abrirServicios()">
-        ⚙ Servicios
-      </button>
-
-      <button class="btn" onclick="exportarCSV()">
-        📥 CSV
-      </button>
-
-      <button class="btn btn-primary" onclick="nuevoPedido()">
-        + Nuevo traslado
-      </button>
-
-    </div>
-
-  </div>
-
-
-  <section class="kpis">
-
-    <div class="kpi">
-      <div class="kpi-label">Total activos</div>
-      <div class="kpi-value" id="kpiTotal">0</div>
-    </div>
-
-    <div class="kpi">
-      <div class="kpi-label">Pendientes</div>
-      <div class="kpi-value" id="kpiPendientes">0</div>
-    </div>
-
-    <div class="kpi">
-      <div class="kpi-label">Realizadas</div>
-      <div class="kpi-value" id="kpiRealizadas">0</div>
-    </div>
-
-    <div class="kpi">
-      <div class="kpi-label">Archivados</div>
-      <div class="kpi-value" id="kpiArchivados">0</div>
-    </div>
-
-  </section>
-
-
-  <section class="panel">
-
-    <div class="panel-header">
-
-      <h3>Filtros y búsqueda</h3>
-
-      <button class="btn btn-small" onclick="cargarDatos()">
-        🔄 Actualizar
-      </button>
-
-    </div>
-
-    <div class="panel-body">
-
-      <div class="filters">
-
-        <div class="field search">
-          <label>Buscador</label>
-
-          <input
-            type="text"
-            id="filtroBuscar"
-            placeholder="Buscar origen, destino, cadete, móvil..."
-            oninput="aplicarFiltros()"
-          >
-
+    <div class="container-fluid py-4 px-4">
+        <!-- Encabezado principal -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+            <div>
+                <h3 class="text-primary fw-bold mb-0"><i class="bi bi-hospital me-2"></i>Panel Principal de Cadetería Hospitalaria</h3>
+                <span class="text-muted small">Gestión y control de traslados internos</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <!-- Estado de Seguridad -->
+                <button class="btn btn-sm btn-outline-secondary" id="btnEstadoSeguridad" onclick="gestionarSeguridad()">
+                    <i class="bi bi-lock-fill me-1" id="iconoSeguridad"></i>
+                    <span id="textoSeguridad">Modo Lectura</span>
+                </button>
+                
+                <button class="btn btn-outline-dark btn-sm" onclick="requerirPassword(abrirModalServicios)"><i class="bi bi-building-gear me-1"></i> Gestionar Servicios</button>
+                <div class="form-check form-switch fs-6 mb-0 ms-2">
+                    <input class="form-check-input" type="checkbox" id="verArchivados" onchange="filtrarTabla()">
+                    <label class="form-check-label fw-semibold" for="verArchivados"><i class="bi bi-archive me-1"></i> Ver Histórico</label>
+                </div>
+            </div>
         </div>
 
-        <div class="field">
-          <label>Estado</label>
-
-          <select id="filtroEstado" onchange="aplicarFiltros()">
-
-            <option value="">Todos</option>
-            <option value="Pendiente">Pendiente</option>
-            <option value="En curso">En curso</option>
-            <option value="Realizada">Realizada</option>
-            <option value="Cancelada">Cancelada</option>
-            <option value="No realizada">No realizada</option>
-
-          </select>
-
+        <!-- 📊 Indicadores KPIs -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="card card-kpi kpi-activos p-3">
+                    <span class="text-muted small fw-semibold">TOTAL ACTIVOS</span>
+                    <h3 class="fw-bold mb-0 mt-1" id="stat-total">0</h3>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card card-kpi kpi-pendientes p-3">
+                    <span class="text-warning-emphasis small fw-semibold"><i class="bi bi-clock-history me-1"></i> PENDIENTES</span>
+                    <h3 class="fw-bold mb-0 mt-1" id="stat-pendientes">0</h3>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card card-kpi kpi-realizadas p-3">
+                    <span class="text-success small fw-semibold"><i class="bi bi-check-circle me-1"></i> REALIZADAS</span>
+                    <h3 class="fw-bold mb-0 mt-1" id="stat-realizadas">0</h3>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card card-kpi kpi-archivados p-3">
+                    <span class="text-secondary small fw-semibold"><i class="bi bi-archive me-1"></i> ARCHIVADOS</span>
+                    <h3 class="fw-bold mb-0 mt-1" id="stat-archivados">0</h3>
+                </div>
+            </div>
         </div>
 
-        <div class="field">
-          <label>Tipo</label>
-
-          <select id="filtroTipo" onchange="aplicarFiltros()">
-            <option value="">Todos</option>
-          </select>
-
+        <!-- 🔎 Controles y Filtros -->
+        <div class="card p-3 mb-4 shadow-sm border-0">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-muted mb-1"><i class="bi bi-search me-1"></i> Buscador</label>
+                    <input type="text" id="buscador" class="form-control form-control-sm" placeholder="Buscar por servicio, cadete o tipo..." onkeyup="filtrarTabla()">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-muted mb-1">Estado</label>
+                    <select id="filtro-estado" class="form-select form-select-sm" onchange="filtrarTabla()">
+                        <option value="Todos">Todos los estados</option>
+                        <option value="Pendiente">Pendientes</option>
+                        <option value="Realizada">Realizadas</option> <option value="Cancelada">Canceladas</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-muted mb-1"><i class="bi bi-calendar-event me-1"></i> Fecha Desde</label>
+                    <input type="date" id="fecha-desde" class="form-control form-control-sm" onchange="filtrarTabla()">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-muted mb-1"><i class="bi bi-calendar-event me-1"></i> Fecha Hasta</label>
+                    <input type="date" id="fecha-hasta" class="form-control form-control-sm" onchange="filtrarTabla()">
+                </div>
+                <div class="col-md-3 text-end d-flex gap-1 justify-content-end">
+                    <button class="btn btn-sm btn-outline-primary" onclick="filtrarHoy()" title="Filtrar pedidos de hoy"><i class="bi bi-calendar-day"></i> Hoy</button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="limpiarFiltros()" title="Limpiar filtros"><i class="bi bi-arrow-counterclockwise"></i></button>
+                    <button class="btn btn-sm btn-secondary" onclick="exportarCSV()"><i class="bi bi-download me-1"></i> CSV</button>
+                    <button class="btn btn-sm btn-primary" onclick="requerirPassword(abrirModalNuevo)"><i class="bi bi-plus-lg me-1"></i> Nuevo Pedido</button>
+                </div>
+            </div>
         </div>
 
-        <div class="field">
-          <label>Prioridad</label>
-
-          <select id="filtroPrioridad" onchange="aplicarFiltros()">
-
-            <option value="">Todas</option>
-            <option value="Alta">Alta</option>
-            <option value="Media">Media</option>
-            <option value="Baja">Baja</option>
-
-          </select>
-
+        <!-- 📋 Listado de Pedidos -->
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr class="small text-muted text-uppercase">
+                        <th>Fecha Registro</th>
+                        <th>Programado Para</th>
+                        <th>Origen <i class="bi bi-arrow-right"></i> Destino</th>
+                        <th>Tipo</th>
+                        <th>Cadete</th>
+                        <th>Prioridad</th>
+                        <th>Estado</th>
+                        <th>Obs.</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-pedidos">
+                    <!-- Se renderiza con JS -->
+                </tbody>
+            </table>
         </div>
-
-        <div class="field">
-          <label>Cadete</label>
-
-          <select id="filtroCadete" onchange="aplicarFiltros()">
-            <option value="">Todos</option>
-          </select>
-
-        </div>
-
-        <div class="field">
-          <label>Móvil</label>
-
-          <select id="filtroMovil" onchange="aplicarFiltros()">
-            <option value="">Todos</option>
-          </select>
-
-        </div>
-
-        <div class="field">
-          <label>Fecha desde</label>
-
-          <input
-            type="date"
-            id="filtroDesde"
-            onchange="aplicarFiltros()"
-          >
-
-        </div>
-
-        <div class="field">
-          <label>Fecha hasta</label>
-
-          <input
-            type="date"
-            id="filtroHasta"
-            onchange="aplicarFiltros()"
-          >
-
-        </div>
-
-      </div>
-
-      <div class="filter-buttons" style="margin-top:12px">
-
-        <button class="btn btn-small" onclick="filtrarHoy()">
-          📅 Hoy
-        </button>
-
-        <button class="btn btn-small" onclick="limpiarFiltros()">
-          ✕ Limpiar filtros
-        </button>
-
-      </div>
-
     </div>
 
-  </section>
-
-
-  <section class="panel">
-
-    <div class="panel-header">
-
-      <div>
-        <h3>Pedidos</h3>
-
-        <div class="muted" id="contadorResultados">
-          0 registros
+    <!-- 🔒 Modal Solicitud de Contraseña -->
+    <div class="modal fade" id="modalPassword" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white py-2">
+                    <h6 class="modal-title fw-bold"><i class="bi bi-shield-lock me-2"></i>Acceso Protegido</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="small text-muted mb-2">Introduce la contraseña para realizar cambios (Clave por defecto: <b>1234</b>):</p>
+                    <input type="password" id="inputPassAcceso" class="form-control text-center fs-5 mb-2" placeholder="••••" autofocus>
+                    <div id="errorPassAcceso" class="text-danger small d-none text-center fw-bold">Contraseña incorrecta</div>
+                </div>
+                <div class="modal-footer py-1">
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-sm btn-danger" onclick="validarPassword()">Ingresar</button>
+                </div>
+            </div>
         </div>
-      </div>
-
     </div>
 
-    <div class="table-wrapper">
-
-      <table>
-
-        <thead>
-
-          <tr>
-            <th>Fecha registro</th>
-            <th>Programado para</th>
-            <th>Origen → Destino</th>
-            <th>Tipo</th>
-            <th>Cadete</th>
-            <th>Móvil</th>
-            <th>Prioridad</th>
-            <th>Estado</th>
-            <th>Observaciones</th>
-            <th>Acciones</th>
-          </tr>
-
-        </thead>
-
-        <tbody id="tablaPedidos"></tbody>
-
-      </table>
-
-    </div>
-
-    <div class="empty" id="emptyState" style="display:none">
-
-      <div class="empty-icon">📭</div>
-
-      <div>
-        No hay pedidos que coincidan con los filtros.
-      </div>
-
-    </div>
-
-  </section>
-
-</main>
-
-
-<div class="modal" id="modalPedido">
-
-  <div class="modal-card">
-
-    <div class="modal-header">
-
-      <h3 id="tituloModalPedido">
-        Nuevo traslado
-      </h3>
-
-      <button
-        class="modal-close"
-        onclick="cerrarModal('modalPedido')"
-      >
-        ×
-      </button>
-
-    </div>
-
-    <div class="modal-body">
-
-      <input type="hidden" id="pedidoId">
-
-      <div class="form-grid">
-
-        <div class="field">
-
-          <label>Servicio origen *</label>
-
-          <select id="pedidoOrigen">
-            <option value="">Seleccionar...</option>
-          </select>
-
+    <!-- ⚙️ Modal Gestión de Seguridad (Cambiar Clave) -->
+    <div class="modal fade" id="modalGestionSeguridad" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white py-2">
+                    <h6 class="modal-title fw-bold"><i class="bi bi-key me-2"></i>Seguridad y Clave</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Nueva Contraseña</label>
+                        <input type="password" id="nuevaClaveInput" class="form-control" placeholder="Escribe nueva clave">
+                    </div>
+                    <button class="btn btn-primary btn-sm w-100 mb-2" onclick="cambiarClave()"><i class="bi bi-floppy me-1"></i> Guardar Nueva Clave</button>
+                    <hr class="my-2">
+                    <button class="btn btn-outline-danger btn-sm w-100" onclick="bloquearSesion()"><i class="bi bi-lock me-1"></i> Bloquear Edición Ahora</button>
+                </div>
+            </div>
         </div>
+    </div>
 
-        <div class="field">
+    <!-- ➕/✏️ Modal Formulario Pedido -->
+    <div class="modal fade" id="modalPedido" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="modalTitulo">Nuevo Pedido de Cadetería</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formPedido">
+                        <input type="hidden" id="pedidoId">
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">🏢 Servicio Origen</label>
+                                <div class="input-group">
+                                    <select id="origen" class="form-select" required></select>
+                                    <button type="button" class="btn btn-outline-secondary" onclick="requerirPassword(abrirModalServicios)" title="Agregar servicio"><i class="bi bi-plus-lg"></i></button>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">🏢 Servicio Destino</label>
+                                <div class="input-group">
+                                    <select id="destino" class="form-select" required></select>
+                                    <button type="button" class="btn btn-outline-secondary" onclick="requerirPassword(abrirModalServicios)" title="Agregar servicio"><i class="bi bi-plus-lg"></i></button>
+                                </div>
+                            </div>
+                        </div>
 
-          <label>Servicio destino *</label>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">📦 Tipo de Pedido</label>
+                                <select id="tipo" class="form-select" required>
+                                    <option value="Muestras de Laboratorio">Muestras de Laboratorio</option>
+                                    <option value="Medicamentos">Medicamentos</option>
+                                    <option value="Documentación">Documentación / Historias Clínicas</option>
+                                    <option value="Insumos Médicos">Insumos Médicos</option>
+                                    <option value="Equipos">Equipos</option>
+                                    <option value="Otros">Otros</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">⏰ Fecha/Hora Programada</label>
+                                <input type="datetime-local" id="fechaProgramada" class="form-control">
+                            </div>
+                        </div>
 
-          <select id="pedidoDestino">
-            <option value="">Seleccionar...</option>
-          </select>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">👤 Cadete Responsable</label>
+                                <input type="text" id="cadete" class="form-control" placeholder="Nombre del cadete" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">🚨 Prioridad</label>
+                                <select id="prioridad" class="form-select" required>
+                                    <option value="Baja">Baja</option>
+                                    <option value="Media">Media</option>
+                                    <option value="Alta">Alta 🚨</option>
+                                </select>
+                            </div>
+                        </div>
 
+                        <div class="mb-3">
+                            <label class="form-label">Estado</label>
+                            <select id="estado" class="form-select">
+                                <option value="Pendiente">Pendiente</option>
+                                <option value="Realizada">Realizada</option>
+                                <option value="Cancelada">Cancelada</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">📝 Observaciones</label>
+                            <textarea id="observaciones" class="form-control" rows="2" placeholder="Detalles adicionales..."></textarea>
+                        </div>
+
+                        <div class="text-end">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary"><i class="bi bi-floppy me-1"></i> Guardar Registro</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
+    </div>
 
-        <div class="field">
-
-          <label>Tipo *</label>
-
-          <select id="pedidoTipo">
-
-            <option value="Medicamentos">
-              Medicamentos
-            </option>
-
-            <option value="Documentación">
-              Documentación
-            </option>
-
-            <option value="Insumos">
-              Insumos
-            </option>
-
-            <option value="Muestras">
-              Muestras
-            </option>
-
-            <option value="Ropa">
-              Ropa
-            </option>
-
-            <option value="Equipamiento">
-              Equipamiento
-            </option>
-
-            <option value="Otros">
-              Otros
-            </option>
-
-          </select>
-
+    <!-- ⚙️ Modal Administración de Servicios -->
+    <div class="modal fade" id="modalServicios" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title"><i class="bi bi-building-gear me-2"></i>Gestión de Servicios / Áreas</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group mb-3">
+                        <input type="text" id="nuevoNombreServicio" class="form-control" placeholder="Nombre del nuevo servicio">
+                        <button class="btn btn-success" type="button" onclick="agregarServicio()"><i class="bi bi-plus-lg"></i> Agregar</button>
+                    </div>
+                    <h6 class="fw-bold text-muted small uppercase">Servicios Registrados</h6>
+                    <ul class="list-group list-group-flush border-top" id="listaServiciosModal"></ul>
+                </div>
+            </div>
         </div>
-
-        <div class="field">
-
-          <label>Fecha / hora programada *</label>
-
-          <input
-            type="datetime-local"
-            id="pedidoProgramado"
-          >
-
-        </div>
-
-        <div class="field">
-
-          <label>Cadete responsable</label>
-
-          <input
-            type="text"
-            id="pedidoCadete"
-            placeholder="Nombre del cadete"
-          >
-
-        </div>
-
-        <div class="field">
-
-          <label>Móvil</label>
-
-          <input
-            type="text"
-            id="pedidoMovil"
-            placeholder="Móvil / vehículo"
-          >
-
-        </div>
-
-        <div class="field">
-
-          <label>Prioridad</label>
-
-          <select id="pedidoPrioridad">
-
-            <option value="Baja">
-              Baja
-            </option>
-
-            <option value="Media" selected>
-              Media
-            </option>
-
-            <option value="Alta">
-              Alta
-            </option>
-
-          </select>
-
-        </div>
-
-        <div class="field">
-
-          <label>Estado</label>
-
-          <select id="pedidoEstado">
-
-            <option value="Pendiente">
-              Pendiente
-            </option>
-
-            <option value="En curso">
-              En curso
-            </option>
-
-            <option value="Realizada">
-              Realizada
-            </option>
-
-            <option value="Cancelada">
-              Cancelada
-            </option>
-
-            <option value="No realizada">
-              No realizada
-            </option>
-
-          </select>
-
-        </div>
-
-        <div class="field full">
-
-          <label>Observaciones</label>
-
-          <textarea
-            id="pedidoObservaciones"
-            rows="4"
-            placeholder="Detalle del traslado..."
-          ></textarea>
-
-        </div>
-
-      </div>
-
     </div>
 
-    <div class="modal-footer">
-
-      <button
-        class="btn"
-        onclick="cerrarModal('modalPedido')"
-      >
-        Cancelar
-      </button>
-
-      <button
-        class="btn btn-primary"
-        onclick="guardarPedidoFormulario()"
-      >
-        💾 Guardar traslado
-      </button>
-
-    </div>
-
-  </div>
-
-</div>
-
-
-<div class="modal" id="modalFinalizar">
-
-  <div class="modal-card">
-
-    <div class="modal-header">
-
-      <h3>Finalizar traslado</h3>
-
-      <button
-        class="modal-close"
-        onclick="cerrarModal('modalFinalizar')"
-      >
-        ×
-      </button>
-
-    </div>
-
-    <div class="modal-body">
-
-      <div class="field">
-
-        <label>Observaciones finales</label>
-
-        <textarea
-          id="observacionesFinales"
-          rows="5"
-          placeholder="Informar cualquier novedad del traslado..."
-        ></textarea>
-
-      </div>
-
-    </div>
-
-    <div class="modal-footer">
-
-      <button
-        class="btn"
-        onclick="cerrarModal('modalFinalizar')"
-      >
-        Cancelar
-      </button>
-
-      <button
-        class="btn btn-success"
-        onclick="confirmarFinalizacion()"
-      >
-        ✓ Finalizar traslado
-      </button>
-
-    </div>
-
-  </div>
-
-</div>
-
-
-<div class="modal" id="modalServicios">
-
-  <div class="modal-card">
-
-    <div class="modal-header">
-
-      <h3>Administrar servicios</h3>
-
-      <button
-        class="modal-close"
-        onclick="cerrarModal('modalServicios')"
-      >
-        ×
-      </button>
-
-    </div>
-
-    <div class="modal-body">
-
-      <div style="display:flex;gap:8px">
-
-        <input
-          type="text"
-          id="nuevoServicio"
-          placeholder="Nombre del nuevo servicio"
-          style="
-            flex:1;
-            border:1px solid var(--line);
-            background:var(--card2);
-            color:var(--text);
-            border-radius:9px;
-            padding:10px;
-          "
-        >
-
-        <button
-          class="btn btn-primary"
-          onclick="agregarServicioFormulario()"
-        >
-          + Agregar
-        </button>
-
-      </div>
-
-      <div
-        class="service-list"
-        id="listaServicios"
-      ></div>
-
-    </div>
-
-    <div class="modal-footer">
-
-      <button
-        class="btn"
-        onclick="cerrarModal('modalServicios')"
-      >
-        Cerrar
-      </button>
-
-    </div>
-
-  </div>
-
-</div>
-
-
-<div class="modal" id="modalHistorico">
-
-  <div class="modal-card" style="width:min(1200px,100%)">
-
-    <div class="modal-header">
-
-      <h3>Histórico de traslados</h3>
-
-      <button
-        class="modal-close"
-        onclick="cerrarModal('modalHistorico')"
-      >
-        ×
-      </button>
-
-    </div>
-
-    <div class="modal-body">
-
-      <div
-        class="table-wrapper"
-        id="historicoContenido"
-      ></div>
-
-    </div>
-
-  </div>
-
-</div>
-
-
-<div class="loading" id="loading">
-
-  <div class="loading-card">
-
-    <div class="spinner"></div>
-
-    <strong id="loadingText">
-      Cargando...
-    </strong>
-
-  </div>
-
-</div>
-
-
-<div class="toast" id="toast"></div>
-
-
-<script>
-
-  /* =====================================================
-     CONFIGURACIÓN DE LA API
-     ===================================================== */
-
-  const API_URL =
-    'https://script.google.com/macros/s/AKfycbxt6N6dgwkyDc_WqjRGDuaDnfq2zyRxiQzU9yA08AspVIufhDE60k7JM_WogDZKGE5V/exec';
-
-
-  let pedidos = [];
-  let servicios = [];
-  let pedidosFiltrados = [];
-
-  let pedidoFinalizarId = null;
-
-
-  /* =====================================================
-     COMUNICACIÓN CON GOOGLE APPS SCRIPT
-     ===================================================== */
-
-  async function apiPost(accion, parametros = {}){
-
-    try{
-
-      const respuesta =
-        await fetch(
-          API_URL,
-          {
-            method:'POST',
-
-            headers:{
-              'Content-Type':
-                'text/plain;charset=utf-8'
-            },
-
-            body:
-              JSON.stringify({
-                accion:accion,
-                parametros:parametros
-              }),
-
-            redirect:'follow'
-          }
-        );
-
-
-      const texto =
-        await respuesta.text();
-
-
-      let data;
-
-
-      try{
-
-        data =
-          JSON.parse(texto);
-
-      }catch(error){
-
-        console.error(
-          'Respuesta no válida del servidor:',
-          texto
-        );
-
-        throw new Error(
-          'El servidor devolvió una respuesta que no es JSON.'
-        );
-
-      }
-
-
-      if(
-        data &&
-        data.ok === false
-      ){
-
-        throw new Error(
-          data.error ||
-          'Error desconocido del servidor.'
-        );
-
-      }
-
-
-      return data;
-
-    }catch(error){
-
-      console.error(
-        'Error API:',
-        error
-      );
-
-      throw error;
-
-    }
-
-  }
-
-
-  async function apiGet(accion){
-
-    try{
-
-      const respuesta =
-        await fetch(
-          API_URL +
-          '?accion=' +
-          encodeURIComponent(accion),
-          {
-            method:'GET',
-            redirect:'follow'
-          }
-        );
-
-
-      const texto =
-        await respuesta.text();
-
-
-      let data;
-
-
-      try{
-
-        data =
-          JSON.parse(texto);
-
-      }catch(error){
-
-        console.error(
-          'Respuesta GET no válida:',
-          texto
-        );
-
-        throw new Error(
-          'El servidor devolvió una respuesta que no es JSON.'
-        );
-
-      }
-
-
-      if(
-        data &&
-        data.ok === false
-      ){
-
-        throw new Error(
-          data.error ||
-          'Error desconocido del servidor.'
-        );
-
-      }
-
-
-      return data;
-
-    }catch(error){
-
-      console.error(
-        'Error API GET:',
-        error
-      );
-
-      throw error;
-
-    }
-
-  }
-
-
-  /* =====================================================
-     INICIO
-     ===================================================== */
-
-  document.addEventListener(
-    'DOMContentLoaded',
-    () => {
-
-      cargarTema();
-
-      cargarDatos();
-
-    }
-  );
-
-
-  /* =====================================================
-     DATOS
-     ===================================================== */
-
-  async function cargarDatos(){
-
-    mostrarLoading(
-      'Cargando información...'
-    );
-
-
-    try{
-
-      const data =
-        await apiGet(
-          'obtenerDatos'
-        );
-
-
-      ocultarLoading();
-
-
-      if(!data){
-
-        mostrarToast(
-          'No se recibieron datos del servidor.',
-          'error'
-        );
-
-        return;
-
-      }
-
-
-      pedidos =
-        Array.isArray(data.pedidos)
-          ? data.pedidos
-          : [];
-
-
-      servicios =
-        Array.isArray(data.servicios)
-          ? data.servicios
-          : [];
-
-
-      actualizarFiltros();
-
-      aplicarFiltros();
-
-      actualizarKPIs();
-
-
-    }catch(error){
-
-      ocultarLoading();
-
-      console.error(error);
-
-      mostrarToast(
-        'Error al cargar los datos: ' +
-        obtenerMensajeError(error),
-        'error'
-      );
-
-    }
-
-  }
-
-
-  function obtenerMensajeError(error){
-
-    if(!error){
-      return 'Error desconocido';
-    }
-
-    if(typeof error === 'string'){
-      return error;
-    }
-
-    return error.message ||
-           error.details ||
-           'Error desconocido';
-
-  }
-
-
-  /* =====================================================
-     KPIs
-     ===================================================== */
-
-  function esArchivado(p){
-    const est = String(p.Estado || '').trim();
-    return est === 'Realizada' || est === 'Cancelada' || est === 'No realizada';
-  }
-
-  function actualizarKPIs(){
-
-    const activos =
-      pedidos.filter(
-        p => !esArchivado(p)
-      );
-
-
-    const pendientes =
-      activos.filter(
-        p =>
-          String(p.Estado || '') ===
-          'Pendiente'
-      );
-
-
-    const realizadas =
-      pedidos.filter(
-        p =>
-          String(p.Estado || '') ===
-          'Realizada'
-      );
-
-
-    const archivados =
-      pedidos.filter(
-        p => esArchivado(p)
-      );
-
-
-    document.getElementById(
-      'kpiTotal'
-    ).textContent =
-      activos.length;
-
-
-    document.getElementById(
-      'kpiPendientes'
-    ).textContent =
-      pendientes.length;
-
-
-    document.getElementById(
-      'kpiRealizadas'
-    ).textContent =
-      realizadas.length;
-
-
-    document.getElementById(
-      'kpiArchivados'
-    ).textContent =
-      archivados.length;
-
-  }
-
-
-  /* =====================================================
-     FILTROS Y RENDERIZADO
-     ===================================================== */
-
-  function actualizarFiltros(){
-
-    llenarSelectUnicos(
-      'filtroTipo',
-      pedidos.map(p => p.Tipo)
-    );
-
-    llenarSelectUnicos(
-      'filtroCadete',
-      pedidos.map(p => p.Cadete)
-    );
-
-    llenarSelectUnicos(
-      'filtroMovil',
-      pedidos.map(p => p.Movil)
-    );
-
-    const origen = document.getElementById('pedidoOrigen');
-    const destino = document.getElementById('pedidoDestino');
-
-    if(!origen || !destino) return;
-
-    const actualOrigen = origen.value;
-    const actualDestino = destino.value;
-
-    origen.innerHTML = '<option value="">Seleccionar...</option>';
-    destino.innerHTML = '<option value="">Seleccionar...</option>';
-
-    if(!Array.isArray(servicios) || servicios.length === 0){
-      console.warn("La variable 'servicios' está vacía o no es un arreglo:", servicios);
-      return;
-    }
-
-    // Extrae el texto del servicio sea un string directo, un objeto o una tupla/arreglo
-    const listaNombres = servicios
-      .map(s => {
-        if (typeof s === 'string') return s.trim();
-        if (typeof s === 'object' && s !== null) {
-          return String(s.nombre || s.Nombre || s.servicio || s.Servicio || s[0] || '').trim();
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const serviciosPredeterminados = [
+            "Administración", "Anatomía Patológica", "Banco de Sangre", 
+            "Consultorios Externos", "Farmacia", "Guardia / Emergencias", 
+            "Hemoterapia", "Infectología", "Kinesiología", "Laboratorio", 
+            "Maternidad", "Pediatría", "Quirófano", "Radiología / Imágenes", 
+            "Terapia Intensiva (UTI)"
+        ];
+
+        let pedidos = JSON.parse(localStorage.getItem('pedidosHospital')) || [];
+        let servicios = JSON.parse(localStorage.getItem('serviciosHospital')) || serviciosPredeterminados;
+        let claveAdmin = localStorage.getItem('claveAdminCadeteria') || '1234';
+
+        const modalPedido = new bootstrap.Modal(document.getElementById('modalPedido'));
+        const modalServicios = new bootstrap.Modal(document.getElementById('modalServicios'));
+        const modalPassword = new bootstrap.Modal(document.getElementById('modalPassword'));
+        const modalGestionSeguridad = new bootstrap.Modal(document.getElementById('modalGestionSeguridad'));
+
+        let callbackDespuesAutenticar = null;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            poblarSelectsServicios();
+            actualizarIndicadorSeguridad();
+            filtrarTabla();
+            
+            document.getElementById('inputPassAcceso').addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') validarPassword();
+            });
+        });
+
+        // 🔒 Lógica de Contraseña y Seguridad
+        function esAdmin() {
+            return sessionStorage.getItem('adminAutenticado') === 'true';
         }
-        return '';
-      })
-      .filter(nombre => nombre.length > 0);
-
-    // Elimina duplicados y ordena alfabéticamente
-    const nombresUnicos = [...new Set(listaNombres)].sort((a, b) => a.localeCompare(b, 'es'));
-
-    nombresUnicos.forEach(nombre => {
-      const optO = document.createElement('option');
-      optO.value = nombre;
-      optO.textContent = nombre;
-      origen.appendChild(optO);
-
-      const optD = document.createElement('option');
-      optD.value = nombre;
-      optD.textContent = nombre;
-      destino.appendChild(optD);
-    });
-
-    origen.value = actualOrigen;
-    destino.value = actualDestino;
-  }
-
-
-  function llenarSelectUnicos(
-    id,
-    valores
-  ){
-
-    const select =
-      document.getElementById(id);
-
-
-    if(!select){
-      return;
-    }
-
-
-    const valorActual =
-      select.value;
-
-
-    const unicos =
-      [
-        ...new Set(
-          valores
-            .map(
-              v =>
-                String(
-                  v || ''
-                ).trim()
-            )
-            .filter(Boolean)
-        )
-      ]
-      .sort(
-        (a,b) =>
-          a.localeCompare(
-            b,
-            'es'
-          )
-      );
-
-
-    const primera =
-      select.options[0]
-        ? select.options[0].textContent
-        : 'Todos';
-
-
-    select.innerHTML =
-      '';
-
-
-    const optionTodos =
-      document.createElement('option');
-    optionTodos.value = '';
-    optionTodos.textContent = primera;
-    select.appendChild(optionTodos);
-
-    unicos.forEach(val => {
-      const opt = document.createElement('option');
-      opt.value = val;
-      opt.textContent = val;
-      select.appendChild(opt);
-    });
-
-    select.value = valorActual;
-
-  }
-
-  function aplicarFiltros(){
-    const buscar = document.getElementById('filtroBuscar').value.toLowerCase().trim();
-    const estado = document.getElementById('filtroEstado').value;
-    const tipo = document.getElementById('filtroTipo').value;
-    const prioridad = document.getElementById('filtroPrioridad').value;
-    const cadete = document.getElementById('filtroCadete').value;
-    const movil = document.getElementById('filtroMovil').value;
-    const desde = document.getElementById('filtroDesde').value;
-    const hasta = document.getElementById('filtroHasta').value;
-
-    pedidosFiltrados = pedidos.filter(p => {
-      if(esArchivado(p) && !estado) return false;
-
-      if(estado && String(p.Estado || '') !== estado) return false;
-      if(tipo && String(p.Tipo || '') !== tipo) return false;
-      if(prioridad && String(p.Prioridad || '') !== prioridad) return false;
-      if(cadete && String(p.Cadete || '') !== cadete) return false;
-      if(movil && String(p.Movil || '') !== movil) return false;
-
-      if(desde){
-        const fechaP = formatearFechaComparar(p.Programado || p.Fecha);
-        if(fechaP && fechaP < desde) return false;
-      }
-      if(hasta){
-        const fechaP = formatearFechaComparar(p.Programado || p.Fecha);
-        if(fechaP && fechaP > hasta) return false;
-      }
-
-      if(buscar){
-        const textoFila = [
-          p.Origen, p.Destino, p.Cadete, p.Movil, p.Tipo, p.Observaciones, p.Estado
-        ].map(v => String(v || '').toLowerCase()).join(' ');
-        if(!textoFila.includes(buscar)) return false;
-      }
-
-      return true;
-    });
-
-    renderizarTabla();
-  }
-
-  function formatearFechaComparar(fechaStr){
-    if(!fechaStr) return '';
-    const d = new Date(fechaStr);
-    if(isNaN(d.getTime())) return '';
-    return d.toISOString().split('T')[0];
-  }
-
-  function filtrarHoy(){
-    const hoy = new Date().toISOString().split('T')[0];
-    document.getElementById('filtroDesde').value = hoy;
-    document.getElementById('filtroHasta').value = hoy;
-    aplicarFiltros();
-  }
-
-  function limpiarFiltros(){
-    document.getElementById('filtroBuscar').value = '';
-    document.getElementById('filtroEstado').value = '';
-    document.getElementById('filtroTipo').value = '';
-    document.getElementById('filtroPrioridad').value = '';
-    document.getElementById('filtroCadete').value = '';
-    document.getElementById('filtroMovil').value = '';
-    document.getElementById('filtroDesde').value = '';
-    document.getElementById('filtroHasta').value = '';
-    aplicarFiltros();
-  }
-
-  function renderizarTabla(){
-    const tbody = document.getElementById('tablaPedidos');
-    const empty = document.getElementById('emptyState');
-    const contador = document.getElementById('contadorResultados');
-
-    tbody.innerHTML = '';
-    contador.textContent = `${pedidosFiltrados.length} registros`;
-
-    if(pedidosFiltrados.length === 0){
-      empty.style.display = 'block';
-      return;
-    }
-
-    empty.style.display = 'none';
-
-    pedidosFiltrados.forEach(p => {
-      const tr = document.createElement('tr');
-
-      tr.innerHTML = `
-        <td class="muted">${formatearFechaHora(p.Fecha)}</td>
-        <td><strong>${formatearFechaHora(p.Programado)}</strong></td>
-        <td class="route">
-          <div class="route-main">
-            ${escapeHTML(p.Origen || '—')} <span class="route-arrow">→</span> ${escapeHTML(p.Destino || '—')}
-          </div>
-        </td>
-        <td>${escapeHTML(p.Tipo || '—')}</td>
-        <td>${escapeHTML(p.Cadete || 'Sin asignar')}</td>
-        <td>${escapeHTML(p.Movil || '—')}</td>
-        <td><span class="badge badge-${String(p.Prioridad || 'media').toLowerCase()}">${escapeHTML(p.Prioridad || 'Media')}</span></td>
-        <td><span class="badge badge-${obtenerClaseEstado(p.Estado)}">${escapeHTML(p.Estado || 'Pendiente')}</span></td>
-        <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${escapeHTML(p.Observaciones || '')}">${escapeHTML(p.Observaciones || '—')}</td>
-        <td class="actions">
-          ${obtenerBotonesAccion(p)}
-        </td>
-      `;
-
-      tbody.appendChild(tr);
-    });
-  }
-
-  function obtenerClaseEstado(estado){
-    const e = String(estado || '').toLowerCase();
-    if(e === 'en curso') return 'curso';
-    if(e === 'no realizada') return 'no-realizada';
-    return e;
-  }
-
-  function obtenerBotonesAccion(p){
-    const id = p.ID || p.id;
-    let html = `<button class="action" onclick="editarPedido('${id}')">✏ Editar</button>`;
-
-    if(p.Estado === 'Pendiente'){
-      html += `<button class="action" onclick="cambiarEstado('${id}', 'En curso')">▶ Iniciar</button>`;
-    }
-    if(p.Estado === 'En curso' || p.Estado === 'Pendiente'){
-      html += `<button class="action" onclick="abrirModalFinalizar('${id}')">✓ Finalizar</button>`;
-    }
-    return html;
-  }
-
-  function formatearFechaHora(fechaStr){
-    if(!fechaStr) return '—';
-    const d = new Date(fechaStr);
-    if(isNaN(d.getTime())) return fechaStr;
-    return d.toLocaleString('es-AR', {
-      day: '2-digit', month: '2-digit', year: '2-digit',
-      hour: '2-digit', minute: '2-digit'
-    });
-  }
-
-  function escapeHTML(str){
-    return String(str)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
-
-  /* =====================================================
-     ACCIONES Y FORMULARIOS DE PEDIDO
-     ===================================================== */
-
-  function nuevoPedido(){
-    document.getElementById('pedidoId').value = '';
-    document.getElementById('tituloModalPedido').textContent = 'Nuevo traslado';
-    document.getElementById('pedidoOrigen').value = '';
-    document.getElementById('pedidoDestino').value = '';
-    document.getElementById('pedidoTipo').value = 'Medicamentos';
-
-    const ahora = new Date();
-    ahora.setMinutes(ahora.getMinutes() - ahora.getTimezoneOffset());
-    document.getElementById('pedidoProgramado').value = ahora.toISOString().slice(0, 16);
-
-    document.getElementById('pedidoCadete').value = '';
-    document.getElementById('pedidoMovil').value = '';
-    document.getElementById('pedidoPrioridad').value = 'Media';
-    document.getElementById('pedidoEstado').value = 'Pendiente';
-    document.getElementById('pedidoObservaciones').value = '';
-
-    abrirModal('modalPedido');
-  }
-
-  function editarPedido(id){
-    const p = pedidos.find(item => String(item.ID || item.id) === String(id));
-    if(!p) return;
-
-    document.getElementById('pedidoId').value = id;
-    document.getElementById('tituloModalPedido').textContent = 'Editar traslado';
-    document.getElementById('pedidoOrigen').value = p.Origen || '';
-    document.getElementById('pedidoDestino').value = p.Destino || '';
-    document.getElementById('pedidoTipo').value = p.Tipo || 'Medicamentos';
-
-    if(p.Programado){
-      const d = new Date(p.Programado);
-      if(!isNaN(d.getTime())){
-        d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-        document.getElementById('pedidoProgramado').value = d.toISOString().slice(0, 16);
-      }
-    }
-
-    document.getElementById('pedidoCadete').value = p.Cadete || '';
-    document.getElementById('pedidoMovil').value = p.Movil || '';
-    document.getElementById('pedidoPrioridad').value = p.Prioridad || 'Media';
-    document.getElementById('pedidoEstado').value = p.Estado || 'Pendiente';
-    document.getElementById('pedidoObservaciones').value = p.Observaciones || '';
-
-    abrirModal('modalPedido');
-  }
-
-  async function guardarPedidoFormulario(){
-    const id = document.getElementById('pedidoId').value;
-    const origen = document.getElementById('pedidoOrigen').value;
-    const destino = document.getElementById('pedidoDestino').value;
-    const tipo = document.getElementById('pedidoTipo').value;
-    const programado = document.getElementById('pedidoProgramado').value;
-
-    if(!origen || !destino || !programado){
-      mostrarToast('Por favor completa los campos obligatorios (*)', 'error');
-      return;
-    }
-
-    const datos = {
-      id: id,
-      origen: origen,
-      destino: destino,
-      tipo: tipo,
-      programado: programado,
-      cadete: document.getElementById('pedidoCadete').value,
-      movil: document.getElementById('pedidoMovil').value,
-      prioridad: document.getElementById('pedidoPrioridad').value,
-      estado: document.getElementById('pedidoEstado').value,
-      observaciones: document.getElementById('pedidoObservaciones').value
-    };
-
-    cerrarModal('modalPedido');
-    mostrarLoading('Guardando traslado...');
-
-    try{
-      await apiPost(id ? 'editarPedido' : 'nuevoPedido', datos);
-      mostrarToast('Traslado guardado con éxito', 'success');
-      await cargarDatos();
-    }catch(e){
-      ocultarLoading();
-      mostrarToast('Error al guardar: ' + obtenerMensajeError(e), 'error');
-    }
-  }
-
-  async function cambiarEstado(id, nuevoEstado){
-    mostrarLoading('Actualizando estado...');
-    try{
-      await apiPost('cambiarEstado', { id: id, estado: nuevoEstado });
-      mostrarToast('Estado actualizado', 'success');
-      await cargarDatos();
-    }catch(e){
-      ocultarLoading();
-      mostrarToast('Error: ' + obtenerMensajeError(e), 'error');
-    }
-  }
-
-  function abrirModalFinalizar(id){
-    pedidoFinalizarId = id;
-    document.getElementById('observacionesFinales').value = '';
-    abrirModal('modalFinalizar');
-  }
-
-  async function confirmarFinalizacion(){
-    if(!pedidoFinalizarId) return;
-    const obs = document.getElementById('observacionesFinales').value;
-
-    cerrarModal('modalFinalizar');
-    mostrarLoading('Finalizando traslado...');
-
-    try{
-      await apiPost('finalizarPedido', { id: pedidoFinalizarId, observaciones: obs });
-      mostrarToast('Traslado finalizado', 'success');
-      pedidoFinalizarId = null;
-      await cargarDatos();
-    }catch(e){
-      ocultarLoading();
-      mostrarToast('Error: ' + obtenerMensajeError(e), 'error');
-    }
-  }
-
-
-  /* =====================================================
-     SERVICIOS
-     ===================================================== */
-
-  function abrirServicios(){
-    renderizarListaServicios();
-    abrirModal('modalServicios');
-  }
-
-  function renderizarListaServicios(){
-    const contenedor = document.getElementById('listaServicios');
-    contenedor.innerHTML = '';
-
-    servicios.forEach(s => {
-      let nombre = '';
-      let id = '';
-
-      if (typeof s === 'string') {
-        nombre = s;
-        id = s;
-      } else if (typeof s === 'object' && s !== null) {
-        nombre = s.nombre || s.Nombre || s.servicio || s.Servicio || s[0] || '';
-        id = s.id || s.ID || nombre;
-      }
-
-      if(!nombre) return;
-
-      const item = document.createElement('div');
-      item.className = 'service-item';
-      item.innerHTML = `
-        <span>${escapeHTML(nombre)}</span>
-        <button class="btn btn-small btn-danger" onclick="eliminarServicioFormulario('${escapeHTML(id)}')">✕</button>
-      `;
-      contenedor.appendChild(item);
-    });
-  }
-
-  async function agregarServicioFormulario(){
-    const input = document.getElementById('nuevoServicio');
-    const nombre = input.value.trim();
-
-    if(!nombre){
-      mostrarToast('Ingresa un nombre de servicio válido', 'error');
-      return;
-    }
-
-    mostrarLoading('Agregando servicio...');
-    try{
-      await apiPost('agregarServicio', { nombre: nombre });
-      input.value = '';
-      mostrarToast('Servicio agregado', 'success');
-      await cargarDatos();
-      renderizarListaServicios();
-    }catch(e){
-      ocultarLoading();
-      mostrarToast('Error: ' + obtenerMensajeError(e), 'error');
-    }
-  }
-
-  async function eliminarServicioFormulario(id){
-    if(!confirm('¿Eliminar este servicio?')) return;
-
-    mostrarLoading('Eliminando servicio...');
-    try{
-      await apiPost('eliminarServicio', { id: id });
-      mostrarToast('Servicio eliminado', 'success');
-      await cargarDatos();
-      renderizarListaServicios();
-    }catch(e){
-      ocultarLoading();
-      mostrarToast('Error: ' + obtenerMensajeError(e), 'error');
-    }
-  }
-
-
-  /* =====================================================
-     HISTÓRICO Y EXPORTACIÓN
-     ===================================================== */
-
-  function abrirHistorico(){
-    const contenedor = document.getElementById('historicoContenido');
-    const archivados = pedidos.filter(p => esArchivado(p));
-
-    if(archivados.length === 0){
-      contenedor.innerHTML = '<div class="empty">No hay registros en el histórico.</div>';
-    } else {
-      let html = `
-        <table>
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Origen → Destino</th>
-              <th>Tipo</th>
-              <th>Cadete</th>
-              <th>Estado</th>
-              <th>Observaciones</th>
-            </tr>
-          </thead>
-          <tbody>
-      `;
-
-      archivados.forEach(p => {
-        html += `
-          <tr>
-            <td>${formatearFechaHora(p.Fecha)}</td>
-            <td>${escapeHTML(p.Origen || '')} → ${escapeHTML(p.Destino || '')}</td>
-            <td>${escapeHTML(p.Tipo || '')}</td>
-            <td>${escapeHTML(p.Cadete || '')}</td>
-            <td><span class="badge badge-${obtenerClaseEstado(p.Estado)}">${escapeHTML(p.Estado || '')}</span></td>
-            <td>${escapeHTML(p.Observaciones || '')}</td>
-          </tr>
-        `;
-      });
-
-      html += '</tbody></table>';
-      contenedor.innerHTML = html;
-    }
-
-    abrirModal('modalHistorico');
-  }
-
-  function exportarCSV(){
-    if(pedidosFiltrados.length === 0){
-      mostrarToast('No hay datos para exportar', 'error');
-      return;
-    }
-
-    const cabeceras = ['ID', 'Fecha', 'Programado', 'Origen', 'Destino', 'Tipo', 'Cadete', 'Movil', 'Prioridad', 'Estado', 'Observaciones'];
-    const filas = pedidosFiltrados.map(p => [
-      p.ID || p.id || '',
-      p.Fecha || '',
-      p.Programado || '',
-      `"${(p.Origen || '').replace(/"/g, '""')}"`,
-      `"${(p.Destino || '').replace(/"/g, '""')}"`,
-      `"${(p.Tipo || '').replace(/"/g, '""')}"`,
-      `"${(p.Cadete || '').replace(/"/g, '""')}"`,
-      `"${(p.Movil || '').replace(/"/g, '""')}"`,
-      p.Prioridad || '',
-      p.Estado || '',
-      `"${(p.Observaciones || '').replace(/"/g, '""')}"`
-    ]);
-
-    const contenido = [cabeceras.join(','), ...filas.map(f => f.join(','))].join('\n');
-    const blob = new Blob(['\ufeff' + contenido], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `traslados_${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
-
-  /* =====================================================
-     UI UTILIDADES (MODALES, TOAST, TEMA)
-     ===================================================== */
-
-  function abrirModal(id){
-    document.getElementById(id).classList.add('show');
-  }
-
-  function cerrarModal(id){
-    document.getElementById(id).classList.remove('show');
-  }
-
-  function mostrarLoading(texto){
-    document.getElementById('loadingText').textContent = texto || 'Cargando...';
-    document.getElementById('loading').classList.add('show');
-  }
-
-  function ocultarLoading(){
-    document.getElementById('loading').classList.remove('show');
-  }
-
-  function mostrarToast(mensaje, tipo = 'success'){
-    const toast = document.getElementById('toast');
-    toast.textContent = mensaje;
-    toast.className = `toast show ${tipo}`;
-
-    setTimeout(() => {
-      toast.classList.remove('show');
-    }, 4000);
-  }
-
-  function alternarTema(){
-    document.body.classList.toggle('dark');
-    const esOscuro = document.body.classList.contains('dark');
-    document.getElementById('btnTema').textContent = esOscuro ? '☀️' : '🌙';
-    localStorage.setItem('temaDark', esOscuro ? '1' : '0');
-  }
-
-  function cargarTema(){
-    if(localStorage.getItem('temaDark') === '1'){
-      document.body.classList.add('dark');
-      document.getElementById('btnTema').textContent = '☀️';
-    }
-  }
-
-</script>
 
+        function requerirPassword(callbackAccion, ...args) {
+            if (esAdmin()) {
+                callbackAccion(...args);
+            } else {
+                callbackDespuesAutenticar = () => callbackAccion(...args);
+                document.getElementById('inputPassAcceso').value = '';
+                document.getElementById('errorPassAcceso').classList.add('d-none');
+                modalPassword.show();
+            }
+        }
+
+        function validarPassword() {
+            const pass = document.getElementById('inputPassAcceso').value;
+            if (pass === claveAdmin) {
+                sessionStorage.setItem('adminAutenticado', 'true');
+                actualizarIndicadorSeguridad();
+                modalPassword.hide();
+                if (callbackDespuesAutenticar) {
+                    callbackDespuesAutenticar();
+                    callbackDespuesAutenticar = null;
+                }
+            } else {
+                document.getElementById('errorPassAcceso').classList.remove('d-none');
+            }
+        }
+
+        function gestionarSeguridad() {
+            if (esAdmin()) {
+                document.getElementById('nuevaClaveInput').value = '';
+                modalGestionSeguridad.show();
+            } else {
+                requerirPassword(() => {
+                    document.getElementById('nuevaClaveInput').value = '';
+                    modalGestionSeguridad.show();
+                });
+            }
+        }
+
+        function cambiarClave() {
+            const nueva = document.getElementById('nuevaClaveInput').value.trim();
+            if (nueva.length < 3) {
+                alert("La clave debe tener al menos 3 caracteres.");
+                return;
+            }
+            claveAdmin = nueva;
+            localStorage.setItem('claveAdminCadeteria', nueva);
+            alert("Contraseña actualizada correctamente.");
+            modalGestionSeguridad.hide();
+        }
+
+        function bloquearSesion() {
+            sessionStorage.removeItem('adminAutenticado');
+            actualizarIndicadorSeguridad();
+            modalGestionSeguridad.hide();
+            filtrarTabla();
+        }
+
+        function actualizarIndicadorSeguridad() {
+            const btn = document.getElementById('btnEstadoSeguridad');
+            const icono = document.getElementById('iconoSeguridad');
+            const texto = document.getElementById('textoSeguridad');
+
+            if (esAdmin()) {
+                btn.className = "btn btn-sm btn-outline-success";
+                icono.className = "bi bi-unlock-fill me-1";
+                texto.innerText = "Modo Edición";
+            } else {
+                btn.className = "btn btn-sm btn-outline-secondary";
+                icono.className = "bi bi-lock-fill me-1";
+                texto.innerText = "Modo Lectura";
+            }
+        }
+
+        // 🏬 Gestión de Servicios
+        function guardarServicios() {
+            servicios.sort();
+            localStorage.setItem('serviciosHospital', JSON.stringify(servicios));
+        }
+
+        function poblarSelectsServicios() {
+            const selectOrigen = document.getElementById('origen');
+            const selectDestino = document.getElementById('destino');
+            
+            const valOrigen = selectOrigen ? selectOrigen.value : '';
+            const valDestino = selectDestino ? selectDestino.value : '';
+
+            let optionsHTML = '<option value="" disabled selected>Seleccione área...</option>';
+            servicios.forEach(s => {
+                optionsHTML += `<option value="${s}">${s}</option>`;
+            });
+
+            if (selectOrigen) selectOrigen.innerHTML = optionsHTML;
+            if (selectDestino) selectDestino.innerHTML = optionsHTML;
+
+            if (valOrigen) selectOrigen.value = valOrigen;
+            if (valDestino) selectDestino.value = valDestino;
+        }
+
+        function abrirModalServicios() {
+            renderizarListaServiciosModal();
+            modalServicios.show();
+        }
+
+        function renderizarListaServiciosModal() {
+            const ul = document.getElementById('listaServiciosModal');
+            if (!ul) return;
+            ul.innerHTML = '';
+            servicios.forEach((s, idx) => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item d-flex justify-content-between align-items-center py-2';
+                li.innerHTML = `
+                    <span><i class="bi bi-building me-2 text-muted"></i>${s}</span>
+                    <button class="btn btn-sm btn-outline-danger border-0" onclick="eliminarServicio(${idx})" title="Eliminar servicio">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                `;
+                ul.appendChild(li);
+            });
+        }
+
+        function agregarServicio() {
+            const input = document.getElementById('nuevoNombreServicio');
+            const nombre = input.value.trim();
+            if (!nombre) return;
+            if (servicios.some(s => s.toLowerCase() === nombre.toLowerCase())) {
+                alert("El servicio ya existe.");
+                return;
+            }
+            servicios.push(nombre);
+            guardarServicios();
+            poblarSelectsServicios();
+            renderizarListaServiciosModal();
+            input.value = '';
+        }
+
+        function eliminarServicio(index) {
+            if (confirm(`¿Deseas eliminar '${servicios[index]}' de la lista de servicios?`)) {
+                servicios.splice(index, 1);
+                guardarServicios();
+                poblarSelectsServicios();
+                renderizarListaServiciosModal();
+            }
+        }
+
+        // 📋 Operaciones con Pedidos
+        function abrirModalNuevo() {
+            document.getElementById('formPedido').reset();
+            document.getElementById('pedidoId').value = '';
+            document.getElementById('estado').value = 'Pendiente';
+            
+            const ahora = new Date();
+            ahora.setMinutes(ahora.getMinutes() - ahora.getTimezoneOffset());
+            document.getElementById('fechaProgramada').value = ahora.toISOString().slice(0,16);
+
+            document.getElementById('modalTitulo').innerText = '➕ Nuevo Pedido de Cadetería';
+            modalPedido.show();
+        }
+
+        document.getElementById('formPedido').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const idActual = document.getElementById('pedidoId').value;
+            const pedidoExistente = idActual ? pedidos.find(p => p.id == idActual) : null;
+            
+            const ahora = new Date();
+            const fechaProgInput = document.getElementById('fechaProgramada').value;
+            
+            let isoRef = ahora.toISOString().split('T')[0];
+            if (fechaProgInput) {
+                isoRef = fechaProgInput.split('T')[0];
+            }
+
+            const nuevoPedido = {
+                id: idActual ? parseInt(idActual) : Date.now(),
+                fecha: pedidoExistente ? pedidoExistente.fecha : meFormatoFecha(ahora),
+                fechaISO: pedidoExistente ? (pedidoExistente.fechaISO || isoRef) : isoRef,
+                fechaProgramada: fechaProgInput || '',
+                origen: document.getElementById('origen').value,
+                destino: document.getElementById('destino').value,
+                tipo: document.getElementById('tipo').value,
+                cadete: document.getElementById('cadete').value,
+                prioridad: document.getElementById('prioridad').value,
+                estado: document.getElementById('estado').value,
+                observaciones: document.getElementById('observaciones').value,
+                archivado: pedidoExistente ? (pedidoExistente.archivado || false) : false
+            };
+
+            if (idActual) {
+                const index = pedidos.findIndex(p => p.id == idActual);
+                pedidos[index] = nuevoPedido;
+            } else {
+                pedidos.unshift(nuevoPedido);
+            }
+
+            guardarDatos();
+            modalPedido.hide();
+            limpiarFiltros();
+        });
+
+        function meFormatoFecha(fechaObj) {
+            return fechaObj.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }) + 
+                   ' ' + 
+                   fechaObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function editarPedido(id) {
+            const pedido = pedidos.find(p => p.id === id);
+            document.getElementById('pedidoId').value = pedido.id;
+            document.getElementById('origen').value = pedido.origen;
+            document.getElementById('destino').value = pedido.destino;
+            document.getElementById('tipo').value = pedido.tipo;
+            document.getElementById('fechaProgramada').value = pedido.fechaProgramada || '';
+            document.getElementById('cadete').value = pedido.cadete;
+            document.getElementById('prioridad').value = pedido.prioridad;
+            document.getElementById('estado').value = pedido.estado;
+            document.getElementById('observaciones').value = pedido.observaciones;
+            
+            document.getElementById('modalTitulo').innerText = '✏️ Editar Pedido';
+            modalPedido.show();
+        }
+
+        function alternarArchivo(id) {
+            const index = pedidos.findIndex(p => p.id === id);
+            if (index !== -1) {
+                pedidos[index].archivado = !pedidos[index].archivado;
+                guardarDatos();
+                filtrarTabla();
+            }
+        }
+
+        function eliminarPedido(id) {
+            if (confirm("¿Estás seguro de que deseas eliminar este registro?")) {
+                pedidos = pedidos.filter(p => p.id !== id);
+                guardarDatos();
+                filtrarTabla();
+            }
+        }
+
+        function guardarDatos() {
+            localStorage.setItem('pedidosHospital', JSON.stringify(pedidos));
+        }
+
+        // 🗓️ Agrupamiento Semanal y Renderizado
+        function obtenerDatosSemana(fechaStr) {
+            if (!fechaStr) return { key: '9999-99', label: 'Sin Fecha Programada / Histórico' };
+            const d = new Date(fechaStr.includes('T') ? fechaStr : fechaStr + 'T00:00:00');
+            if (isNaN(d.getTime())) return { key: '9999-99', label: 'Sin Fecha Programada / Histórico' };
+
+            const dia = d.getDay();
+            const diff = d.getDate() - dia + (dia === 0 ? -6 : 1); 
+            const lunes = new Date(d.setDate(diff));
+            const domingo = new Date(lunes);
+            domingo.setDate(lunes.getDate() + 6);
+
+            const formato = date => date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            
+            const yyyy = lunes.getFullYear();
+            const mm = String(lunes.getMonth() + 1).padStart(2, '0');
+            const dd = String(lunes.getDate()).padStart(2, '0');
+
+            return {
+                key: `${yyyy}-${mm}-${dd}`,
+                label: `Semana del ${formato(lunes)} al ${formato(domingo)}`
+            };
+        }
+
+        function actualizarTabla(datos) {
+            const tbody = document.getElementById('tabla-pedidos');
+            tbody.innerHTML = '';
+
+            if (datos.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-4"><i class="bi bi-inbox fs-3 d-block mb-1"></i>No hay traslados para mostrar.</td></tr>`;
+                actualizarEstadisticas();
+                return;
+            }
+
+            const grupos = {};
+
+            datos.forEach(p => {
+                const fechaRef = p.fechaProgramada ? p.fechaProgramada.split('T')[0] : p.fechaISO;
+                const infoSemana = obtenerDatosSemana(fechaRef);
+                
+                if (!grupos[infoSemana.key]) {
+                    grupos[infoSemana.key] = {
+                        label: infoSemana.label,
+                        lista: []
+                    };
+                }
+                grupos[infoSemana.key].lista.push(p);
+            });
+
+            const semanasOrdenadas = Object.keys(grupos).sort().reverse();
+
+            semanasOrdenadas.forEach(keySemana => {
+                const grupo = grupos[keySemana];
+                
+                const filaSeparadora = `
+                    <tr class="encabezado-semana">
+                        <td colspan="9" class="py-2 px-3">
+                            <i class="bi bi-calendar-week me-2"></i><span>${grupo.label}</span>
+                            <span class="badge bg-secondary ms-2">${grupo.lista.length} traslados</span>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += filaSeparadora;
+
+                grupo.lista.forEach(p => {
+                    let badgePrioridad = 'bg-info text-dark';
+                    if(p.prioridad.includes('Alta')) badgePrioridad = 'bg-danger text-white';
+                    if(p.prioridad === 'Media') badgePrioridad = 'bg-warning text-dark';
+
+                    let botonArchivo = '';
+                    if (p.archivado) {
+                        botonArchivo = `<button class="btn btn-outline-dark" onclick="requerirPassword(alternarArchivo, ${p.id})" title="Desarchivar"><i class="bi bi-box-arrow-up"></i></button>`;
+                    } else if (p.estado === 'Realizada' || p.estado === 'Cancelada') {
+                        botonArchivo = `<button class="btn btn-outline-secondary" onclick="requerirPassword(alternarArchivo, ${p.id})" title="Archivar"><i class="bi bi-archive"></i></button>`;
+                    }
+
+                    let textoProgramado = '<span class="text-muted">-</span>';
+                    if (p.fechaProgramada) {
+                        const fProg = new Date(p.fechaProgramada);
+                        textoProgramado = `<span class="fw-bold text-primary">${fProg.toLocaleDateString('es-ES')}</span> <small class="text-muted">${fProg.toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'})} hs</small>`;
+                    }
+
+                    const fila = `
+                        <tr class="${p.archivado ? 'fila-archivada' : ''}">
+                            <td class="text-muted small">${p.fecha}</td>
+                            <td>${textoProgramado}</td>
+                            <td>
+                                <span class="fw-bold">${p.origen}</span> 
+                                <i class="bi bi-arrow-right text-muted mx-1"></i> 
+                                <span class="fw-bold">${p.destino}</span>
+                            </td>
+                            <td>${p.tipo}</td>
+                            <td><i class="bi bi-person me-1 text-muted"></i>${p.cadete}</td>
+                            <td><span class="badge ${badgePrioridad}">${p.prioridad}</span></td>
+                            <td><span class="badge badge-estado-${p.estado}">${p.estado}</span></td>
+                            <td style="max-width: 140px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;" title="${p.observaciones}">${p.observaciones || '-'}</td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary" onclick="requerirPassword(editarPedido, ${p.id})" title="Editar"><i class="bi bi-pencil"></i></button>
+                                    ${botonArchivo}
+                                    <button class="btn btn-outline-danger" onclick="requerirPassword(eliminarPedido, ${p.id})" title="Eliminar"><i class="bi bi-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += fila;
+                });
+            });
+
+            actualizarEstadisticas();
+        }
+
+        function obtenerFechaFiltro(pedido) {
+            if (pedido.fechaProgramada) return pedido.fechaProgramada.split('T')[0];
+            if (pedido.fechaISO) return pedido.fechaISO;
+            return "";
+        }
+
+        function filtrarTabla() {
+            const busqueda = document.getElementById('buscador').value.toLowerCase();
+            const estadoFiltro = document.getElementById('filtro-estado').value;
+            const verArchivados = document.getElementById('verArchivados').checked;
+            const fechaDesde = document.getElementById('fecha-desde').value;
+            const fechaHasta = document.getElementById('fecha-hasta').value;
+
+            const filtrados = pedidos.filter(p => {
+                const esArchivado = p.archivado || false;
+                if (verArchivados && !esArchivado) return false;
+                if (!verArchivados && esArchivado) return false;
+
+                const coincideBusqueda = p.origen.toLowerCase().includes(busqueda) ||
+                                         p.destino.toLowerCase().includes(busqueda) ||
+                                         p.cadete.toLowerCase().includes(busqueda) ||
+                                         p.tipo.toLowerCase().includes(busqueda);
+
+                const coincideEstado = estadoFiltro === "Todos" || p.estado === estadoFiltro;
+
+                const fechaRegistro = obtenerFechaFiltro(p);
+                let coincideFecha = true;
+
+                if (fechaDesde && fechaRegistro) {
+                    coincideFecha = coincideFecha && (fechaRegistro >= fechaDesde);
+                }
+                if (fechaHasta && fechaRegistro) {
+                    coincideFecha = coincideFecha && (fechaRegistro <= fechaHasta);
+                }
+
+                return coincideBusqueda && coincideEstado && coincideFecha;
+            });
+
+            actualizarTabla(filtrados);
+        }
+
+        function filtrarHoy() {
+            const hoy = new Date().toISOString().split('T')[0];
+            document.getElementById('fecha-desde').value = hoy;
+            document.getElementById('fecha-hasta').value = hoy;
+            filtrarTabla();
+        }
+
+        function limpiarFiltros() {
+            document.getElementById('buscador').value = '';
+            document.getElementById('filtro-estado').value = 'Todos';
+            document.getElementById('fecha-desde').value = '';
+            document.getElementById('fecha-hasta').value = '';
+            document.getElementById('verArchivados').checked = false;
+            filtrarTabla();
+        }
+
+        function actualizarEstadisticas() {
+            const activos = pedidos.filter(p => !p.archivado);
+            document.getElementById('stat-total').innerText = activos.length;
+            document.getElementById('stat-pendientes').innerText = activos.filter(p => p.estado === 'Pendiente').length;
+            document.getElementById('stat-realizadas').innerText = activos.filter(p => p.estado === 'Realizada').length;
+            document.getElementById('stat-archivados').innerText = pedidos.filter(p => p.archivado).length;
+        }
+
+        function exportarCSV() {
+            if(pedidos.length === 0) {
+                alert("No hay datos para exportar.");
+                return;
+            }
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "ID,Fecha Registro,Fecha Programada,Origen,Destino,Tipo,Cadete,Prioridad,Estado,Archivado,Observaciones\n";
+
+            pedidos.forEach(p => {
+                let obsLimpias = (p.observaciones || "").replace(/,/g, " ").replace(/\n/g, " ");
+                let row = [
+                    p.id,
+                    `"${p.fecha}"`,
+                    `"${p.fechaProgramada || 'Sin programar'}"`,
+                    `"${p.origen}"`,
+                    `"${p.destino}"`,
+                    `"${p.tipo}"`,
+                    `"${p.cadete}"`,
+                    `"${p.prioridad}"`,
+                    `"${p.estado}"`,
+                    `"${p.archivado ? 'Sí' : 'No'}"`,
+                    `"${obsLimpias}"`
+                ];
+                csvContent += row.join(",") + "\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Reporte_Cadeteria_${new Date().toLocaleDateString('es-ES')}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
 </body>
 </html>
