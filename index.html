@@ -1,745 +1,3774 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏥 Panel de Cadetería Hospitalaria</title>
-    <!-- Bootstrap 5 CSS y Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <style>
-        body { background-color: #f4f7f6; font-family: system-ui, -apple-system, sans-serif; }
-        
-        /* KPIs con indicador lateral */
-        .card-kpi { border: none; border-left: 5px solid; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .kpi-activos { border-color: #0d6efd; }
-        .kpi-pendientes { border-color: #ffc107; }
-        .kpi-realizadas { border-color: #198754; }
-        .kpi-archivados { border-color: #6c757d; }
+  <base target="_top">
 
-        .table-responsive { background: white; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); padding: 15px; }
-        .encabezado-semana { background-color: #eef2f7 !important; font-weight: 600; color: #344767; }
-        .fila-archivada { opacity: 0.7; background-color: #f8f9fa; }
-        
-        /* Badges de estado */
-        .badge-estado-Pendiente { background-color: #fff3cd; color: #856404; font-weight: 600; }
-        .badge-estado-Realizada { background-color: #d4edda; color: #155724; font-weight: 600; }
-        .badge-estado-Cancelada { background-color: #f8d7da; color: #721c24; font-weight: 600; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Panel Principal de Cadetería Hospitalaria</title>
+
+  <style>
+    :root{
+      --bg:#f4f6f9;
+      --card:#ffffff;
+      --card2:#f8fafc;
+      --text:#17212b;
+      --muted:#697586;
+      --line:#dfe5eb;
+      --primary:#1769e0;
+      --primary-dark:#0f4fae;
+      --success:#168a4a;
+      --warning:#c47a00;
+      --danger:#c62828;
+      --info:#007c91;
+      --shadow:0 8px 25px rgba(15,23,42,.08);
+      --radius:16px;
+    }
+
+    body.dark{
+      --bg:#101418;
+      --card:#171c22;
+      --card2:#1d232b;
+      --text:#f1f5f9;
+      --muted:#a8b2bf;
+      --line:#303842;
+      --primary:#5b9cff;
+      --primary-dark:#8bb8ff;
+      --success:#43c77a;
+      --warning:#f2b84b;
+      --danger:#ff6b6b;
+      --info:#55c7dc;
+      --shadow:0 8px 25px rgba(0,0,0,.25);
+    }
+
+    *{
+      box-sizing:border-box;
+    }
+
+    html{
+      scroll-behavior:smooth;
+    }
+
+    body{
+      margin:0;
+      font-family:Arial,Helvetica,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      transition:.2s ease;
+    }
+
+    button,
+    input,
+    select,
+    textarea{
+      font:inherit;
+    }
+
+    button{
+      cursor:pointer;
+    }
+
+    .container{
+      width:min(1500px,94%);
+      margin:0 auto;
+    }
+
+    /* HEADER */
+
+    .topbar{
+      background:var(--card);
+      border-bottom:1px solid var(--line);
+      position:sticky;
+      top:0;
+      z-index:100;
+      box-shadow:0 2px 12px rgba(0,0,0,.04);
+    }
+
+    .topbar-inner{
+      min-height:76px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:20px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:14px;
+    }
+
+    .brand-icon{
+      width:48px;
+      height:48px;
+      border-radius:14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:var(--primary);
+      color:#fff;
+      font-size:23px;
+      font-weight:800;
+    }
+
+    .brand h1{
+      margin:0;
+      font-size:20px;
+    }
+
+    .brand p{
+      margin:4px 0 0;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .top-actions{
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    /* BUTTONS */
+
+    .btn{
+      border:1px solid var(--line);
+      background:var(--card);
+      color:var(--text);
+      border-radius:10px;
+      padding:10px 14px;
+      font-weight:700;
+      transition:.15s ease;
+    }
+
+    .btn:hover{
+      transform:translateY(-1px);
+      border-color:var(--primary);
+    }
+
+    .btn-primary{
+      background:var(--primary);
+      color:#fff;
+      border-color:var(--primary);
+    }
+
+    .btn-primary:hover{
+      background:var(--primary-dark);
+    }
+
+    .btn-success{
+      background:var(--success);
+      color:#fff;
+      border-color:var(--success);
+    }
+
+    .btn-danger{
+      background:var(--danger);
+      color:#fff;
+      border-color:var(--danger);
+    }
+
+    .btn-warning{
+      background:var(--warning);
+      color:#fff;
+      border-color:var(--warning);
+    }
+
+    .btn-small{
+      padding:7px 10px;
+      font-size:12px;
+      border-radius:8px;
+    }
+
+    /* MAIN */
+
+    main{
+      padding:24px 0 45px;
+    }
+
+    .toolbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:15px;
+      margin-bottom:20px;
+      flex-wrap:wrap;
+    }
+
+    .toolbar-title h2{
+      margin:0;
+      font-size:24px;
+    }
+
+    .toolbar-title p{
+      margin:5px 0 0;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .toolbar-actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    /* KPI */
+
+    .kpis{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:15px;
+      margin-bottom:20px;
+    }
+
+    .kpi{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow:var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .kpi::after{
+      content:"";
+      position:absolute;
+      right:-20px;
+      top:-20px;
+      width:80px;
+      height:80px;
+      border-radius:50%;
+      background:var(--primary);
+      opacity:.08;
+    }
+
+    .kpi-label{
+      color:var(--muted);
+      font-size:13px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.4px;
+    }
+
+    .kpi-value{
+      font-size:31px;
+      font-weight:800;
+      margin-top:7px;
+    }
+
+    /* FILTERS */
+
+    .panel{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      margin-bottom:20px;
+    }
+
+    .panel-header{
+      padding:17px 18px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .panel-header h3{
+      margin:0;
+      font-size:16px;
+    }
+
+    .panel-body{
+      padding:18px;
+    }
+
+    .filters{
+      display:grid;
+      grid-template-columns:2fr repeat(7,1fr);
+      gap:10px;
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+
+    .field label{
+      font-size:12px;
+      font-weight:700;
+      color:var(--muted);
+    }
+
+    .field input,
+    .field select,
+    .field textarea{
+      width:100%;
+      border:1px solid var(--line);
+      background:var(--card2);
+      color:var(--text);
+      border-radius:9px;
+      padding:10px 11px;
+      outline:none;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus{
+      border-color:var(--primary);
+      box-shadow:0 0 0 3px rgba(23,105,224,.12);
+    }
+
+    .filter-buttons{
+      display:flex;
+      gap:8px;
+      align-items:end;
+      flex-wrap:wrap;
+    }
+
+    /* TABLE */
+
+    .table-wrapper{
+      overflow:auto;
+      width:100%;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:1100px;
+    }
+
+    th{
+      background:var(--card2);
+      color:var(--muted);
+      text-align:left;
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.4px;
+      padding:12px;
+      border-bottom:1px solid var(--line);
+      white-space:nowrap;
+    }
+
+    td{
+      padding:12px;
+      border-bottom:1px solid var(--line);
+      vertical-align:middle;
+      font-size:13px;
+    }
+
+    tbody tr:hover{
+      background:rgba(23,105,224,.035);
+    }
+
+    .muted{
+      color:var(--muted);
+    }
+
+    .route{
+      min-width:210px;
+    }
+
+    .route-main{
+      font-weight:700;
+    }
+
+    .route-arrow{
+      color:var(--primary);
+      font-weight:900;
+      margin:0 5px;
+    }
+
+    .route-sub{
+      color:var(--muted);
+      margin-top:4px;
+      font-size:11px;
+    }
+
+    /* BADGES */
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:999px;
+      padding:5px 9px;
+      font-size:11px;
+      font-weight:800;
+      white-space:nowrap;
+    }
+
+    .badge-pendiente{
+      background:rgba(196,122,0,.14);
+      color:var(--warning);
+    }
+
+    .badge-curso{
+      background:rgba(0,124,145,.14);
+      color:var(--info);
+    }
+
+    .badge-realizada{
+      background:rgba(22,138,74,.14);
+      color:var(--success);
+    }
+
+    .badge-cancelada,
+    .badge-no-realizada{
+      background:rgba(198,40,40,.14);
+      color:var(--danger);
+    }
+
+    .badge-alta{
+      background:rgba(198,40,40,.13);
+      color:var(--danger);
+    }
+
+    .badge-media{
+      background:rgba(196,122,0,.13);
+      color:var(--warning);
+    }
+
+    .badge-baja{
+      background:rgba(105,117,134,.14);
+      color:var(--muted);
+    }
+
+    /* ACTIONS */
+
+    .actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:5px;
+      min-width:210px;
+    }
+
+    .action{
+      border:1px solid var(--line);
+      background:var(--card);
+      color:var(--text);
+      border-radius:7px;
+      padding:6px 8px;
+      font-size:11px;
+      font-weight:700;
+    }
+
+    .action:hover{
+      border-color:var(--primary);
+      color:var(--primary);
+    }
+
+    /* EMPTY */
+
+    .empty{
+      padding:50px 20px;
+      text-align:center;
+      color:var(--muted);
+    }
+
+    .empty-icon{
+      font-size:38px;
+      margin-bottom:10px;
+    }
+
+    /* MODAL */
+
+    .modal{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      z-index:500;
+    }
+
+    .modal.show{
+      display:flex;
+    }
+
+    .modal-card{
+      background:var(--card);
+      color:var(--text);
+      width:min(850px,100%);
+      max-height:92vh;
+      overflow:auto;
+      border-radius:18px;
+      box-shadow:0 25px 70px rgba(0,0,0,.3);
+    }
+
+    .modal-header{
+      padding:18px 20px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+    }
+
+    .modal-header h3{
+      margin:0;
+    }
+
+    .modal-close{
+      width:35px;
+      height:35px;
+      border-radius:9px;
+      border:1px solid var(--line);
+      background:var(--card2);
+      color:var(--text);
+      font-size:18px;
+    }
+
+    .modal-body{
+      padding:20px;
+    }
+
+    .form-grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:15px;
+    }
+
+    .form-grid .full{
+      grid-column:1/-1;
+    }
+
+    .modal-footer{
+      padding:15px 20px;
+      border-top:1px solid var(--line);
+      display:flex;
+      justify-content:flex-end;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    /* LOADING */
+
+    .loading{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.38);
+      z-index:900;
+      display:none;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .loading.show{
+      display:flex;
+    }
+
+    .loading-card{
+      background:var(--card);
+      color:var(--text);
+      padding:25px 30px;
+      border-radius:15px;
+      box-shadow:var(--shadow);
+      text-align:center;
+    }
+
+    .spinner{
+      width:38px;
+      height:38px;
+      border:4px solid var(--line);
+      border-top-color:var(--primary);
+      border-radius:50%;
+      animation:spin .8s linear infinite;
+      margin:0 auto 12px;
+    }
+
+    @keyframes spin{
+      to{transform:rotate(360deg);}
+    }
+
+    /* TOAST */
+
+    .toast{
+      position:fixed;
+      right:20px;
+      bottom:20px;
+      background:var(--card);
+      color:var(--text);
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+      padding:14px 17px;
+      border-radius:11px;
+      z-index:1000;
+      display:none;
+      max-width:380px;
+    }
+
+    .toast.show{
+      display:block;
+      animation:toastIn .2s ease;
+    }
+
+    .toast.success{
+      border-left:5px solid var(--success);
+    }
+
+    .toast.error{
+      border-left:5px solid var(--danger);
+    }
+
+    @keyframes toastIn{
+      from{
+        opacity:0;
+        transform:translateY(10px);
+      }
+      to{
+        opacity:1;
+        transform:translateY(0);
+      }
+    }
+
+    /* SERVICES */
+
+    .service-list{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:8px;
+      margin-top:15px;
+    }
+
+    .service-item{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      background:var(--card2);
+      border:1px solid var(--line);
+      border-radius:9px;
+      padding:9px 11px;
+      font-size:13px;
+    }
+
+    /* RESPONSIVE */
+
+    @media(max-width:1200px){
+      .filters{
+        grid-template-columns:repeat(4,1fr);
+      }
+
+      .filters .search{
+        grid-column:1/-1;
+      }
+    }
+
+    @media(max-width:900px){
+      .kpis{
+        grid-template-columns:repeat(2,1fr);
+      }
+
+      .form-grid{
+        grid-template-columns:1fr;
+      }
+
+      .form-grid .full{
+        grid-column:auto;
+      }
+
+      .service-list{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media(max-width:650px){
+      .topbar-inner{
+        padding:10px 0;
+        align-items:flex-start;
+      }
+
+      .brand h1{
+        font-size:16px;
+      }
+
+      .brand p{
+        font-size:11px;
+      }
+
+      .brand-icon{
+        width:40px;
+        height:40px;
+        font-size:18px;
+      }
+
+      .top-actions{
+        flex-direction:column;
+      }
+
+      .top-actions .btn{
+        width:100%;
+      }
+
+      .kpis{
+        grid-template-columns:1fr 1fr;
+        gap:10px;
+      }
+
+      .kpi{
+        padding:14px;
+      }
+
+      .kpi-value{
+        font-size:25px;
+      }
+
+      .filters{
+        grid-template-columns:1fr;
+      }
+
+      .filter-buttons{
+        align-items:stretch;
+      }
+
+      .filter-buttons .btn{
+        flex:1;
+      }
+
+      main{
+        padding-top:15px;
+      }
+
+      .toolbar-title h2{
+        font-size:20px;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<div class="container-fluid py-4 px-4">
-    <!-- Encabezado principal -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+  <!-- HEADER -->
+  <header class="topbar">
+    <div class="container topbar-inner">
+
+      <div class="brand">
+        <div class="brand-icon">🚚</div>
+
         <div>
-            <h3 class="text-primary fw-bold mb-0"><i class="bi bi-hospital me-2"></i>Panel Principal de Cadetería Hospitalaria</h3>
-            <span class="text-muted small">Gestión y control de traslados internos</span>
+          <h1>Panel Principal de Cadetería Hospitalaria</h1>
+          <p>Gestión y control de traslados internos</p>
         </div>
-        <div class="d-flex align-items-center gap-2">
-            <!-- Estado de Seguridad -->
-            <button class="btn btn-sm btn-outline-secondary" id="btnEstadoSeguridad" onclick="gestionarSeguridad()">
-                <i class="bi bi-lock-fill me-1" id="iconoSeguridad"></i> <span id="textoSeguridad">Modo Lectura</span>
-            </button>
-            <button class="btn btn-outline-dark btn-sm" onclick="requerirPassword(abrirModalServicios)"><i class="bi bi-building-gear me-1"></i> Gestionar Servicios</button>
-            <div class="form-check form-switch fs-6 mb-0 ms-2">
-                <input class="form-check-input" type="checkbox" id="verArchivados" onchange="filtrarTabla()">
-                <label class="form-check-label fw-semibold" for="verArchivados"><i class="bi bi-archive me-1"></i> Ver Histórico</label>
-            </div>
-        </div>
+      </div>
+
+      <div class="top-actions">
+        <button class="btn" onclick="abrirHistorico()">
+          📚 Ver Histórico
+        </button>
+
+        <button class="btn" onclick="alternarTema()" id="btnTema">
+          🌙
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+
+  <main class="container">
+
+    <!-- TITULO -->
+    <div class="toolbar">
+
+      <div class="toolbar-title">
+        <h2>Traslados internos</h2>
+        <p>Control operativo de pedidos de cadetería</p>
+      </div>
+
+      <div class="toolbar-actions">
+        <button class="btn" onclick="abrirServicios()">
+          ⚙ Servicios
+        </button>
+
+        <button class="btn" onclick="exportarCSV()">
+          📥 CSV
+        </button>
+
+        <button class="btn btn-primary" onclick="nuevoPedido()">
+          + Nuevo traslado
+        </button>
+      </div>
+
     </div>
 
-    <!-- 📊 Indicadores KPIs -->
-    <div class="row g-3 mb-4">
-        <div class="col-6 col-md-3">
-            <div class="card card-kpi kpi-activos p-3">
-                <span class="text-muted small fw-semibold">TOTAL ACTIVOS</span>
-                <h3 class="fw-bold mb-0 mt-1" id="stat-total">0</h3>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="card card-kpi kpi-pendientes p-3">
-                <span class="text-warning-emphasis small fw-semibold"><i class="bi bi-clock-history me-1"></i> PENDIENTES</span>
-                <h3 class="fw-bold mb-0 mt-1" id="stat-pendientes">0</h3>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="card card-kpi kpi-realizadas p-3">
-                <span class="text-success small fw-semibold"><i class="bi bi-check-circle me-1"></i> REALIZADAS</span>
-                <h3 class="fw-bold mb-0 mt-1" id="stat-realizadas">0</h3>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="card card-kpi kpi-archivados p-3">
-                <span class="text-secondary small fw-semibold"><i class="bi bi-archive me-1"></i> ARCHIVADOS</span>
-                <h3 class="fw-bold mb-0 mt-1" id="stat-archivados">0</h3>
-            </div>
-        </div>
-    </div>
 
-    <!-- 🔎 Controles y Filtros -->
-    <div class="card p-3 mb-4 shadow-sm border-0">
-        <div class="row g-2 align-items-end">
-            <div class="col-md-3">
-                <label class="form-label small fw-bold text-muted mb-1"><i class="bi bi-search me-1"></i> Buscador</label>
-                <input type="text" id="buscador" class="form-control form-control-sm" placeholder="Buscar por servicio, cadete o tipo..." onkeyup="filtrarTabla()">
-            </div>
-            <div class="col-md-2">
-                <label class="form-label small fw-bold text-muted mb-1">Estado</label>
-                <select id="filtro-estado" class="form-select form-select-sm" onchange="filtrarTabla()">
-                    <option value="Todos">Todos los estados</option>
-                    <option value="Pendiente">Pendientes</option>
-                    <option value="Realizada">Realizadas</option>
-                    <option value="Cancelada">Canceladas</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <label class="form-label small fw-bold text-muted mb-1"><i class="bi bi-calendar-event me-1"></i> Fecha Desde</label>
-                <input type="date" id="fecha-desde" class="form-control form-control-sm" onchange="filtrarTabla()">
-            </div>
-            <div class="col-md-2">
-                <label class="form-label small fw-bold text-muted mb-1"><i class="bi bi-calendar-event me-1"></i> Fecha Hasta</label>
-                <input type="date" id="fecha-hasta" class="form-control form-control-sm" onchange="filtrarTabla()">
-            </div>
-            <div class="col-md-3 text-end d-flex gap-1 justify-content-end">
-                <button class="btn btn-sm btn-outline-primary" onclick="filtrarHoy()" title="Filtrar pedidos de hoy"><i class="bi bi-calendar-day"></i> Hoy</button>
-                <button class="btn btn-sm btn-outline-secondary" onclick="limpiarFiltros()" title="Limpiar filtros"><i class="bi bi-arrow-counterclockwise"></i></button>
-                <button class="btn btn-sm btn-secondary" onclick="exportarCSV()"><i class="bi bi-download me-1"></i> CSV</button>
-                <button class="btn btn-sm btn-primary" onclick="requerirPassword(abrirModalNuevo)"><i class="bi bi-plus-lg me-1"></i> Nuevo Pedido</button>
-            </div>
-        </div>
-    </div>
+    <!-- KPIs -->
+    <section class="kpis">
 
-    <!-- 📋 Listado de Pedidos -->
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
-                <tr class="small text-muted text-uppercase">
-                    <th>Fecha Registro</th>
-                    <th>Programado Para</th>
-                    <th>Origen <i class="bi bi-arrow-right"></i> Destino</th>
-                    <th>Tipo</th>
-                    <th>Cadete</th>
-                    <th>Prioridad</th>
-                    <th>Estado</th>
-                    <th>Obs.</th>
-                    <th class="text-end">Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="tabla-pedidos">
-                <!-- Se renderiza con JS -->
-            </tbody>
+      <div class="kpi">
+        <div class="kpi-label">Total activos</div>
+        <div class="kpi-value" id="kpiTotal">0</div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-label">Pendientes</div>
+        <div class="kpi-value" id="kpiPendientes">0</div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-label">Realizadas</div>
+        <div class="kpi-value" id="kpiRealizadas">0</div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-label">Archivados</div>
+        <div class="kpi-value" id="kpiArchivados">0</div>
+      </div>
+
+    </section>
+
+
+    <!-- FILTROS -->
+    <section class="panel">
+
+      <div class="panel-header">
+        <h3>Filtros y búsqueda</h3>
+
+        <button class="btn btn-small" onclick="cargarDatos()">
+          🔄 Actualizar
+        </button>
+      </div>
+
+      <div class="panel-body">
+
+        <div class="filters">
+
+          <div class="field search">
+            <label>Buscador</label>
+            <input
+              type="text"
+              id="filtroBuscar"
+              placeholder="Buscar origen, destino, cadete, móvil..."
+              oninput="aplicarFiltros()"
+            >
+          </div>
+
+          <div class="field">
+            <label>Estado</label>
+            <select id="filtroEstado" onchange="aplicarFiltros()">
+              <option value="">Todos</option>
+              <option value="Pendiente">Pendiente</option>
+              <option value="En curso">En curso</option>
+              <option value="Realizada">Realizada</option>
+              <option value="Cancelada">Cancelada</option>
+              <option value="No realizada">No realizada</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Tipo</label>
+            <select id="filtroTipo" onchange="aplicarFiltros()">
+              <option value="">Todos</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Prioridad</label>
+            <select id="filtroPrioridad" onchange="aplicarFiltros()">
+              <option value="">Todas</option>
+              <option value="Alta">Alta</option>
+              <option value="Media">Media</option>
+              <option value="Baja">Baja</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Cadete</label>
+            <select id="filtroCadete" onchange="aplicarFiltros()">
+              <option value="">Todos</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Móvil</label>
+            <select id="filtroMovil" onchange="aplicarFiltros()">
+              <option value="">Todos</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Fecha desde</label>
+            <input type="date" id="filtroDesde" onchange="aplicarFiltros()">
+          </div>
+
+          <div class="field">
+            <label>Fecha hasta</label>
+            <input type="date" id="filtroHasta" onchange="aplicarFiltros()">
+          </div>
+
+        </div>
+
+        <div class="filter-buttons" style="margin-top:12px">
+
+          <button class="btn btn-small" onclick="filtrarHoy()">
+            📅 Hoy
+          </button>
+
+          <button class="btn btn-small" onclick="limpiarFiltros()">
+            ✕ Limpiar filtros
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- TABLA -->
+    <section class="panel">
+
+      <div class="panel-header">
+
+        <div>
+          <h3>Pedidos</h3>
+          <div class="muted" id="contadorResultados">
+            0 registros
+          </div>
+        </div>
+
+      </div>
+
+      <div class="table-wrapper">
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>Fecha registro</th>
+              <th>Programado para</th>
+              <th>Origen → Destino</th>
+              <th>Tipo</th>
+              <th>Cadete</th>
+              <th>Móvil</th>
+              <th>Prioridad</th>
+              <th>Estado</th>
+              <th>Observaciones</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody id="tablaPedidos"></tbody>
+
         </table>
-    </div>
-</div>
 
-<!-- 🔒 Modal Solicitud de Contraseña -->
-<div class="modal fade" id="modalPassword" tabindex="-1">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content">
-            <div class="modal-header bg-danger text-white py-2">
-                <h6 class="modal-title fw-bold"><i class="bi bi-shield-lock me-2"></i>Acceso Protegido</h6>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p class="small text-muted mb-2">Introduce la contraseña para realizar cambios (Clave por defecto: <b>1234</b>):</p>
-                <input type="password" id="inputPassAcceso" class="form-control text-center fs-5 mb-2" placeholder="••••" autofocus>
-                <div id="errorPassAcceso" class="text-danger small d-none text-center fw-bold">Contraseña incorrecta</div>
-            </div>
-            <div class="modal-footer py-1">
-                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-sm btn-danger" onclick="validarPassword()">Ingresar</button>
-            </div>
+      </div>
+
+      <div class="empty" id="emptyState" style="display:none">
+        <div class="empty-icon">📭</div>
+        <div>No hay pedidos que coincidan con los filtros.</div>
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- MODAL PEDIDO -->
+
+  <div class="modal" id="modalPedido">
+
+    <div class="modal-card">
+
+      <div class="modal-header">
+
+        <h3 id="tituloModalPedido">
+          Nuevo traslado
+        </h3>
+
+        <button class="modal-close" onclick="cerrarModal('modalPedido')">
+          ×
+        </button>
+
+      </div>
+
+      <div class="modal-body">
+
+        <input type="hidden" id="pedidoId">
+
+        <div class="form-grid">
+
+          <div class="field">
+            <label>Servicio origen *</label>
+
+            <select id="pedidoOrigen"></select>
+          </div>
+
+
+          <div class="field">
+            <label>Servicio destino *</label>
+
+            <select id="pedidoDestino"></select>
+          </div>
+
+
+          <div class="field">
+            <label>Tipo *</label>
+
+            <select id="pedidoTipo">
+
+              <option value="Medicamentos">Medicamentos</option>
+              <option value="Documentación">Documentación</option>
+              <option value="Insumos">Insumos</option>
+              <option value="Muestras">Muestras</option>
+              <option value="Ropa">Ropa</option>
+              <option value="Equipamiento">Equipamiento</option>
+              <option value="Otros">Otros</option>
+
+            </select>
+
+          </div>
+
+
+          <div class="field">
+            <label>Fecha / hora programada *</label>
+
+            <input
+              type="datetime-local"
+              id="pedidoProgramado"
+            >
+
+          </div>
+
+
+          <div class="field">
+            <label>Cadete responsable</label>
+
+            <input
+              type="text"
+              id="pedidoCadete"
+              placeholder="Nombre del cadete"
+            >
+
+          </div>
+
+
+          <div class="field">
+            <label>Móvil</label>
+
+            <input
+              type="text"
+              id="pedidoMovil"
+              placeholder="Móvil / vehículo"
+            >
+
+          </div>
+
+
+          <div class="field">
+            <label>Prioridad</label>
+
+            <select id="pedidoPrioridad">
+
+              <option value="Baja">Baja</option>
+              <option value="Media" selected>Media</option>
+              <option value="Alta">Alta</option>
+
+            </select>
+
+          </div>
+
+
+          <div class="field">
+            <label>Estado</label>
+
+            <select id="pedidoEstado">
+
+              <option value="Pendiente">Pendiente</option>
+              <option value="En curso">En curso</option>
+              <option value="Realizada">Realizada</option>
+              <option value="Cancelada">Cancelada</option>
+              <option value="No realizada">No realizada</option>
+
+            </select>
+
+          </div>
+
+
+          <div class="field full">
+            <label>Observaciones</label>
+
+            <textarea
+              id="pedidoObservaciones"
+              rows="4"
+              placeholder="Detalle del traslado..."
+            ></textarea>
+
+          </div>
+
         </div>
-    </div>
-</div>
 
-<!-- ⚙️ Modal Gestión de Seguridad (Cambiar Clave) -->
-<div class="modal fade" id="modalGestionSeguridad" tabindex="-1">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content">
-            <div class="modal-header bg-dark text-white py-2">
-                <h6 class="modal-title fw-bold"><i class="bi bi-key me-2"></i>Seguridad y Clave</h6>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label class="form-label small fw-bold">Nueva Contraseña</label>
-                    <input type="password" id="nuevaClaveInput" class="form-control" placeholder="Escribe nueva clave">
-                </div>
-                <button class="btn btn-primary btn-sm w-100 mb-2" onclick="cambiarClave()"><i class="bi bi-floppy me-1"></i> Guardar Nueva Clave</button>
-                <hr class="my-2">
-                <button class="btn btn-outline-danger btn-sm w-100" onclick="bloquearSesion()"><i class="bi bi-lock me-1"></i> Bloquear Edición Ahora</button>
-            </div>
+      </div>
+
+      <div class="modal-footer">
+
+        <button
+          class="btn"
+          onclick="cerrarModal('modalPedido')"
+        >
+          Cancelar
+        </button>
+
+        <button
+          class="btn btn-primary"
+          onclick="guardarPedidoFormulario()"
+        >
+          💾 Guardar traslado
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- MODAL FINALIZAR -->
+
+  <div class="modal" id="modalFinalizar">
+
+    <div class="modal-card">
+
+      <div class="modal-header">
+
+        <h3>Finalizar traslado</h3>
+
+        <button
+          class="modal-close"
+          onclick="cerrarModal('modalFinalizar')"
+        >
+          ×
+        </button>
+
+      </div>
+
+      <div class="modal-body">
+
+        <div class="field">
+
+          <label>Observaciones finales</label>
+
+          <textarea
+            id="observacionesFinales"
+            rows="5"
+            placeholder="Informar cualquier novedad del traslado..."
+          ></textarea>
+
         </div>
-    </div>
-</div>
 
-<!-- ➕/✏️ Modal Formulario Pedido -->
-<div class="modal fade" id="modalPedido" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="modalTitulo">Nuevo Pedido de Cadetería</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="formPedido">
-                    <input type="hidden" id="pedidoId">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">🏢 Servicio Origen</label>
-                            <div class="input-group">
-                                <select id="origen" class="form-select" required></select>
-                                <button type="button" class="btn btn-outline-secondary" onclick="requerirPassword(abrirModalServicios)" title="Agregar servicio"><i class="bi bi-plus-lg"></i></button>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">🏢 Servicio Destino</label>
-                            <div class="input-group">
-                                <select id="destino" class="form-select" required></select>
-                                <button type="button" class="btn btn-outline-secondary" onclick="requerirPassword(abrirModalServicios)" title="Agregar servicio"><i class="bi bi-plus-lg"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">📦 Tipo de Pedido</label>
-                            <select id="tipo" class="form-select" required>
-                                <option value="Muestras de Laboratorio">Muestras de Laboratorio</option>
-                                <option value="Medicamentos">Medicamentos</option>
-                                <option value="Documentación">Documentación / Historias Clínicas</option>
-                                <option value="Insumos Médicos">Insumos Médicos</option>
-                                <option value="Equipos">Equipos</option>
-                                <option value="Otros">Otros</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">⏰ Fecha/Hora Programada</label>
-                            <input type="datetime-local" id="fechaProgramada" class="form-control">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">👤 Cadete Responsable</label>
-                            <input type="text" id="cadete" class="form-control" placeholder="Nombre del cadete" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">🚨 Prioridad</label>
-                            <select id="prioridad" class="form-select" required>
-                                <option value="Baja">Baja</option>
-                                <option value="Media">Media</option>
-                                <option value="Alta">Alta 🚨</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Estado</label>
-                        <select id="estado" class="form-select">
-                            <option value="Pendiente">Pendiente</option>
-                            <option value="Realizada">Realizada</option>
-                            <option value="Cancelada">Cancelada</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">📝 Observaciones</label>
-                        <textarea id="observaciones" class="form-control" rows="2" placeholder="Detalles adicionales..."></textarea>
-                    </div>
-                    <div class="text-end">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary"><i class="bi bi-floppy me-1"></i> Guardar Registro</button>
-                    </div>
-                </form>
-            </div>
+      </div>
+
+      <div class="modal-footer">
+
+        <button
+          class="btn"
+          onclick="cerrarModal('modalFinalizar')"
+        >
+          Cancelar
+        </button>
+
+        <button
+          class="btn btn-success"
+          onclick="confirmarFinalizacion()"
+        >
+          ✓ Finalizar traslado
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- MODAL SERVICIOS -->
+
+  <div class="modal" id="modalServicios">
+
+    <div class="modal-card">
+
+      <div class="modal-header">
+
+        <h3>Administrar servicios</h3>
+
+        <button
+          class="modal-close"
+          onclick="cerrarModal('modalServicios')"
+        >
+          ×
+        </button>
+
+      </div>
+
+      <div class="modal-body">
+
+        <div style="display:flex;gap:8px">
+
+          <input
+            type="text"
+            id="nuevoServicio"
+            placeholder="Nombre del nuevo servicio"
+            style="
+              flex:1;
+              border:1px solid var(--line);
+              background:var(--card2);
+              color:var(--text);
+              border-radius:9px;
+              padding:10px;
+            "
+          >
+
+          <button
+            class="btn btn-primary"
+            onclick="agregarServicioFormulario()"
+          >
+            + Agregar
+          </button>
+
         </div>
-    </div>
-</div>
 
-<!-- ⚙️ Modal Administración de Servicios -->
-<div class="modal fade" id="modalServicios" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-dark text-white">
-                <h5 class="modal-title"><i class="bi bi-building-gear me-2"></i>Gestión de Servicios / Áreas</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="input-group mb-3">
-                    <input type="text" id="nuevoNombreServicio" class="form-control" placeholder="Nombre del nuevo servicio">
-                    <button class="btn btn-success" type="button" onclick="agregarServicio()"><i class="bi bi-plus-lg"></i> Agregar</button>
-                </div>
-                <h6 class="fw-bold text-muted small uppercase">Servicios Registrados</h6>
-                <ul class="list-group list-group-flush border-top" id="listaServiciosModal"></ul>
-            </div>
-        </div>
-    </div>
-</div>
+        <div
+          class="service-list"
+          id="listaServicios"
+        ></div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+      </div>
+
+      <div class="modal-footer">
+
+        <button
+          class="btn"
+          onclick="cerrarModal('modalServicios')"
+        >
+          Cerrar
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- MODAL HISTORICO -->
+
+  <div class="modal" id="modalHistorico">
+
+    <div class="modal-card" style="width:min(1200px,100%)">
+
+      <div class="modal-header">
+
+        <h3>Histórico de traslados</h3>
+
+        <button
+          class="modal-close"
+          onclick="cerrarModal('modalHistorico')"
+        >
+          ×
+        </button>
+
+      </div>
+
+      <div class="modal-body">
+
+        <div
+          class="table-wrapper"
+          id="historicoContenido"
+        ></div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- LOADING -->
+
+  <div class="loading" id="loading">
+
+    <div class="loading-card">
+
+      <div class="spinner"></div>
+
+      <strong id="loadingText">
+        Cargando...
+      </strong>
+
+    </div>
+
+  </div>
+
+
+  <!-- TOAST -->
+
+  <div class="toast" id="toast"></div>
+
 
 <script>
-    const serviciosPredeterminados = [
-        "Administración", "Anatomía Patológica", "Banco de Sangre", "Consultorios Externos", 
-        "Farmacia", "Guardia / Emergencias", "Hemoterapia", "Infectología", "Kinesiología", 
-        "Laboratorio", "Maternidad", "Pediatría", "Quirófano", "Radiología / Imágenes", "Terapia Intensiva (UTI)"
+
+  let pedidos = [];
+  let servicios = [];
+  let pedidosFiltrados = [];
+
+  let pedidoFinalizarId = null;
+
+
+  /* ================================
+     INICIO
+  ================================= */
+
+  document.addEventListener('DOMContentLoaded', () => {
+
+    cargarTema();
+
+    cargarDatos();
+
+  });
+
+
+  /* ================================
+     DATOS
+  ================================= */
+
+  function cargarDatos(){
+
+    mostrarLoading('Cargando información...');
+
+    google.script.run
+      .withSuccessHandler(data => {
+
+        ocultarLoading();
+
+        if(!data){
+
+          mostrarToast(
+            'No se recibieron datos del servidor.',
+            'error'
+          );
+
+          return;
+
+        }
+
+        pedidos = Array.isArray(data.pedidos)
+          ? data.pedidos
+          : [];
+
+        servicios = Array.isArray(data.servicios)
+          ? data.servicios
+          : [];
+
+        actualizarFiltros();
+
+        aplicarFiltros();
+
+        actualizarKPIs();
+
+      })
+      .withFailureHandler(error => {
+
+        ocultarLoading();
+
+        console.error(error);
+
+        mostrarToast(
+          'Error al cargar los datos: ' +
+          obtenerMensajeError(error),
+          'error'
+        );
+
+      })
+      .obtenerDatos();
+
+  }
+
+
+  function obtenerMensajeError(error){
+
+    if(!error){
+      return 'Error desconocido';
+    }
+
+    if(typeof error === 'string'){
+      return error;
+    }
+
+    return error.message ||
+           error.details ||
+           'Error desconocido';
+
+  }
+
+
+  /* ================================
+     KPIs
+  ================================= */
+
+  function actualizarKPIs(){
+
+    const activos = pedidos.filter(p =>
+      !esArchivado(p)
+    );
+
+    const pendientes = activos.filter(p =>
+      String(p.Estado || '') === 'Pendiente'
+    );
+
+    const realizadas = activos.filter(p =>
+      String(p.Estado || '') === 'Realizada'
+    );
+
+    const archivados = pedidos.filter(p =>
+      esArchivado(p)
+    );
+
+    document.getElementById('kpiTotal').textContent =
+      activos.length;
+
+    document.getElementById('kpiPendientes').textContent =
+      pendientes.length;
+
+    document.getElementById('kpiRealizadas').textContent =
+      realizadas.length;
+
+    document.getElementById('kpiArchivados').textContent =
+      archivados.length;
+
+  }
+
+
+  /* ================================
+     FILTROS
+  ================================= */
+
+  function actualizarFiltros(){
+
+    llenarSelectUnicos(
+      'filtroTipo',
+      pedidos.map(p => p.Tipo)
+    );
+
+    llenarSelectUnicos(
+      'filtroCadete',
+      pedidos.map(p => p.Cadete)
+    );
+
+    llenarSelectUnicos(
+      'filtroMovil',
+      pedidos.map(p => p.Movil)
+    );
+
+
+    const origen =
+      document.getElementById('pedidoOrigen');
+
+    const destino =
+      document.getElementById('pedidoDestino');
+
+    const actualOrigen =
+      origen.value;
+
+    const actualDestino =
+      destino.value;
+
+    origen.innerHTML =
+      '<option value="">Seleccionar...</option>';
+
+    destino.innerHTML =
+      '<option value="">Seleccionar...</option>';
+
+    servicios
+      .sort((a,b) =>
+        String(a.nombre || a.Nombre || '')
+          .localeCompare(
+            String(b.nombre || b.Nombre || ''),
+            'es'
+          )
+      )
+      .forEach(s => {
+
+        const nombre =
+          s.nombre ||
+          s.Nombre ||
+          '';
+
+        if(!nombre){
+          return;
+        }
+
+        const o =
+          document.createElement('option');
+
+        o.value = nombre;
+        o.textContent = nombre;
+
+        origen.appendChild(o);
+
+
+        const d =
+          document.createElement('option');
+
+        d.value = nombre;
+        d.textContent = nombre;
+
+        destino.appendChild(d);
+
+      });
+
+
+    origen.value = actualOrigen;
+    destino.value = actualDestino;
+
+  }
+
+
+  function llenarSelectUnicos(id, valores){
+
+    const select =
+      document.getElementById(id);
+
+    if(!select){
+      return;
+    }
+
+    const valorActual =
+      select.value;
+
+    const unicos =
+      [...new Set(
+        valores
+          .map(v => String(v || '').trim())
+          .filter(Boolean)
+      )]
+      .sort((a,b) =>
+        a.localeCompare(b,'es')
+      );
+
+
+    const primera =
+      select.options[0]
+        ? select.options[0].textContent
+        : 'Todos';
+
+
+    select.innerHTML = '';
+
+    const optionTodos =
+      document.createElement('option');
+
+    optionTodos.value = '';
+
+    optionTodos.textContent =
+      primera;
+
+    select.appendChild(optionTodos);
+
+
+    unicos.forEach(v => {
+
+      const option =
+        document.createElement('option');
+
+      option.value = v;
+
+      option.textContent = v;
+
+      select.appendChild(option);
+
+    });
+
+
+    if(
+      unicos.includes(valorActual)
+    ){
+      select.value = valorActual;
+    }
+
+  }
+
+
+  function aplicarFiltros(){
+
+    const buscar =
+      document.getElementById(
+        'filtroBuscar'
+      ).value
+       .toLowerCase()
+       .trim();
+
+    const estado =
+      document.getElementById(
+        'filtroEstado'
+      ).value;
+
+    const tipo =
+      document.getElementById(
+        'filtroTipo'
+      ).value;
+
+    const prioridad =
+      document.getElementById(
+        'filtroPrioridad'
+      ).value;
+
+    const cadete =
+      document.getElementById(
+        'filtroCadete'
+      ).value;
+
+    const movil =
+      document.getElementById(
+        'filtroMovil'
+      ).value;
+
+    const desde =
+      document.getElementById(
+        'filtroDesde'
+      ).value;
+
+    const hasta =
+      document.getElementById(
+        'filtroHasta'
+      ).value;
+
+
+    pedidosFiltrados =
+      pedidos.filter(p => {
+
+        if(esArchivado(p)){
+          return false;
+        }
+
+
+        if(
+          estado &&
+          String(p.Estado || '') !== estado
+        ){
+          return false;
+        }
+
+
+        if(
+          tipo &&
+          String(p.Tipo || '') !== tipo
+        ){
+          return false;
+        }
+
+
+        if(
+          prioridad &&
+          String(p.Prioridad || '') !== prioridad
+        ){
+          return false;
+        }
+
+
+        if(
+          cadete &&
+          String(p.Cadete || '') !== cadete
+        ){
+          return false;
+        }
+
+
+        if(
+          movil &&
+          String(p.Movil || '') !== movil
+        ){
+          return false;
+        }
+
+
+        if(desde){
+
+          const fecha =
+            obtenerFechaComparable(
+              p['Fecha Programada']
+            );
+
+          if(
+            fecha &&
+            fecha < desde
+          ){
+            return false;
+          }
+
+        }
+
+
+        if(hasta){
+
+          const fecha =
+            obtenerFechaComparable(
+              p['Fecha Programada']
+            );
+
+          if(
+            fecha &&
+            fecha > hasta
+          ){
+            return false;
+          }
+
+        }
+
+
+        if(buscar){
+
+          const texto =
+            [
+              p.ID,
+              p.Origen,
+              p.Destino,
+              p.Tipo,
+              p.Cadete,
+              p.Movil,
+              p.Prioridad,
+              p.Estado,
+              p.Observaciones,
+              p['Observaciones Finales']
+            ]
+            .join(' ')
+            .toLowerCase();
+
+          if(
+            !texto.includes(buscar)
+          ){
+            return false;
+          }
+
+        }
+
+
+        return true;
+
+      });
+
+
+    pedidosFiltrados.sort(
+      ordenarPorProgramado
+    );
+
+
+    renderTabla();
+
+  }
+
+
+  function ordenarPorProgramado(a,b){
+
+    const da =
+      convertirFecha(a['Fecha Programada']);
+
+    const db =
+      convertirFecha(b['Fecha Programada']);
+
+    return db - da;
+
+  }
+
+
+  function obtenerFechaComparable(valor){
+
+    const fecha =
+      convertirFecha(valor);
+
+    if(
+      !fecha ||
+      isNaN(fecha.getTime())
+    ){
+      return '';
+    }
+
+    return [
+      fecha.getFullYear(),
+      String(
+        fecha.getMonth()+1
+      ).padStart(2,'0'),
+      String(
+        fecha.getDate()
+      ).padStart(2,'0')
+    ].join('-');
+
+  }
+
+
+  function filtrarHoy(){
+
+    const hoy =
+      new Date();
+
+    const fecha =
+      [
+        hoy.getFullYear(),
+        String(
+          hoy.getMonth()+1
+        ).padStart(2,'0'),
+        String(
+          hoy.getDate()
+        ).padStart(2,'0')
+      ].join('-');
+
+    document.getElementById(
+      'filtroDesde'
+    ).value = fecha;
+
+    document.getElementById(
+      'filtroHasta'
+    ).value = fecha;
+
+    aplicarFiltros();
+
+  }
+
+
+  function limpiarFiltros(){
+
+    document.getElementById(
+      'filtroBuscar'
+    ).value = '';
+
+    document.getElementById(
+      'filtroEstado'
+    ).value = '';
+
+    document.getElementById(
+      'filtroTipo'
+    ).value = '';
+
+    document.getElementById(
+      'filtroPrioridad'
+    ).value = '';
+
+    document.getElementById(
+      'filtroCadete'
+    ).value = '';
+
+    document.getElementById(
+      'filtroMovil'
+    ).value = '';
+
+    document.getElementById(
+      'filtroDesde'
+    ).value = '';
+
+    document.getElementById(
+      'filtroHasta'
+    ).value = '';
+
+    aplicarFiltros();
+
+  }
+
+
+  /* ================================
+     TABLA
+  ================================= */
+
+  function renderTabla(){
+
+    const tbody =
+      document.getElementById(
+        'tablaPedidos'
+      );
+
+    tbody.innerHTML = '';
+
+
+    document.getElementById(
+      'contadorResultados'
+    ).textContent =
+      `${pedidosFiltrados.length} registro${
+        pedidosFiltrados.length === 1
+          ? ''
+          : 's'
+      }`;
+
+
+    const empty =
+      document.getElementById(
+        'emptyState'
+      );
+
+    if(
+      !pedidosFiltrados.length
+    ){
+
+      empty.style.display = 'block';
+
+      return;
+
+    }
+
+    empty.style.display = 'none';
+
+
+    pedidosFiltrados.forEach(p => {
+
+      const tr =
+        document.createElement('tr');
+
+
+      tr.innerHTML = `
+
+        <td>
+          <strong>
+            ${escapeHtml(
+              formatearFecha(
+                p['Fecha Registro']
+              )
+            )}
+          </strong>
+        </td>
+
+        <td>
+          ${escapeHtml(
+            formatearFecha(
+              p['Fecha Programada']
+            )
+          )}
+        </td>
+
+        <td class="route">
+
+          <div class="route-main">
+
+            ${escapeHtml(
+              p.Origen || '-'
+            )}
+
+            <span class="route-arrow">
+              →
+            </span>
+
+            ${escapeHtml(
+              p.Destino || '-'
+            )}
+
+          </div>
+
+          <div class="route-sub">
+            ${p['Fecha Inicio']
+              ? 'Salida: ' +
+                escapeHtml(
+                  formatearFecha(
+                    p['Fecha Inicio']
+                  )
+                )
+              : ''
+            }
+
+            ${
+              p['Fecha Finalizacion']
+              ? '<br>Regreso: ' +
+                escapeHtml(
+                  formatearFecha(
+                    p['Fecha Finalizacion']
+                  )
+                )
+              : ''
+            }
+          </div>
+
+        </td>
+
+
+        <td>
+          ${escapeHtml(
+            p.Tipo || '-'
+          )}
+        </td>
+
+
+        <td>
+          ${escapeHtml(
+            p.Cadete || '-'
+          )}
+        </td>
+
+
+        <td>
+          ${escapeHtml(
+            p.Movil || '-'
+          )}
+        </td>
+
+
+        <td>
+          ${badgePrioridad(
+            p.Prioridad
+          )}
+        </td>
+
+
+        <td>
+          ${badgeEstado(
+            p.Estado
+          )}
+        </td>
+
+
+        <td style="max-width:220px">
+
+          ${
+            p.Observaciones
+              ? escapeHtml(
+                  p.Observaciones
+                )
+              : '<span class="muted">—</span>'
+          }
+
+          ${
+            p['Observaciones Finales']
+              ? '<div class="route-sub">' +
+                escapeHtml(
+                  p['Observaciones Finales']
+                ) +
+                '</div>'
+              : ''
+          }
+
+        </td>
+
+
+        <td>
+
+          <div class="actions">
+
+            <button
+              class="action"
+              onclick="editarPedido('${escapeAttr(p.ID)}')"
+            >
+              ✏ Editar
+            </button>
+
+
+            ${
+              p.Estado === 'Pendiente'
+              ? `
+                <button
+                  class="action"
+                  onclick="iniciarPedido('${escapeAttr(p.ID)}')"
+                >
+                  ▶ Iniciar
+                </button>
+              `
+              : ''
+            }
+
+
+            ${
+              p.Estado === 'En curso'
+              ? `
+                <button
+                  class="action"
+                  onclick="abrirFinalizar('${escapeAttr(p.ID)}')"
+                >
+                  ✓ Finalizar
+                </button>
+              `
+              : ''
+            }
+
+
+            ${
+              p.Estado !== 'Realizada' &&
+              p.Estado !== 'Cancelada' &&
+              p.Estado !== 'No realizada'
+              ? `
+                <button
+                  class="action"
+                  onclick="cancelarPedido('${escapeAttr(p.ID)}')"
+                >
+                  ✕ Cancelar
+                </button>
+              `
+              : ''
+            }
+
+
+            <button
+              class="action"
+              onclick="archivarPedido('${escapeAttr(p.ID)}')"
+            >
+              📦 Archivar
+            </button>
+
+
+            <button
+              class="action"
+              onclick="eliminarPedido('${escapeAttr(p.ID)}')"
+            >
+              🗑 Eliminar
+            </button>
+
+          </div>
+
+        </td>
+
+      `;
+
+
+      tbody.appendChild(tr);
+
+    });
+
+  }
+
+
+  /* ================================
+     NUEVO PEDIDO
+  ================================= */
+
+  function nuevoPedido(){
+
+    limpiarFormularioPedido();
+
+    document.getElementById(
+      'tituloModalPedido'
+    ).textContent =
+      'Nuevo traslado';
+
+    abrirModal('modalPedido');
+
+  }
+
+
+  function limpiarFormularioPedido(){
+
+    document.getElementById(
+      'pedidoId'
+    ).value = '';
+
+    document.getElementById(
+      'pedidoOrigen'
+    ).value = '';
+
+    document.getElementById(
+      'pedidoDestino'
+    ).value = '';
+
+    document.getElementById(
+      'pedidoTipo'
+    ).value =
+      'Medicamentos';
+
+    document.getElementById(
+      'pedidoProgramado'
+    ).value =
+      obtenerFechaHoraLocal();
+
+    document.getElementById(
+      'pedidoCadete'
+    ).value = '';
+
+    document.getElementById(
+      'pedidoMovil'
+    ).value = '';
+
+    document.getElementById(
+      'pedidoPrioridad'
+    ).value = 'Media';
+
+    document.getElementById(
+      'pedidoEstado'
+    ).value = 'Pendiente';
+
+    document.getElementById(
+      'pedidoObservaciones'
+    ).value = '';
+
+  }
+
+
+  function guardarPedidoFormulario(){
+
+    const origen =
+      document.getElementById(
+        'pedidoOrigen'
+      ).value.trim();
+
+    const destino =
+      document.getElementById(
+        'pedidoDestino'
+      ).value.trim();
+
+    const programado =
+      document.getElementById(
+        'pedidoProgramado'
+      ).value;
+
+
+    if(!origen){
+
+      mostrarToast(
+        'Seleccioná el servicio de origen.',
+        'error'
+      );
+
+      return;
+
+    }
+
+
+    if(!destino){
+
+      mostrarToast(
+        'Seleccioná el servicio de destino.',
+        'error'
+      );
+
+      return;
+
+    }
+
+
+    if(!programado){
+
+      mostrarToast(
+        'Indicá la fecha y hora programada.',
+        'error'
+      );
+
+      return;
+
+    }
+
+
+    const pedido = {
+
+      ID:
+        document.getElementById(
+          'pedidoId'
+        ).value,
+
+      Origen:
+        origen,
+
+      Destino:
+        destino,
+
+      Tipo:
+        document.getElementById(
+          'pedidoTipo'
+        ).value,
+
+      'Fecha Programada':
+        programado,
+
+      Cadete:
+        document.getElementById(
+          'pedidoCadete'
+        ).value.trim(),
+
+      Movil:
+        document.getElementById(
+          'pedidoMovil'
+        ).value.trim(),
+
+      Prioridad:
+        document.getElementById(
+          'pedidoPrioridad'
+        ).value,
+
+      Estado:
+        document.getElementById(
+          'pedidoEstado'
+        ).value,
+
+      Observaciones:
+        document.getElementById(
+          'pedidoObservaciones'
+        ).value.trim()
+
+    };
+
+
+    mostrarLoading(
+      'Guardando traslado...'
+    );
+
+
+    google.script.run
+      .withSuccessHandler(() => {
+
+        ocultarLoading();
+
+        cerrarModal(
+          'modalPedido'
+        );
+
+        mostrarToast(
+          'Traslado guardado correctamente.',
+          'success'
+        );
+
+        cargarDatos();
+
+      })
+      .withFailureHandler(error => {
+
+        ocultarLoading();
+
+        mostrarToast(
+          'No se pudo guardar: ' +
+          obtenerMensajeError(error),
+          'error'
+        );
+
+      })
+      .guardarPedido(pedido);
+
+  }
+
+
+  /* ================================
+     EDITAR
+  ================================= */
+
+  function editarPedido(id){
+
+    const pedido =
+      pedidos.find(
+        p => String(p.ID) === String(id)
+      );
+
+
+    if(!pedido){
+
+      mostrarToast(
+        'No se encontró el pedido.',
+        'error'
+      );
+
+      return;
+
+    }
+
+
+    if(!pedirClaveAdmin()){
+
+      return;
+
+    }
+
+
+    document.getElementById(
+      'pedidoId'
+    ).value =
+      pedido.ID || '';
+
+
+    document.getElementById(
+      'pedidoOrigen'
+    ).value =
+      pedido.Origen || '';
+
+
+    document.getElementById(
+      'pedidoDestino'
+    ).value =
+      pedido.Destino || '';
+
+
+    document.getElementById(
+      'pedidoTipo'
+    ).value =
+      pedido.Tipo || 'Otros';
+
+
+    document.getElementById(
+      'pedidoProgramado'
+    ).value =
+      convertirAInputDatetime(
+        pedido['Fecha Programada']
+      );
+
+
+    document.getElementById(
+      'pedidoCadete'
+    ).value =
+      pedido.Cadete || '';
+
+
+    document.getElementById(
+      'pedidoMovil'
+    ).value =
+      pedido.Movil || '';
+
+
+    document.getElementById(
+      'pedidoPrioridad'
+    ).value =
+      pedido.Prioridad || 'Media';
+
+
+    document.getElementById(
+      'pedidoEstado'
+    ).value =
+      pedido.Estado || 'Pendiente';
+
+
+    document.getElementById(
+      'pedidoObservaciones'
+    ).value =
+      pedido.Observaciones || '';
+
+
+    document.getElementById(
+      'tituloModalPedido'
+    ).textContent =
+      'Editar traslado';
+
+
+    abrirModal('modalPedido');
+
+  }
+
+
+  /* ================================
+     INICIAR
+  ================================= */
+
+  function iniciarPedido(id){
+
+    if(
+      !confirm(
+        '¿Querés iniciar este traslado ahora?'
+      )
+    ){
+
+      return;
+
+    }
+
+
+    mostrarLoading(
+      'Iniciando traslado...'
+    );
+
+
+    google.script.run
+      .withSuccessHandler(() => {
+
+        ocultarLoading();
+
+        mostrarToast(
+          'Traslado iniciado.',
+          'success'
+        );
+
+        cargarDatos();
+
+      })
+      .withFailureHandler(error => {
+
+        ocultarLoading();
+
+        mostrarToast(
+          'No se pudo iniciar: ' +
+          obtenerMensajeError(error),
+          'error'
+        );
+
+      })
+      .iniciarPedido(id);
+
+  }
+
+
+  /* ================================
+     FINALIZAR
+  ================================= */
+
+  function abrirFinalizar(id){
+
+    pedidoFinalizarId = id;
+
+    document.getElementById(
+      'observacionesFinales'
+    ).value = '';
+
+    abrirModal(
+      'modalFinalizar'
+    );
+
+  }
+
+
+  function confirmarFinalizacion(){
+
+    if(!pedidoFinalizarId){
+
+      return;
+
+    }
+
+
+    const observaciones =
+      document.getElementById(
+        'observacionesFinales'
+      ).value.trim();
+
+
+    mostrarLoading(
+      'Finalizando traslado...'
+    );
+
+
+    google.script.run
+      .withSuccessHandler(() => {
+
+        ocultarLoading();
+
+        cerrarModal(
+          'modalFinalizar'
+        );
+
+        pedidoFinalizarId = null;
+
+        mostrarToast(
+          'Traslado finalizado correctamente.',
+          'success'
+        );
+
+        cargarDatos();
+
+      })
+      .withFailureHandler(error => {
+
+        ocultarLoading();
+
+        mostrarToast(
+          'No se pudo finalizar: ' +
+          obtenerMensajeError(error),
+          'error'
+        );
+
+      })
+      .finalizarPedido(
+        pedidoFinalizarId,
+        observaciones
+      );
+
+  }
+
+
+  /* ================================
+     CANCELAR
+  ================================= */
+
+  function cancelarPedido(id){
+
+    if(!pedirClaveAdmin()){
+
+      return;
+
+    }
+
+
+    const observaciones =
+      prompt(
+        'Observaciones de la cancelación (opcional):',
+        ''
+      );
+
+
+    if(observaciones === null){
+
+      return;
+
+    }
+
+
+    mostrarLoading(
+      'Cancelando traslado...'
+    );
+
+
+    google.script.run
+      .withSuccessHandler(() => {
+
+        ocultarLoading();
+
+        mostrarToast(
+          'Traslado cancelado.',
+          'success'
+        );
+
+        cargarDatos();
+
+      })
+      .withFailureHandler(error => {
+
+        ocultarLoading();
+
+        mostrarToast(
+          'No se pudo cancelar: ' +
+          obtenerMensajeError(error),
+          'error'
+        );
+
+      })
+      .cambiarEstado(
+        id,
+        'Cancelada',
+        observaciones
+      );
+
+  }
+
+
+  /* ================================
+     ARCHIVAR
+  ================================= */
+
+  function archivarPedido(id){
+
+    if(!pedirClaveAdmin()){
+
+      return;
+
+    }
+
+
+    if(
+      !confirm(
+        '¿Querés archivar este traslado?'
+      )
+    ){
+
+      return;
+
+    }
+
+
+    mostrarLoading(
+      'Archivando traslado...'
+    );
+
+
+    google.script.run
+      .withSuccessHandler(() => {
+
+        ocultarLoading();
+
+        mostrarToast(
+          'Traslado archivado.',
+          'success'
+        );
+
+        cargarDatos();
+
+      })
+      .withFailureHandler(error => {
+
+        ocultarLoading();
+
+        mostrarToast(
+          'No se pudo archivar: ' +
+          obtenerMensajeError(error),
+          'error'
+        );
+
+      })
+      .alternarArchivo(id);
+
+  }
+
+
+  /* ================================
+     ELIMINAR
+  ================================= */
+
+  function eliminarPedido(id){
+
+    if(!pedirClaveAdmin()){
+
+      return;
+
+    }
+
+
+    if(
+      !confirm(
+        'ATENCIÓN\n\n' +
+        'Esta acción eliminará el traslado.\n\n' +
+        '¿Continuar?'
+      )
+    ){
+
+      return;
+
+    }
+
+
+    mostrarLoading(
+      'Eliminando traslado...'
+    );
+
+
+    google.script.run
+      .withSuccessHandler(() => {
+
+        ocultarLoading();
+
+        mostrarToast(
+          'Traslado eliminado.',
+          'success'
+        );
+
+        cargarDatos();
+
+      })
+      .withFailureHandler(error => {
+
+        ocultarLoading();
+
+        mostrarToast(
+          'No se pudo eliminar: ' +
+          obtenerMensajeError(error),
+          'error'
+        );
+
+      })
+      .eliminarPedido(id);
+
+  }
+
+
+  /* ================================
+     HISTÓRICO
+  ================================= */
+
+  function abrirHistorico(){
+
+    if(!pedirClaveAdmin()){
+
+      return;
+
+    }
+
+
+    const archivados =
+      pedidos
+        .filter(p => esArchivado(p))
+        .sort(ordenarPorProgramado);
+
+
+    const contenedor =
+      document.getElementById(
+        'historicoContenido'
+      );
+
+
+    if(!archivados.length){
+
+      contenedor.innerHTML = `
+        <div class="empty">
+          <div class="empty-icon">📭</div>
+          <div>No hay traslados archivados.</div>
+        </div>
+      `;
+
+      abrirModal(
+        'modalHistorico'
+      );
+
+      return;
+
+    }
+
+
+    let html = `
+
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>Fecha</th>
+            <th>Origen</th>
+            <th>Destino</th>
+            <th>Tipo</th>
+            <th>Cadete</th>
+            <th>Móvil</th>
+            <th>Estado</th>
+            <th>Observaciones</th>
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+    `;
+
+
+    archivados.forEach(p => {
+
+      html += `
+
+        <tr>
+
+          <td>
+            ${escapeHtml(
+              formatearFecha(
+                p['Fecha Programada']
+              )
+            )}
+          </td>
+
+          <td>
+            ${escapeHtml(
+              p.Origen || '-'
+            )}
+          </td>
+
+          <td>
+            ${escapeHtml(
+              p.Destino || '-'
+            )}
+          </td>
+
+          <td>
+            ${escapeHtml(
+              p.Tipo || '-'
+            )}
+          </td>
+
+          <td>
+            ${escapeHtml(
+              p.Cadete || '-'
+            )}
+          </td>
+
+          <td>
+            ${escapeHtml(
+              p.Movil || '-'
+            )}
+          </td>
+
+          <td>
+            ${badgeEstado(
+              p.Estado
+            )}
+          </td>
+
+          <td>
+            ${escapeHtml(
+              p['Observaciones Finales'] ||
+              p.Observaciones ||
+              '-'
+            )}
+          </td>
+
+        </tr>
+
+      `;
+
+    });
+
+
+    html += `
+        </tbody>
+      </table>
+    `;
+
+
+    contenedor.innerHTML = html;
+
+
+    abrirModal(
+      'modalHistorico'
+    );
+
+  }
+
+
+  /* ================================
+     SERVICIOS
+  ================================= */
+
+  function abrirServicios(){
+
+    if(!pedirClaveAdmin()){
+
+      return;
+
+    }
+
+
+    renderServicios();
+
+    abrirModal(
+      'modalServicios'
+    );
+
+  }
+
+
+  function renderServicios(){
+
+    const contenedor =
+      document.getElementById(
+        'listaServicios'
+      );
+
+    contenedor.innerHTML = '';
+
+
+    servicios
+      .sort((a,b) =>
+        String(a.nombre || a.Nombre || '')
+          .localeCompare(
+            String(b.nombre || b.Nombre || ''),
+            'es'
+          )
+      )
+      .forEach(s => {
+
+        const id =
+          s.id ||
+          s.ID ||
+          '';
+
+        const nombre =
+          s.nombre ||
+          s.Nombre ||
+          '';
+
+
+        const div =
+          document.createElement('div');
+
+        div.className =
+          'service-item';
+
+
+        div.innerHTML = `
+
+          <span>
+            ${escapeHtml(nombre)}
+          </span>
+
+          <button
+            class="btn btn-danger btn-small"
+            onclick="eliminarServicioFormulario('${escapeAttr(id)}')"
+          >
+            Eliminar
+          </button>
+
+        `;
+
+
+        contenedor.appendChild(div);
+
+      });
+
+  }
+
+
+  function agregarServicioFormulario(){
+
+    const input =
+      document.getElementById(
+        'nuevoServicio'
+      );
+
+    const nombre =
+      input.value.trim();
+
+
+    if(!nombre){
+
+      mostrarToast(
+        'Ingresá el nombre del servicio.',
+        'error'
+      );
+
+      return;
+
+    }
+
+
+    mostrarLoading(
+      'Agregando servicio...'
+    );
+
+
+    google.script.run
+      .withSuccessHandler(() => {
+
+        ocultarLoading();
+
+        input.value = '';
+
+        mostrarToast(
+          'Servicio agregado.',
+          'success'
+        );
+
+        cargarDatos();
+
+        setTimeout(
+          renderServicios,
+          400
+        );
+
+      })
+      .withFailureHandler(error => {
+
+        ocultarLoading();
+
+        mostrarToast(
+          'No se pudo agregar: ' +
+          obtenerMensajeError(error),
+          'error'
+        );
+
+      })
+      .agregarServicio(nombre);
+
+  }
+
+
+  function eliminarServicioFormulario(id){
+
+    if(!confirm(
+      '¿Eliminar este servicio?\n\n' +
+      'No se borrarán los pedidos existentes.'
+    )){
+
+      return;
+
+    }
+
+
+    mostrarLoading(
+      'Eliminando servicio...'
+    );
+
+
+    google.script.run
+      .withSuccessHandler(() => {
+
+        ocultarLoading();
+
+        mostrarToast(
+          'Servicio eliminado.',
+          'success'
+        );
+
+        cargarDatos();
+
+        setTimeout(
+          renderServicios,
+          400
+        );
+
+      })
+      .withFailureHandler(error => {
+
+        ocultarLoading();
+
+        mostrarToast(
+          'No se pudo eliminar: ' +
+          obtenerMensajeError(error),
+          'error'
+        );
+
+      })
+      .eliminarServicio(id);
+
+  }
+
+
+  /* ================================
+     CSV
+  ================================= */
+
+  function exportarCSV(){
+
+    if(!pedidosFiltrados.length){
+
+      mostrarToast(
+        'No hay registros para exportar.',
+        'error'
+      );
+
+      return;
+
+    }
+
+
+    const encabezados = [
+      'ID',
+      'Fecha Registro',
+      'Fecha Programada',
+      'Fecha Inicio',
+      'Fecha Finalizacion',
+      'Origen',
+      'Destino',
+      'Tipo',
+      'Cadete',
+      'Movil',
+      'Prioridad',
+      'Estado',
+      'Observaciones',
+      'Observaciones Finales'
     ];
 
-    let pedidos = JSON.parse(localStorage.getItem('pedidosHospital')) || [];
-    let servicios = JSON.parse(localStorage.getItem('serviciosHospital')) || serviciosPredeterminados;
-    let claveAdmin = localStorage.getItem('claveAdminCadeteria') || '1234';
 
-    const modalPedido = new bootstrap.Modal(document.getElementById('modalPedido'));
-    const modalServicios = new bootstrap.Modal(document.getElementById('modalServicios'));
-    const modalPassword = new bootstrap.Modal(document.getElementById('modalPassword'));
-    const modalGestionSeguridad = new bootstrap.Modal(document.getElementById('modalGestionSeguridad'));
+    const filas =
+      pedidosFiltrados.map(p => [
 
-    let callbackDespuesAutenticar = null;
+        p.ID,
+        p['Fecha Registro'],
+        p['Fecha Programada'],
+        p['Fecha Inicio'],
+        p['Fecha Finalizacion'],
+        p.Origen,
+        p.Destino,
+        p.Tipo,
+        p.Cadete,
+        p.Movil,
+        p.Prioridad,
+        p.Estado,
+        p.Observaciones,
+        p['Observaciones Finales']
 
-    document.addEventListener("DOMContentLoaded", () => {
-        guardarServicios();
-        poblarSelectsServicios();
-        actualizarIndicadorSeguridad();
-        filtrarTabla();
+      ]);
 
-        document.getElementById('inputPassAcceso').addEventListener('keyup', (e) => {
-            if (e.key === 'Enter') validarPassword();
-        });
-    });
 
-    // 🔒 Lógica de Contraseña y Seguridad
-    function esAdmin() {
-        return sessionStorage.getItem('adminAutenticado') === 'true';
-    }
+    const csv = [
+      encabezados,
+      ...filas
+    ]
+    .map(fila =>
+      fila
+        .map(valor =>
+          '"' +
+          String(valor ?? '')
+            .replace(/"/g,'""') +
+          '"'
+        )
+        .join(';')
+    )
+    .join('\r\n');
 
-    function requerirPassword(callbackAccion, ...args) {
-        if (esAdmin()) {
-            callbackAccion(...args);
-        } else {
-            callbackDespuesAutenticar = () => callbackAccion(...args);
-            document.getElementById('inputPassAcceso').value = '';
-            document.getElementById('errorPassAcceso').classList.add('d-none');
-            modalPassword.show();
+
+    const blob =
+      new Blob(
+        ['\ufeff' + csv],
+        {
+          type:
+            'text/csv;charset=utf-8;'
         }
+      );
+
+
+    const url =
+      URL.createObjectURL(blob);
+
+
+    const a =
+      document.createElement('a');
+
+    a.href = url;
+
+    a.download =
+      'cadeteria_' +
+      obtenerFechaArchivo() +
+      '.csv';
+
+    document.body.appendChild(a);
+
+    a.click();
+
+    a.remove();
+
+    URL.revokeObjectURL(url);
+
+  }
+
+
+  /* ================================
+     TEMA
+  ================================= */
+
+  function cargarTema(){
+
+    const tema =
+      localStorage.getItem(
+        'temaCadeteria'
+      );
+
+
+    if(tema === 'dark'){
+
+      document.body.classList.add(
+        'dark'
+      );
+
+      document.getElementById(
+        'btnTema'
+      ).textContent = '☀️';
+
     }
 
-    function validarPassword() {
-        const pass = document.getElementById('inputPassAcceso').value;
-        if (pass === claveAdmin) {
-            sessionStorage.setItem('adminAutenticado', 'true');
-            actualizarIndicadorSeguridad();
-            modalPassword.hide();
-            if (callbackDespuesAutenticar) {
-                callbackDespuesAutenticar();
-                callbackDespuesAutenticar = null;
-            }
-        } else {
-            document.getElementById('errorPassAcceso').classList.remove('d-none');
-        }
+  }
+
+
+  function alternarTema(){
+
+    document.body.classList.toggle(
+      'dark'
+    );
+
+
+    const oscuro =
+      document.body.classList.contains(
+        'dark'
+      );
+
+
+    localStorage.setItem(
+      'temaCadeteria',
+      oscuro ? 'dark' : 'light'
+    );
+
+
+    document.getElementById(
+      'btnTema'
+    ).textContent =
+      oscuro ? '☀️' : '🌙';
+
+  }
+
+
+  /* ================================
+     SEGURIDAD ADMIN
+  ================================= */
+
+  function pedirClaveAdmin(){
+
+    const autenticado =
+      sessionStorage.getItem(
+        'cadeteriaAdmin'
+      );
+
+
+    if(
+      autenticado === 'true'
+    ){
+
+      return true;
+
     }
 
-    function gestionarSeguridad() {
-        if (esAdmin()) {
-            document.getElementById('nuevaClaveInput').value = '';
-            modalGestionSeguridad.show();
-        } else {
-            requerirPassword(() => {
-                document.getElementById('nuevaClaveInput').value = '';
-                modalGestionSeguridad.show();
-            });
-        }
+
+    const clave =
+      prompt(
+        'Ingresá la clave de administrador:'
+      );
+
+
+    if(clave === null){
+
+      return false;
+
     }
 
-    function cambiarClave() {
-        const nueva = document.getElementById('nuevaClaveInput').value.trim();
-        if (nueva.length < 3) {
-            alert("La clave debe tener al menos 3 caracteres.");
-            return;
-        }
-        claveAdmin = nueva;
-        localStorage.setItem('claveAdminCadeteria', nueva);
-        alert("Contraseña actualizada correctamente.");
-        modalGestionSeguridad.hide();
+
+    if(clave === '1234'){
+
+      sessionStorage.setItem(
+        'cadeteriaAdmin',
+        'true'
+      );
+
+      return true;
+
     }
 
-    function bloquearSesion() {
-        sessionStorage.removeItem('adminAutenticado');
-        actualizarIndicadorSeguridad();
-        modalGestionSeguridad.hide();
-        filtrarTabla();
+
+    mostrarToast(
+      'Clave incorrecta.',
+      'error'
+    );
+
+    return false;
+
+  }
+
+
+  /* ================================
+     MODALES
+  ================================= */
+
+  function abrirModal(id){
+
+    document.getElementById(
+      id
+    ).classList.add('show');
+
+  }
+
+
+  function cerrarModal(id){
+
+    document.getElementById(
+      id
+    ).classList.remove('show');
+
+  }
+
+
+  document.addEventListener(
+    'click',
+    event => {
+
+      if(
+        event.target.classList.contains(
+          'modal'
+        )
+      ){
+
+        event.target.classList.remove(
+          'show'
+        );
+
+      }
+
+    }
+  );
+
+
+  /* ================================
+     LOADING
+  ================================= */
+
+  function mostrarLoading(texto){
+
+    document.getElementById(
+      'loadingText'
+    ).textContent =
+      texto || 'Cargando...';
+
+    document.getElementById(
+      'loading'
+    ).classList.add('show');
+
+  }
+
+
+  function ocultarLoading(){
+
+    document.getElementById(
+      'loading'
+    ).classList.remove('show');
+
+  }
+
+
+  /* ================================
+     TOAST
+  ================================= */
+
+  function mostrarToast(
+    mensaje,
+    tipo='success'
+  ){
+
+    const toast =
+      document.getElementById(
+        'toast'
+      );
+
+
+    toast.textContent =
+      mensaje;
+
+
+    toast.className =
+      'toast show ' +
+      tipo;
+
+
+    clearTimeout(
+      window.toastTimer
+    );
+
+
+    window.toastTimer =
+      setTimeout(() => {
+
+        toast.classList.remove(
+          'show'
+        );
+
+      },3500);
+
+  }
+
+
+  /* ================================
+     BADGES
+  ================================= */
+
+  function badgeEstado(estado){
+
+    const mapa = {
+
+      'Pendiente':
+        'badge-pendiente',
+
+      'En curso':
+        'badge-curso',
+
+      'Realizada':
+        'badge-realizada',
+
+      'Cancelada':
+        'badge-cancelada',
+
+      'No realizada':
+        'badge-no-realizada'
+
+    };
+
+
+    const clase =
+      mapa[estado] ||
+      'badge-baja';
+
+
+    return `
+      <span class="badge ${clase}">
+        ${escapeHtml(
+          estado || 'Sin estado'
+        )}
+      </span>
+    `;
+
+  }
+
+
+  function badgePrioridad(prioridad){
+
+    const mapa = {
+
+      'Alta':
+        'badge-alta',
+
+      'Media':
+        'badge-media',
+
+      'Baja':
+        'badge-baja'
+
+    };
+
+
+    const clase =
+      mapa[prioridad] ||
+      'badge-baja';
+
+
+    return `
+      <span class="badge ${clase}">
+        ${escapeHtml(
+          prioridad || 'Baja'
+        )}
+      </span>
+    `;
+
+  }
+
+
+  /* ================================
+     FECHAS
+  ================================= */
+
+  function convertirFecha(valor){
+
+    if(!valor){
+
+      return new Date(
+        'invalid'
+      );
+
     }
 
-    function actualizarIndicadorSeguridad() {
-        const btn = document.getElementById('btnEstadoSeguridad');
-        const icono = document.getElementById('iconoSeguridad');
-        const texto = document.getElementById('textoSeguridad');
 
-        if (esAdmin()) {
-            btn.className = "btn btn-sm btn-outline-success";
-            icono.className = "bi bi-unlock-fill me-1";
-            texto.innerText = "Modo Edición";
-        } else {
-            btn.className = "btn btn-sm btn-outline-secondary";
-            icono.className = "bi bi-lock-fill me-1";
-            texto.innerText = "Modo Lectura";
-        }
+    if(
+      valor instanceof Date
+    ){
+
+      return valor;
+
     }
 
-    // 🏬 Gestión de Servicios
-    function guardarServicios() {
-        servicios.sort();
-        localStorage.setItem('serviciosHospital', JSON.stringify(servicios));
-    }
 
-    function poblarSelectsServicios() {
-        const selectOrigen = document.getElementById('origen');
-        const selectDestino = document.getElementById('destino');
-        
-        let optionsHTML = '<option value="" disabled selected>Seleccione área...</option>';
-        servicios.forEach(s => {
-            optionsHTML += `<option value="${s}">${s}</option>`;
-        });
+    if(
+      typeof valor === 'string'
+    ){
 
-        selectOrigen.innerHTML = optionsHTML;
-        selectDestino.innerHTML = optionsHTML;
-    }
+      let texto =
+        valor.trim();
 
-    function abrirModalServicios() {
-        renderizarListaServiciosModal();
-        modalServicios.show();
-    }
 
-    function renderizarListaServiciosModal() {
-        const ul = document.getElementById('listaServiciosModal');
-        ul.innerHTML = '';
-        
-        servicios.forEach((s, idx) => {
-            const li = document.createElement('li');
-            li.className = 'list-group-item d-flex justify-content-between align-items-center py-2';
-            li.innerHTML = `
-                <span><i class="bi bi-building me-2 text-muted"></i>${s}</span>
-                <button class="btn btn-sm btn-outline-danger border-0" onclick="eliminarServicio(${idx})" title="Eliminar servicio"><i class="bi bi-trash"></i></button>
-            `;
-            ul.appendChild(li);
-        });
-    }
+      /*
+       * ISO
+       */
 
-    function agregarServicio() {
-        const input = document.getElementById('nuevoNombreServicio');
-        const nombre = input.value.trim();
-        
-        if (!nombre) return;
-        if (servicios.includes(nombre)) {
-            alert("El servicio ya existe.");
-            return;
-        }
+      if(
+        /^\d{4}-\d{2}-\d{2}/.test(
+          texto
+        )
+      ){
 
-        servicios.push(nombre);
-        guardarServicios();
-        poblarSelectsServicios();
-        renderizarListaServiciosModal();
-        input.value = '';
-    }
+        const d =
+          new Date(texto);
 
-    function eliminarServicio(index) {
-        if (confirm(`¿Deseas eliminar '${servicios[index]}' de la lista de servicios?`)) {
-            servicios.splice(index, 1);
-            guardarServicios();
-            poblarSelectsServicios();
-            renderizarListaServiciosModal();
-        }
-    }
+        if(!isNaN(d.getTime())){
 
-    // 📋 Operaciones con Pedidos
-    function abrirModalNuevo() {
-        document.getElementById('formPedido').reset();
-        document.getElementById('pedidoId').value = '';
-        document.getElementById('estado').value = 'Pendiente';
-        document.getElementById('modalTitulo').innerText = '➕ Nuevo Pedido de Cadetería';
-        modalPedido.show();
-    }
+          return d;
 
-    document.getElementById('formPedido').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const idActual = document.getElementById('pedidoId').value;
-        const pedidoExistente = idActual ? pedidos.find(p => p.id == idActual) : null;
-        const ahora = new Date();
-        const fechaProgInput = document.getElementById('fechaProgramada').value;
-
-        const nuevoPedido = {
-            id: idActual ? parseInt(idActual) : Date.now(),
-            fecha: pedidoExistente ? pedidoExistente.fecha : ahora.toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' }),
-            fechaISO: pedidoExistente ? (pedidoExistente.fechaISO || ahora.toISOString().split('T')[0]) : ahora.toISOString().split('T')[0],
-            fechaProgramada: fechaProgInput || '',
-            origen: document.getElementById('origen').value,
-            destino: document.getElementById('destino').value,
-            tipo: document.getElementById('tipo').value,
-            cadete: document.getElementById('cadete').value,
-            prioridad: document.getElementById('prioridad').value,
-            estado: document.getElementById('estado').value,
-            observaciones: document.getElementById('observaciones').value,
-            archivado: pedidoExistente ? (pedidoExistente.archivado || false) : false
-        };
-
-        if (idActual) {
-            const index = pedidos.findIndex(p => p.id == idActual);
-            pedidos[index] = nuevoPedido;
-        } else {
-            pedidos.unshift(nuevoPedido);
-        }
-
-        guardarDatos();
-        modalPedido.hide();
-        filtrarTabla();
-    });
-
-    function editarPedido(id) {
-        const pedido = pedidos.find(p => p.id === id);
-        document.getElementById('pedidoId').value = pedido.id;
-        document.getElementById('origen').value = pedido.origen;
-        document.getElementById('destino').value = pedido.destino;
-        document.getElementById('tipo').value = pedido.tipo;
-        document.getElementById('fechaProgramada').value = pedido.fechaProgramada || '';
-        document.getElementById('cadete').value = pedido.cadete;
-        document.getElementById('prioridad').value = pedido.prioridad;
-        document.getElementById('estado').value = pedido.estado;
-        document.getElementById('observaciones').value = pedido.observaciones;
-        
-        document.getElementById('modalTitulo').innerText = '✏️ Editar Pedido';
-        modalPedido.show();
-    }
-
-    function alternarArchivo(id) {
-        const index = pedidos.findIndex(p => p.id === id);
-        if (index !== -1) {
-            pedidos[index].archivado = !pedidos[index].archivado;
-            guardarDatos();
-            filtrarTabla();
-        }
-    }
-
-    function eliminarPedido(id) {
-        if (confirm("¿Estás seguro de que deseas eliminar este registro?")) {
-            pedidos = pedidos.filter(p => p.id !== id);
-            guardarDatos();
-            filtrarTabla();
-        }
-    }
-
-    function guardarDatos() {
-        localStorage.setItem('pedidosHospital', JSON.stringify(pedidos));
-    }
-
-    // 🗓️ Agrupamiento Semanal y Renderizado
-    function obtenerDatosSemana(fechaStr) {
-        if (!fechaStr) return { key: '9999-99', label: 'Sin Fecha Programada / Histórico' };
-        
-        const d = new Date(fechaStr.includes('T') ? fechaStr : fechaStr + 'T00:00:00');
-        if (isNaN(d.getTime())) return { key: '9999-99', label: 'Sin Fecha Programada / Histórico' };
-
-        const dia = d.getDay();
-        const diff = d.getDate() - dia + (dia === 0 ? -6 : 1);
-        const lunes = new Date(d.setDate(diff));
-        const domingo = new Date(lunes);
-        domingo.setDate(lunes.getDate() + 6);
-
-        const formato = date => date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-        
-        const yyyy = lunes.getFullYear();
-        const mm = String(lunes.getMonth() + 1).padStart(2, '0');
-        const dd = String(lunes.getDate()).padStart(2, '0');
-
-        return {
-            key: `${yyyy}-${mm}-${dd}`,
-            label: `Semana del ${formato(lunes)} al ${formato(domingo)}`
-        };
-    }
-
-    function actualizarTabla(datos) {
-        const tbody = document.getElementById('tabla-pedidos');
-        tbody.innerHTML = '';
-
-        if (datos.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-4"><i class="bi bi-inbox fs-3 d-block mb-1"></i>No hay traslados para mostrar.</td></tr>`;
-            actualizarEstadisticas();
-            return;
-        }
-
-        const grupos = {};
-        datos.forEach(p => {
-            const fechaRef = p.fechaProgramada ? p.fechaProgramada.split('T')[0] : p.fechaISO;
-            const infoSemana = obtenerDatosSemana(fechaRef);
-            
-            if (!grupos[infoSemana.key]) {
-                grupos[infoSemana.key] = { label: infoSemana.label, lista: [] };
-            }
-            grupos[infoSemana.key].lista.push(p);
-        });
-
-        const semanasOrdenadas = Object.keys(grupos).sort().reverse();
-
-        semanasOrdenadas.forEach(keySemana => {
-            const grupo = grupos[keySemana];
-            
-            const filaSeparadora = `
-                <tr class="encabezado-semana">
-                    <td colspan="9" class="py-2 px-3">
-                        <i class="bi bi-calendar-week me-2"></i><span>${grupo.label}</span> 
-                        <span class="badge bg-secondary ms-2">${grupo.lista.length} traslados</span>
-                    </td>
-                </tr>
-            `;
-            tbody.innerHTML += filaSeparadora;
-
-            grupo.lista.forEach(p => {
-                let badgePrioridad = 'bg-info text-dark';
-                if(p.prioridad.includes('Alta')) badgePrioridad = 'bg-danger text-white';
-                if(p.prioridad === 'Media') badgePrioridad = 'bg-warning text-dark';
-
-                let botonArchivo = '';
-                if (p.archivado) {
-                    botonArchivo = `<button class="btn btn-outline-dark" onclick="requerirPassword(alternarArchivo, ${p.id})" title="Desarchivar"><i class="bi bi-box-arrow-up"></i></button>`;
-                } else if (p.estado === 'Realizada' || p.estado === 'Cancelada') {
-                    botonArchivo = `<button class="btn btn-outline-secondary" onclick="requerirPassword(alternarArchivo, ${p.id})" title="Archivar"><i class="bi bi-archive"></i></button>`;
-                }
-
-                let textoProgramado = '<span class="text-muted">-</span>';
-                if (p.fechaProgramada) {
-                    const fProg = new Date(p.fechaProgramada);
-                    textoProgramado = `<span class="fw-bold text-primary">${fProg.toLocaleDateString('es-ES')}</span> <small class="text-muted">${fProg.toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'})} hs</small>`;
-                }
-
-                const fila = `
-                    <tr class="${p.archivado ? 'fila-archivada' : ''}">
-                        <td class="text-muted small">${p.fecha}</td>
-                        <td>${textoProgramado}</td>
-                        <td>
-                            <span class="fw-bold">${p.origen}</span> 
-                            <i class="bi bi-arrow-right text-muted mx-1"></i> 
-                            <span class="fw-bold">${p.destino}</span>
-                        </td>
-                        <td>${p.tipo}</td>
-                        <td><i class="bi bi-person me-1 text-muted"></i>${p.cadete}</td>
-                        <td><span class="badge ${badgePrioridad}">${p.prioridad}</span></td>
-                        <td><span class="badge badge-estado-${p.estado}">${p.estado}</span></td>
-                        <td style="max-width: 140px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;" title="${p.observaciones}">${p.observaciones || '-'}</td>
-                        <td class="text-end">
-                            <div class="btn-group btn-group-sm">
-                                <button class="btn btn-outline-primary" onclick="requerirPassword(editarPedido, ${p.id})" title="Editar"><i class="bi bi-pencil"></i></button>
-                                ${botonArchivo}
-                                <button class="btn btn-outline-danger" onclick="requerirPassword(eliminarPedido, ${p.id})" title="Eliminar"><i class="bi bi-trash"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-                tbody.innerHTML += fila;
-            });
-        });
-
-        actualizarEstadisticas();
-    }
-
-    function obtenerFechaFiltro(pedido) {
-        if (pedido.fechaProgramada) return pedido.fechaProgramada.split('T')[0];
-        if (pedido.fechaISO) return pedido.fechaISO;
-        return "";
-    }
-
-    function filtrarTabla() {
-        const busqueda = document.getElementById('buscador').value.toLowerCase();
-        const estadoFiltro = document.getElementById('filtro-estado').value;
-        const verArchivados = document.getElementById('verArchivados').checked;
-        const fechaDesde = document.getElementById('fecha-desde').value;
-        const fechaHasta = document.getElementById('fecha-hasta').value;
-
-        const filtrados = pedidos.filter(p => {
-            const esArchivado = p.archivado || false;
-
-            if (verArchivados && !esArchivado) return false;
-            if (!verArchivados && esArchivado) return false;
-
-            const coincideBusqueda = p.origen.toLowerCase().includes(busqueda) || 
-                                     p.destino.toLowerCase().includes(busqueda) || 
-                                     p.cadete.toLowerCase().includes(busqueda) || 
-                                     p.tipo.toLowerCase().includes(busqueda);
-            
-            const coincideEstado = estadoFiltro === "Todos" || p.estado === estadoFiltro;
-
-            const fechaRegistro = obtenerFechaFiltro(p);
-            let coincideFecha = true;
-
-            if (fechaDesde && fechaRegistro) {
-                coincideFecha = coincideFecha && (fechaRegistro >= fechaDesde);
-            }
-            if (fechaHasta && fechaRegistro) {
-                coincideFecha = coincideFecha && (fechaRegistro <= fechaHasta);
-            }
-
-            return coincideBusqueda && coincideEstado && coincideFecha;
-        });
-
-        actualizarTabla(filtrados);
-    }
-
-    function filtrarHoy() {
-        const hoy = new Date().toISOString().split('T')[0];
-        document.getElementById('fecha-desde').value = hoy;
-        document.getElementById('fecha-hasta').value = hoy;
-        filtrarTabla();
-    }
-
-    function limpiarFiltros() {
-        document.getElementById('buscador').value = '';
-        document.getElementById('filtro-estado').value = 'Todos';
-        document.getElementById('fecha-desde').value = '';
-        document.getElementById('fecha-hasta').value = '';
-        document.getElementById('verArchivados').checked = false;
-        filtrarTabla();
-    }
-
-    function actualizarEstadisticas() {
-        const activos = pedidos.filter(p => !p.archivado);
-        document.getElementById('stat-total').innerText = activos.length;
-        document.getElementById('stat-pendientes').innerText = activos.filter(p => p.estado === 'Pendiente').length;
-        document.getElementById('stat-realizadas').innerText = activos.filter(p => p.estado === 'Realizada').length;
-        document.getElementById('stat-archivados').innerText = pedidos.filter(p => p.archivado).length;
-    }
-
-    function exportarCSV() {
-        if(pedidos.length === 0) {
-            alert("No hay datos para exportar.");
-            return;
         }
 
-        let csvContent = "data:text/csv;charset=utf-8,";
-        csvContent += "ID,Fecha Registro,Fecha Programada,Origen,Destino,Tipo,Cadete,Prioridad,Estado,Archivado,Observaciones\n";
-        
-        pedidos.forEach(p => {
-            let obsLimpias = (p.observaciones || "").replace(/,/g, " ").replace(/\n/g, " ");
-            let row = [
-                p.id,
-                `"${p.fecha}"`,
-                `"${p.fechaProgramada || 'Sin programar'}"`,
-                `"${p.origen}"`,
-                `"${p.destino}"`,
-                `"${p.tipo}"`,
-                `"${p.cadete}"`,
-                `"${p.prioridad}"`,
-                `"${p.estado}"`,
-                `"${p.archivado ? 'Sí' : 'No'}"`,
-                `"${obsLimpias}"`
-            ];
-            csvContent += row.join(",") + "\n";
-        });
+      }
 
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `Reporte_Cadeteria_${new Date().toLocaleDateString('es-ES')}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+
+      /*
+       * dd/mm/yyyy hh:mm
+       */
+
+      const match =
+        texto.match(
+          /^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?$/
+        );
+
+
+      if(match){
+
+        return new Date(
+          Number(match[3]),
+          Number(match[2])-1,
+          Number(match[1]),
+          Number(match[4] || 0),
+          Number(match[5] || 0),
+          Number(match[6] || 0)
+        );
+
+      }
+
     }
+
+
+    const d =
+      new Date(valor);
+
+    return d;
+
+  }
+
+
+  function formatearFecha(valor){
+
+    const fecha =
+      convertirFecha(valor);
+
+
+    if(
+      !fecha ||
+      isNaN(fecha.getTime())
+    ){
+
+      return valor || '-';
+
+    }
+
+
+    const fechaTexto =
+      fecha.toLocaleDateString(
+        'es-AR',
+        {
+          day:'2-digit',
+          month:'2-digit',
+          year:'numeric'
+        }
+      );
+
+
+    const horaTexto =
+      fecha.toLocaleTimeString(
+        'es-AR',
+        {
+          hour:'2-digit',
+          minute:'2-digit'
+        }
+      );
+
+
+    return fechaTexto +
+      ' ' +
+      horaTexto;
+
+  }
+
+
+  function convertirAInputDatetime(valor){
+
+    const fecha =
+      convertirFecha(valor);
+
+
+    if(
+      !fecha ||
+      isNaN(fecha.getTime())
+    ){
+
+      return '';
+
+    }
+
+
+    return [
+      fecha.getFullYear(),
+      String(
+        fecha.getMonth()+1
+      ).padStart(2,'0'),
+      String(
+        fecha.getDate()
+      ).padStart(2,'0')
+    ].join('-')
+    +
+    'T'
+    +
+    [
+      String(
+        fecha.getHours()
+      ).padStart(2,'0'),
+      String(
+        fecha.getMinutes()
+      ).padStart(2,'0')
+    ].join(':');
+
+  }
+
+
+  function obtenerFechaHoraLocal(){
+
+    const d =
+      new Date();
+
+
+    return [
+      d.getFullYear(),
+      String(
+        d.getMonth()+1
+      ).padStart(2,'0'),
+      String(
+        d.getDate()
+      ).padStart(2,'0')
+    ].join('-')
+    +
+    'T'
+    +
+    [
+      String(
+        d.getHours()
+      ).padStart(2,'0'),
+      String(
+        d.getMinutes()
+      ).padStart(2,'0')
+    ].join(':');
+
+  }
+
+
+  function obtenerFechaArchivo(){
+
+    const d =
+      new Date();
+
+
+    return [
+      d.getFullYear(),
+      String(
+        d.getMonth()+1
+      ).padStart(2,'0'),
+      String(
+        d.getDate()
+      ).padStart(2,'0')
+    ].join('');
+
+  }
+
+
+  /* ================================
+     ARCHIVADO
+  ================================= */
+
+  function esArchivado(p){
+
+    const valor =
+      String(
+        p.Archivado || ''
+      ).toLowerCase();
+
+
+    return (
+      valor === 'true' ||
+      valor === 'sí' ||
+      valor === 'si' ||
+      valor === '1'
+    );
+
+  }
+
+
+  /* ================================
+     SEGURIDAD HTML
+  ================================= */
+
+  function escapeHtml(valor){
+
+    return String(
+      valor ?? ''
+    )
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#039;');
+
+  }
+
+
+  function escapeAttr(valor){
+
+    return String(
+      valor ?? ''
+    )
+    .replace(/\\/g,'\\\\')
+    .replace(/'/g,"\\'")
+    .replace(/"/g,'&quot;');
+
+  }
+
 </script>
+
 </body>
 </html>
