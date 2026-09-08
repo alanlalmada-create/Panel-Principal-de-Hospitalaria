@@ -12,7 +12,6 @@
             background-color: #f4f7f6;
             font-family: system-ui, -apple-system, sans-serif;
         }
-        /* KPIs con indicador lateral */
         .card-kpi {
             border: none;
             border-left: 5px solid;
@@ -30,19 +29,15 @@
             box-shadow: 0 2px 6px rgba(0,0,0,0.06);
             padding: 15px;
         }
-        .encabezado-semana {
-            background-color: #eef2f7 !important;
-            font-weight: 600;
-            color: #344767;
-        }
         .fila-archivada {
             opacity: 0.7;
             background-color: #f8f9fa;
         }
-        /* Badges de estado */
         .badge-estado-Pendiente { background-color: #fff3cd; color: #856404; font-weight: 600; }
+        .badge-estado-En-curso { background-color: #cff4fc; color: #055160; font-weight: 600; }
         .badge-estado-Realizada { background-color: #d4edda; color: #155724; font-weight: 600; }
         .badge-estado-Cancelada { background-color: #f8d7da; color: #721c24; font-weight: 600; }
+        .badge-estado-No-realizada { background-color: #e2e3e5; color: #41464b; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -55,7 +50,6 @@
                 <span class="text-muted small">Gestión y control de traslados internos</span>
             </div>
             <div class="d-flex align-items-center gap-2">
-                <!-- Estado de Seguridad -->
                 <button class="btn btn-sm btn-outline-secondary" id="btnEstadoSeguridad" onclick="gestionarSeguridad()">
                     <i class="bi bi-lock-fill me-1" id="iconoSeguridad"></i>
                     <span id="textoSeguridad">Modo Lectura</span>
@@ -69,7 +63,7 @@
             </div>
         </div>
 
-        <!-- 📊 Indicadores KPIs -->
+        <!-- Indicadores KPIs -->
         <div class="row g-3 mb-4">
             <div class="col-6 col-md-3">
                 <div class="card card-kpi kpi-activos p-3">
@@ -97,7 +91,7 @@
             </div>
         </div>
 
-        <!-- 🔎 Controles y Filtros -->
+        <!-- Controles y Filtros -->
         <div class="card p-3 mb-4 shadow-sm border-0">
             <div class="row g-2 align-items-end">
                 <div class="col-md-3">
@@ -108,8 +102,11 @@
                     <label class="form-label small fw-bold text-muted mb-1">Estado</label>
                     <select id="filtro-estado" class="form-select form-select-sm" onchange="filtrarTabla()">
                         <option value="Todos">Todos los estados</option>
-                        <option value="Pendiente">Pendientes</option>
-                        <option value="Realizada">Realizadas</option> <option value="Cancelada">Canceladas</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="En curso">En curso</option>
+                        <option value="Realizada">Realizada</option>
+                        <option value="Cancelada">Cancelada</option>
+                        <option value="No realizada">No realizada</option>
                     </select>
                 </div>
                 <div class="col-md-2">
@@ -121,15 +118,14 @@
                     <input type="date" id="fecha-hasta" class="form-control form-control-sm" onchange="filtrarTabla()">
                 </div>
                 <div class="col-md-3 text-end d-flex gap-1 justify-content-end">
-                    <button class="btn btn-sm btn-outline-primary" onclick="filtrarHoy()" title="Filtrar pedidos de hoy"><i class="bi bi-calendar-day"></i> Hoy</button>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="limpiarFiltros()" title="Limpiar filtros"><i class="bi bi-arrow-counterclockwise"></i></button>
-                    <button class="btn btn-sm btn-secondary" onclick="exportarCSV()"><i class="bi bi-download me-1"></i> CSV</button>
+                    <button class="btn btn-sm btn-outline-primary" onclick="cargarDesdeGoogleSheets()" title="Sincronizar con Google Sheets"><i class="bi bi-arrow-repeat"></i> Actualizar</button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="limpiarFiltros()" title="Limpiar filtros"><i class="bi bi-eraser"></i></button>
                     <button class="btn btn-sm btn-primary" onclick="requerirPassword(abrirModalNuevo)"><i class="bi bi-plus-lg me-1"></i> Nuevo Pedido</button>
                 </div>
             </div>
         </div>
 
-        <!-- 📋 Listado de Pedidos -->
+        <!-- Listado de Pedidos -->
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
@@ -138,7 +134,7 @@
                         <th>Programado Para</th>
                         <th>Origen <i class="bi bi-arrow-right"></i> Destino</th>
                         <th>Tipo</th>
-                        <th>Cadete</th>
+                        <th>Cadete / Móvil</th>
                         <th>Prioridad</th>
                         <th>Estado</th>
                         <th>Obs.</th>
@@ -146,13 +142,13 @@
                     </tr>
                 </thead>
                 <tbody id="tabla-pedidos">
-                    <!-- Se renderiza con JS -->
+                    <!-- Se renderiza dinámicamente -->
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- 🔒 Modal Solicitud de Contraseña -->
+    <!-- Modal Solicitud de Contraseña -->
     <div class="modal fade" id="modalPassword" tabindex="-1">
         <div class="modal-dialog modal-sm">
             <div class="modal-content">
@@ -161,7 +157,7 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <p class="small text-muted mb-2">Introduce la contraseña para realizar cambios (Clave por defecto: <b>1234</b>):</p>
+                    <p class="small text-muted mb-2">Introduce la contraseña para realizar cambios:</p>
                     <input type="password" id="inputPassAcceso" class="form-control text-center fs-5 mb-2" placeholder="••••" autofocus>
                     <div id="errorPassAcceso" class="text-danger small d-none text-center fw-bold">Contraseña incorrecta</div>
                 </div>
@@ -173,28 +169,7 @@
         </div>
     </div>
 
-    <!-- ⚙️ Modal Gestión de Seguridad (Cambiar Clave) -->
-    <div class="modal fade" id="modalGestionSeguridad" tabindex="-1">
-        <div class="modal-dialog modal-sm">
-            <div class="modal-content">
-                <div class="modal-header bg-dark text-white py-2">
-                    <h6 class="modal-title fw-bold"><i class="bi bi-key me-2"></i>Seguridad y Clave</h6>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold">Nueva Contraseña</label>
-                        <input type="password" id="nuevaClaveInput" class="form-control" placeholder="Escribe nueva clave">
-                    </div>
-                    <button class="btn btn-primary btn-sm w-100 mb-2" onclick="cambiarClave()"><i class="bi bi-floppy me-1"></i> Guardar Nueva Clave</button>
-                    <hr class="my-2">
-                    <button class="btn btn-outline-danger btn-sm w-100" onclick="bloquearSesion()"><i class="bi bi-lock me-1"></i> Bloquear Edición Ahora</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ➕/✏️ Modal Formulario Pedido -->
+    <!-- Modal Formulario Pedido -->
     <div class="modal fade" id="modalPedido" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -209,17 +184,11 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold">🏢 Servicio Origen</label>
-                                <div class="input-group">
-                                    <select id="origen" class="form-select" required></select>
-                                    <button type="button" class="btn btn-outline-secondary" onclick="requerirPassword(abrirModalServicios)" title="Agregar servicio"><i class="bi bi-plus-lg"></i></button>
-                                </div>
+                                <select id="origen" class="form-select" required></select>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold">🏢 Servicio Destino</label>
-                                <div class="input-group">
-                                    <select id="destino" class="form-select" required></select>
-                                    <button type="button" class="btn btn-outline-secondary" onclick="requerirPassword(abrirModalServicios)" title="Agregar servicio"><i class="bi bi-plus-lg"></i></button>
-                                </div>
+                                <select id="destino" class="form-select" required></select>
                             </div>
                         </div>
 
@@ -229,9 +198,10 @@
                                 <select id="tipo" class="form-select" required>
                                     <option value="Muestras de Laboratorio">Muestras de Laboratorio</option>
                                     <option value="Medicamentos">Medicamentos</option>
-                                    <option value="Documentación">Documentación / Historias Clínicas</option>
+                                    <option value="Documentación / Historias Clínicas">Documentación / Historias Clínicas</option>
                                     <option value="Insumos Médicos">Insumos Médicos</option>
                                     <option value="Equipos">Equipos</option>
+                                    <option value="Ropa">Ropa</option>
                                     <option value="Otros">Otros</option>
                                 </select>
                             </div>
@@ -242,11 +212,15 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <label class="form-label">👤 Cadete Responsable</label>
                                 <input type="text" id="cadete" class="form-control" placeholder="Nombre del cadete" required>
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">📱 Móvil / Radio</label>
+                                <input type="text" id="movil" class="form-control" placeholder="Móvil 1, etc.">
+                            </div>
+                            <div class="col-md-4 mb-3">
                                 <label class="form-label">🚨 Prioridad</label>
                                 <select id="prioridad" class="form-select" required>
                                     <option value="Baja">Baja</option>
@@ -260,8 +234,10 @@
                             <label class="form-label">Estado</label>
                             <select id="estado" class="form-select">
                                 <option value="Pendiente">Pendiente</option>
+                                <option value="En curso">En curso</option>
                                 <option value="Realizada">Realizada</option>
                                 <option value="Cancelada">Cancelada</option>
+                                <option value="No realizada">No realizada</option>
                             </select>
                         </div>
 
@@ -272,7 +248,7 @@
 
                         <div class="text-end">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-primary"><i class="bi bi-floppy me-1"></i> Guardar Registro</button>
+                            <button type="submit" class="btn btn-primary" id="btnGuardarPedido"><i class="bi bi-floppy me-1"></i> Guardar en Google Sheets</button>
                         </div>
                     </form>
                 </div>
@@ -280,12 +256,12 @@
         </div>
     </div>
 
-    <!-- ⚙️ Modal Administración de Servicios -->
+    <!-- Modal Gestión Servicios -->
     <div class="modal fade" id="modalServicios" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title"><i class="bi bi-building-gear me-2"></i>Gestión de Servicios / Áreas</h5>
+                    <h5 class="modal-title"><i class="bi bi-building-gear me-2"></i>Gestión de Servicios</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -302,36 +278,28 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const serviciosPredeterminados = [
-            "Administración", "Anatomía Patológica", "Banco de Sangre", 
-            "Consultorios Externos", "Farmacia", "Guardia / Emergencias", 
-            "Hemoterapia", "Infectología", "Kinesiología", "Laboratorio", 
-            "Maternidad", "Pediatría", "Quirófano", "Radiología / Imágenes", 
-            "Terapia Intensiva (UTI)"
-        ];
+        // URL de tu implementación de Google Apps Script
+        const URL_GOOGLE_SCRIPT = "https://script.google.com/macros/s/AKfycbxt6N6dgwkyDc_WqjRGDuaDnfq2zyRxiQzU9yA08AspVIufhDE60k7JM_WogDZKGE5V/exec";
 
-        let pedidos = JSON.parse(localStorage.getItem('pedidosHospital')) || [];
-        let servicios = JSON.parse(localStorage.getItem('serviciosHospital')) || serviciosPredeterminados;
+        let pedidos = [];
+        let servicios = [];
         let claveAdmin = localStorage.getItem('claveAdminCadeteria') || '1234';
 
         const modalPedido = new bootstrap.Modal(document.getElementById('modalPedido'));
         const modalServicios = new bootstrap.Modal(document.getElementById('modalServicios'));
         const modalPassword = new bootstrap.Modal(document.getElementById('modalPassword'));
-        const modalGestionSeguridad = new bootstrap.Modal(document.getElementById('modalGestionSeguridad'));
 
         let callbackDespuesAutenticar = null;
 
         document.addEventListener("DOMContentLoaded", () => {
-            poblarSelectsServicios();
             actualizarIndicadorSeguridad();
-            filtrarTabla();
+            cargarDesdeGoogleSheets();
             
             document.getElementById('inputPassAcceso').addEventListener('keyup', (e) => {
                 if (e.key === 'Enter') validarPassword();
             });
         });
 
-        // 🔒 Lógica de Contraseña y Seguridad
         function esAdmin() {
             return sessionStorage.getItem('adminAutenticado') === 'true';
         }
@@ -364,33 +332,11 @@
 
         function gestionarSeguridad() {
             if (esAdmin()) {
-                document.getElementById('nuevaClaveInput').value = '';
-                modalGestionSeguridad.show();
+                sessionStorage.removeItem('adminAutenticado');
+                actualizarIndicadorSeguridad();
             } else {
-                requerirPassword(() => {
-                    document.getElementById('nuevaClaveInput').value = '';
-                    modalGestionSeguridad.show();
-                });
+                requerirPassword(() => {});
             }
-        }
-
-        function cambiarClave() {
-            const nueva = document.getElementById('nuevaClaveInput').value.trim();
-            if (nueva.length < 3) {
-                alert("La clave debe tener al menos 3 caracteres.");
-                return;
-            }
-            claveAdmin = nueva;
-            localStorage.setItem('claveAdminCadeteria', nueva);
-            alert("Contraseña actualizada correctamente.");
-            modalGestionSeguridad.hide();
-        }
-
-        function bloquearSesion() {
-            sessionStorage.removeItem('adminAutenticado');
-            actualizarIndicadorSeguridad();
-            modalGestionSeguridad.hide();
-            filtrarTabla();
         }
 
         function actualizarIndicadorSeguridad() {
@@ -409,18 +355,38 @@
             }
         }
 
-        // 🏬 Gestión de Servicios
-        function guardarServicios() {
-            servicios.sort();
-            localStorage.setItem('serviciosHospital', JSON.stringify(servicios));
+        // --- CONEXIÓN CON GOOGLE APPS SCRIPT (BACKEND) ---
+
+        function cargarDesdeGoogleSheets() {
+            fetch(`${URL_GOOGLE_SCRIPT}?accion=obtenerDatos`)
+            .then(res => res.json())
+            .then(respuesta => {
+                if (respuesta.ok && respuesta.data) {
+                    pedidos = respuesta.data.pedidos || [];
+                    servicios = (respuesta.data.servicios || []).map(s => typeof s === 'object' ? s.nombre : s);
+                    poblarSelectsServicios();
+                    filtrarTabla();
+                } else {
+                    console.error("Error al obtener datos:", respuesta.error);
+                }
+            })
+            .catch(err => console.error("Error al conectar con Google Sheets:", err));
         }
+
+        function ejecutarAccionPost(payload) {
+            return fetch(URL_GOOGLE_SCRIPT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json());
+        }
+
+        // --- GESTIÓN DE SERVICIOS ---
 
         function poblarSelectsServicios() {
             const selectOrigen = document.getElementById('origen');
             const selectDestino = document.getElementById('destino');
-            
-            const valOrigen = selectOrigen ? selectOrigen.value : '';
-            const valDestino = selectDestino ? selectDestino.value : '';
 
             let optionsHTML = '<option value="" disabled selected>Seleccione área...</option>';
             servicios.forEach(s => {
@@ -429,9 +395,6 @@
 
             if (selectOrigen) selectOrigen.innerHTML = optionsHTML;
             if (selectDestino) selectDestino.innerHTML = optionsHTML;
-
-            if (valOrigen) selectOrigen.value = valOrigen;
-            if (valDestino) selectDestino.value = valDestino;
         }
 
         function abrirModalServicios() {
@@ -443,15 +406,10 @@
             const ul = document.getElementById('listaServiciosModal');
             if (!ul) return;
             ul.innerHTML = '';
-            servicios.forEach((s, idx) => {
+            servicios.forEach(s => {
                 const li = document.createElement('li');
                 li.className = 'list-group-item d-flex justify-content-between align-items-center py-2';
-                li.innerHTML = `
-                    <span><i class="bi bi-building me-2 text-muted"></i>${s}</span>
-                    <button class="btn btn-sm btn-outline-danger border-0" onclick="eliminarServicio(${idx})" title="Eliminar servicio">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                `;
+                li.innerHTML = `<span><i class="bi bi-building me-2 text-muted"></i>${s}</span>`;
                 ul.appendChild(li);
             });
         }
@@ -460,27 +418,20 @@
             const input = document.getElementById('nuevoNombreServicio');
             const nombre = input.value.trim();
             if (!nombre) return;
-            if (servicios.some(s => s.toLowerCase() === nombre.toLowerCase())) {
-                alert("El servicio ya existe.");
-                return;
-            }
-            servicios.push(nombre);
-            guardarServicios();
-            poblarSelectsServicios();
-            renderizarListaServiciosModal();
-            input.value = '';
+
+            ejecutarAccionPost({ accion: 'agregarServicio', nombre: nombre })
+            .then(res => {
+                if (res.ok) {
+                    input.value = '';
+                    cargarDesdeGoogleSheets();
+                } else {
+                    alert("Error: " + res.error);
+                }
+            });
         }
 
-        function eliminarServicio(index) {
-            if (confirm(`¿Deseas eliminar '${servicios[index]}' de la lista de servicios?`)) {
-                servicios.splice(index, 1);
-                guardarServicios();
-                poblarSelectsServicios();
-                renderizarListaServiciosModal();
-            }
-        }
+        // --- GESTIÓN DE PEDIDOS ---
 
-        // 📋 Operaciones con Pedidos
         function abrirModalNuevo() {
             document.getElementById('formPedido').reset();
             document.getElementById('pedidoId').value = '';
@@ -496,110 +447,56 @@
 
         document.getElementById('formPedido').addEventListener('submit', function(e) {
             e.preventDefault();
-            
-            const idActual = document.getElementById('pedidoId').value;
-            const pedidoExistente = idActual ? pedidos.find(p => p.id == idActual) : null;
-            
-            const ahora = new Date();
-            const fechaProgInput = document.getElementById('fechaProgramada').value;
-            
-            let isoRef = ahora.toISOString().split('T')[0];
-            if (fechaProgInput) {
-                isoRef = fechaProgInput.split('T')[0];
-            }
 
-            const nuevoPedido = {
-                id: idActual ? parseInt(idActual) : Date.now(),
-                fecha: pedidoExistente ? pedidoExistente.fecha : meFormatoFecha(ahora),
-                fechaISO: pedidoExistente ? (pedidoExistente.fechaISO || isoRef) : isoRef,
-                fechaProgramada: fechaProgInput || '',
+            const pedido = {
+                id: document.getElementById('pedidoId').value || "",
                 origen: document.getElementById('origen').value,
                 destino: document.getElementById('destino').value,
                 tipo: document.getElementById('tipo').value,
+                fechaProgramada: document.getElementById('fechaProgramada').value,
                 cadete: document.getElementById('cadete').value,
+                movil: document.getElementById('movil').value,
                 prioridad: document.getElementById('prioridad').value,
                 estado: document.getElementById('estado').value,
-                observaciones: document.getElementById('observaciones').value,
-                archivado: pedidoExistente ? (pedidoExistente.archivado || false) : false
+                observaciones: document.getElementById('observaciones').value
             };
 
-            if (idActual) {
-                const index = pedidos.findIndex(p => p.id == idActual);
-                pedidos[index] = nuevoPedido;
-            } else {
-                pedidos.unshift(nuevoPedido);
-            }
+            const btnGuardar = document.getElementById('btnGuardarPedido');
+            btnGuardar.disabled = true;
+            btnGuardar.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Guardando...';
 
-            guardarDatos();
-            modalPedido.hide();
-            limpiarFiltros();
+            ejecutarAccionPost({ accion: 'guardarPedido', pedido: pedido })
+            .then(res => {
+                btnGuardar.disabled = false;
+                btnGuardar.innerHTML = '<i class="bi bi-floppy me-1"></i> Guardar en Google Sheets';
+                if (res.ok) {
+                    modalPedido.hide();
+                    cargarDesdeGoogleSheets();
+                } else {
+                    alert("Error al guardar: " + res.error);
+                }
+            })
+            .catch(err => {
+                btnGuardar.disabled = false;
+                btnGuardar.innerHTML = '<i class="bi bi-floppy me-1"></i> Guardar en Google Sheets';
+                alert("Error de conexión al guardar.");
+            });
         });
 
-        function meFormatoFecha(fechaObj) {
-            return fechaObj.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }) + 
-                   ' ' + 
-                   fechaObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        function cambiarEstadoAccion(id, nuevoEstado) {
+            ejecutarAccionPost({ accion: 'cambiarEstado', id: id, nuevoEstado: nuevoEstado })
+            .then(res => {
+                if (res.ok) cargarDesdeGoogleSheets();
+                else alert("Error: " + res.error);
+            });
         }
 
-        function editarPedido(id) {
-            const pedido = pedidos.find(p => p.id === id);
-            document.getElementById('pedidoId').value = pedido.id;
-            document.getElementById('origen').value = pedido.origen;
-            document.getElementById('destino').value = pedido.destino;
-            document.getElementById('tipo').value = pedido.tipo;
-            document.getElementById('fechaProgramada').value = pedido.fechaProgramada || '';
-            document.getElementById('cadete').value = pedido.cadete;
-            document.getElementById('prioridad').value = pedido.prioridad;
-            document.getElementById('estado').value = pedido.estado;
-            document.getElementById('observaciones').value = pedido.observaciones;
-            
-            document.getElementById('modalTitulo').innerText = '✏️ Editar Pedido';
-            modalPedido.show();
-        }
-
-        function alternarArchivo(id) {
-            const index = pedidos.findIndex(p => p.id === id);
-            if (index !== -1) {
-                pedidos[index].archivado = !pedidos[index].archivado;
-                guardarDatos();
-                filtrarTabla();
-            }
-        }
-
-        function eliminarPedido(id) {
-            if (confirm("¿Estás seguro de que deseas eliminar este registro?")) {
-                pedidos = pedidos.filter(p => p.id !== id);
-                guardarDatos();
-                filtrarTabla();
-            }
-        }
-
-        function guardarDatos() {
-            localStorage.setItem('pedidosHospital', JSON.stringify(pedidos));
-        }
-
-        // 🗓️ Agrupamiento Semanal y Renderizado
-        function obtenerDatosSemana(fechaStr) {
-            if (!fechaStr) return { key: '9999-99', label: 'Sin Fecha Programada / Histórico' };
-            const d = new Date(fechaStr.includes('T') ? fechaStr : fechaStr + 'T00:00:00');
-            if (isNaN(d.getTime())) return { key: '9999-99', label: 'Sin Fecha Programada / Histórico' };
-
-            const dia = d.getDay();
-            const diff = d.getDate() - dia + (dia === 0 ? -6 : 1); 
-            const lunes = new Date(d.setDate(diff));
-            const domingo = new Date(lunes);
-            domingo.setDate(lunes.getDate() + 6);
-
-            const formato = date => date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-            
-            const yyyy = lunes.getFullYear();
-            const mm = String(lunes.getMonth() + 1).padStart(2, '0');
-            const dd = String(lunes.getDate()).padStart(2, '0');
-
-            return {
-                key: `${yyyy}-${mm}-${dd}`,
-                label: `Semana del ${formato(lunes)} al ${formato(domingo)}`
-            };
+        function alternarArchivoAccion(id) {
+            ejecutarAccionPost({ accion: 'alternarArchivo', id: id })
+            .then(res => {
+                if (res.ok) cargarDesdeGoogleSheets();
+                else alert("Error: " + res.error);
+            });
         }
 
         function actualizarTabla(datos) {
@@ -612,182 +509,76 @@
                 return;
             }
 
-            const grupos = {};
-
             datos.forEach(p => {
-                const fechaRef = p.fechaProgramada ? p.fechaProgramada.split('T')[0] : p.fechaISO;
-                const infoSemana = obtenerDatosSemana(fechaRef);
-                
-                if (!grupos[infoSemana.key]) {
-                    grupos[infoSemana.key] = {
-                        label: infoSemana.label,
-                        lista: []
-                    };
-                }
-                grupos[infoSemana.key].lista.push(p);
-            });
+                let badgePrioridad = 'bg-info text-dark';
+                if(p.prioridad.includes('Alta')) badgePrioridad = 'bg-danger text-white';
+                if(p.prioridad === 'Media') badgePrioridad = 'bg-warning text-dark';
 
-            const semanasOrdenadas = Object.keys(grupos).sort().reverse();
+                const estadoClass = p.estado.replace(/\s+/g, '-');
 
-            semanasOrdenadas.forEach(keySemana => {
-                const grupo = grupos[keySemana];
-                
-                const filaSeparadora = `
-                    <tr class="encabezado-semana">
-                        <td colspan="9" class="py-2 px-3">
-                            <i class="bi bi-calendar-week me-2"></i><span>${grupo.label}</span>
-                            <span class="badge bg-secondary ms-2">${grupo.lista.length} traslados</span>
+                const fila = `
+                    <tr class="${p.archivado ? 'fila-archivada' : ''}">
+                        <td class="text-muted small">${p.fechaRegistro || p['Fecha Registro'] || '-'}</td>
+                        <td><span class="fw-bold text-primary">${p.fechaProgramada || p['Fecha Programada'] || 'Sin prog.'}</span></td>
+                        <td>
+                            <span class="fw-bold">${p.origen || p['Origen']}</span> 
+                            <i class="bi bi-arrow-right text-muted mx-1"></i> 
+                            <span class="fw-bold">${p.destino || p['Destino']}</span>
+                        </td>
+                        <td>${p.tipo || p['Tipo']}</td>
+                        <td><i class="bi bi-person me-1 text-muted"></i>${p.cadete || p['Cadete']} ${p.movil ? `<small class="text-muted">(${p.movil})</small>` : ''}</td>
+                        <td><span class="badge ${badgePrioridad}">${p.prioridad || p['Prioridad']}</span></td>
+                        <td><span class="badge badge-estado-${estadoClass}">${p.estado || p['Estado']}</span></td>
+                        <td style="max-width: 140px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;" title="${p.observaciones || p['Observaciones']}">${p.observaciones || p['Observaciones'] || '-'}</td>
+                        <td class="text-end">
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-success" onclick="requerirPassword(cambiarEstadoAccion, '${p.id}', 'Realizada')" title="Finalizar"><i class="bi bi-check-lg"></i></button>
+                                <button class="btn btn-outline-secondary" onclick="requerirPassword(alternarArchivoAccion, '${p.id}')" title="Archivar/Desarchivar"><i class="bi bi-archive"></i></button>
+                            </div>
                         </td>
                     </tr>
                 `;
-                tbody.innerHTML += filaSeparadora;
-
-                grupo.lista.forEach(p => {
-                    let badgePrioridad = 'bg-info text-dark';
-                    if(p.prioridad.includes('Alta')) badgePrioridad = 'bg-danger text-white';
-                    if(p.prioridad === 'Media') badgePrioridad = 'bg-warning text-dark';
-
-                    let botonArchivo = '';
-                    if (p.archivado) {
-                        botonArchivo = `<button class="btn btn-outline-dark" onclick="requerirPassword(alternarArchivo, ${p.id})" title="Desarchivar"><i class="bi bi-box-arrow-up"></i></button>`;
-                    } else if (p.estado === 'Realizada' || p.estado === 'Cancelada') {
-                        botonArchivo = `<button class="btn btn-outline-secondary" onclick="requerirPassword(alternarArchivo, ${p.id})" title="Archivar"><i class="bi bi-archive"></i></button>`;
-                    }
-
-                    let textoProgramado = '<span class="text-muted">-</span>';
-                    if (p.fechaProgramada) {
-                        const fProg = new Date(p.fechaProgramada);
-                        textoProgramado = `<span class="fw-bold text-primary">${fProg.toLocaleDateString('es-ES')}</span> <small class="text-muted">${fProg.toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'})} hs</small>`;
-                    }
-
-                    const fila = `
-                        <tr class="${p.archivado ? 'fila-archivada' : ''}">
-                            <td class="text-muted small">${p.fecha}</td>
-                            <td>${textoProgramado}</td>
-                            <td>
-                                <span class="fw-bold">${p.origen}</span> 
-                                <i class="bi bi-arrow-right text-muted mx-1"></i> 
-                                <span class="fw-bold">${p.destino}</span>
-                            </td>
-                            <td>${p.tipo}</td>
-                            <td><i class="bi bi-person me-1 text-muted"></i>${p.cadete}</td>
-                            <td><span class="badge ${badgePrioridad}">${p.prioridad}</span></td>
-                            <td><span class="badge badge-estado-${p.estado}">${p.estado}</span></td>
-                            <td style="max-width: 140px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;" title="${p.observaciones}">${p.observaciones || '-'}</td>
-                            <td class="text-end">
-                                <div class="btn-group btn-group-sm">
-                                    <button class="btn btn-outline-primary" onclick="requerirPassword(editarPedido, ${p.id})" title="Editar"><i class="bi bi-pencil"></i></button>
-                                    ${botonArchivo}
-                                    <button class="btn btn-outline-danger" onclick="requerirPassword(eliminarPedido, ${p.id})" title="Eliminar"><i class="bi bi-trash"></i></button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                    tbody.innerHTML += fila;
-                });
+                tbody.innerHTML += fila;
             });
 
             actualizarEstadisticas();
-        }
-
-        function obtenerFechaFiltro(pedido) {
-            if (pedido.fechaProgramada) return pedido.fechaProgramada.split('T')[0];
-            if (pedido.fechaISO) return pedido.fechaISO;
-            return "";
         }
 
         function filtrarTabla() {
             const busqueda = document.getElementById('buscador').value.toLowerCase();
             const estadoFiltro = document.getElementById('filtro-estado').value;
             const verArchivados = document.getElementById('verArchivados').checked;
-            const fechaDesde = document.getElementById('fecha-desde').value;
-            const fechaHasta = document.getElementById('fecha-hasta').value;
 
             const filtrados = pedidos.filter(p => {
-                const esArchivado = p.archivado || false;
-                if (verArchivados && !esArchivado) return false;
-                if (!verArchivados && esArchivado) return false;
+                const esArchivada = p.archivado || String(p['Archivado']).toLowerCase() === 'sí';
+                if (!verArchivados && esArchivada) return false;
 
-                const coincideBusqueda = p.origen.toLowerCase().includes(busqueda) ||
-                                         p.destino.toLowerCase().includes(busqueda) ||
-                                         p.cadete.toLowerCase().includes(busqueda) ||
-                                         p.tipo.toLowerCase().includes(busqueda);
+                const o = (p.origen || p['Origen'] || '').toLowerCase();
+                const d = (p.destino || p['Destino'] || '').toLowerCase();
+                const c = (p.cadete || p['Cadete'] || '').toLowerCase();
+                const t = (p.tipo || p['Tipo'] || '').toLowerCase();
 
-                const coincideEstado = estadoFiltro === "Todos" || p.estado === estadoFiltro;
+                const coincideBusqueda = o.includes(busqueda) || d.includes(busqueda) || c.includes(busqueda) || t.includes(busqueda);
+                const coincideEstado = estadoFiltro === "Todos" || (p.estado || p['Estado']) === estadoFiltro;
 
-                const fechaRegistro = obtenerFechaFiltro(p);
-                let coincideFecha = true;
-
-                if (fechaDesde && fechaRegistro) {
-                    coincideFecha = coincideFecha && (fechaRegistro >= fechaDesde);
-                }
-                if (fechaHasta && fechaRegistro) {
-                    coincideFecha = coincideFecha && (fechaRegistro <= fechaHasta);
-                }
-
-                return coincideBusqueda && coincideEstado && coincideFecha;
+                return coincideBusqueda && coincideEstado;
             });
 
             actualizarTabla(filtrados);
         }
 
-        function filtrarHoy() {
-            const hoy = new Date().toISOString().split('T')[0];
-            document.getElementById('fecha-desde').value = hoy;
-            document.getElementById('fecha-hasta').value = hoy;
-            filtrarTabla();
-        }
-
         function limpiarFiltros() {
             document.getElementById('buscador').value = '';
             document.getElementById('filtro-estado').value = 'Todos';
-            document.getElementById('fecha-desde').value = '';
-            document.getElementById('fecha-hasta').value = '';
-            document.getElementById('verArchivados').checked = false;
             filtrarTabla();
         }
 
         function actualizarEstadisticas() {
-            const activos = pedidos.filter(p => !p.archivado);
+            const activos = pedidos.filter(p => !(p.archivado || String(p['Archivado']).toLowerCase() === 'sí'));
             document.getElementById('stat-total').innerText = activos.length;
-            document.getElementById('stat-pendientes').innerText = activos.filter(p => p.estado === 'Pendiente').length;
-            document.getElementById('stat-realizadas').innerText = activos.filter(p => p.estado === 'Realizada').length;
-            document.getElementById('stat-archivados').innerText = pedidos.filter(p => p.archivado).length;
-        }
-
-        function exportarCSV() {
-            if(pedidos.length === 0) {
-                alert("No hay datos para exportar.");
-                return;
-            }
-            let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "ID,Fecha Registro,Fecha Programada,Origen,Destino,Tipo,Cadete,Prioridad,Estado,Archivado,Observaciones\n";
-
-            pedidos.forEach(p => {
-                let obsLimpias = (p.observaciones || "").replace(/,/g, " ").replace(/\n/g, " ");
-                let row = [
-                    p.id,
-                    `"${p.fecha}"`,
-                    `"${p.fechaProgramada || 'Sin programar'}"`,
-                    `"${p.origen}"`,
-                    `"${p.destino}"`,
-                    `"${p.tipo}"`,
-                    `"${p.cadete}"`,
-                    `"${p.prioridad}"`,
-                    `"${p.estado}"`,
-                    `"${p.archivado ? 'Sí' : 'No'}"`,
-                    `"${obsLimpias}"`
-                ];
-                csvContent += row.join(",") + "\n";
-            });
-
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Reporte_Cadeteria_${new Date().toLocaleDateString('es-ES')}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            document.getElementById('stat-pendientes').innerText = activos.filter(p => (p.estado || p['Estado']) === 'Pendiente').length;
+            document.getElementById('stat-realizadas').innerText = activos.filter(p => (p.estado || p['Estado']) === 'Realizada').length;
+            document.getElementById('stat-archivados').innerText = pedidos.length - activos.length;
         }
     </script>
 </body>
