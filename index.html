@@ -30,8 +30,8 @@
             padding: 15px;
         }
         .fila-archivada {
-            opacity: 0.7;
-            background-color: #f8f9fa;
+            opacity: 0.75;
+            background-color: #f1f3f5 !important;
         }
         .badge-estado-Pendiente { background-color: #fff3cd; color: #856404; font-weight: 600; }
         .badge-estado-En-curso { background-color: #cff4fc; color: #055160; font-weight: 600; }
@@ -53,7 +53,7 @@
                 <button class="btn btn-outline-dark btn-sm" onclick="abrirModalServicios()"><i class="bi bi-building-gear me-1"></i> Gestionar Servicios</button>
                 <div class="form-check form-switch fs-6 mb-0 ms-2">
                     <input class="form-check-input" type="checkbox" id="verArchivados" onchange="filtrarTabla()">
-                    <label class="form-check-label fw-semibold" for="verArchivados"><i class="bi bi-archive me-1"></i> Ver Histórico</label>
+                    <label class="form-check-label fw-semibold" for="verArchivados"><i class="bi bi-archive me-1"></i> Ver Histórico / Archivados</label>
                 </div>
             </div>
         </div>
@@ -104,15 +104,7 @@
                         <option value="No realizada">No realizada</option>
                     </select>
                 </div>
-                <div class="col-md-2">
-                    <label class="form-label small fw-bold text-muted mb-1"><i class="bi bi-calendar-event me-1"></i> Fecha Desde</label>
-                    <input type="date" id="fecha-desde" class="form-control form-control-sm" onchange="filtrarTabla()">
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label small fw-bold text-muted mb-1"><i class="bi bi-calendar-event me-1"></i> Fecha Hasta</label>
-                    <input type="date" id="fecha-hasta" class="form-control form-control-sm" onchange="filtrarTabla()">
-                </div>
-                <div class="col-md-3 text-end d-flex gap-1 justify-content-end">
+                <div class="col-md-7 text-end d-flex gap-1 justify-content-end align-items-end">
                     <button class="btn btn-sm btn-outline-primary" onclick="cargarDesdeGoogleSheets()" title="Sincronizar con Google Sheets"><i class="bi bi-arrow-repeat"></i> Actualizar</button>
                     <button class="btn btn-sm btn-outline-secondary" onclick="limpiarFiltros()" title="Limpiar filtros"><i class="bi bi-eraser"></i></button>
                     <button class="btn btn-sm btn-primary" onclick="abrirModalNuevo()"><i class="bi bi-plus-lg me-1"></i> Nuevo Pedido</button>
@@ -245,7 +237,7 @@
 
                         <div class="text-end">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-primary" id="btnGuardarPedido"><i class="bi bi-floppy me-1"></i> Guardar en Google Sheets</button>
+                            <button type="submit" class="btn btn-primary" id="btnGuardarPedido"><i class="bi bi-floppy me-1"></i> Guardar</button>
                         </div>
                     </form>
                 </div>
@@ -287,8 +279,6 @@
             cargarDesdeGoogleSheets();
         });
 
-        // --- CONEXIÓN CON GOOGLE APPS SCRIPT ---
-
         function cargarDesdeGoogleSheets() {
             fetch(`${URL_GOOGLE_SCRIPT}?accion=obtenerDatos`)
             .then(res => res.json())
@@ -313,8 +303,6 @@
             })
             .then(res => res.json());
         }
-
-        // --- SERVICIOS ---
 
         function poblarSelectsServicios() {
             const selectOrigen = document.getElementById('origen');
@@ -374,8 +362,6 @@
             });
         }
 
-        // --- PEDIDOS ---
-
         function abrirModalNuevo() {
             document.getElementById('formPedido').reset();
             document.getElementById('pedidoId').value = '';
@@ -429,7 +415,7 @@
             ejecutarAccionPost({ accion: 'guardarPedido', pedido: pedido })
             .then(res => {
                 btnGuardar.disabled = false;
-                btnGuardar.innerHTML = '<i class="bi bi-floppy me-1"></i> Guardar en Google Sheets';
+                btnGuardar.innerHTML = '<i class="bi bi-floppy me-1"></i> Guardar';
                 if (res.ok) {
                     modalPedido.hide();
                     cargarDesdeGoogleSheets();
@@ -439,7 +425,7 @@
             })
             .catch(err => {
                 btnGuardar.disabled = false;
-                btnGuardar.innerHTML = '<i class="bi bi-floppy me-1"></i> Guardar en Google Sheets';
+                btnGuardar.innerHTML = '<i class="bi bi-floppy me-1"></i> Guardar';
                 alert("Error de conexión al guardar.");
             });
         });
@@ -460,12 +446,23 @@
             });
         }
 
+        // FUNCIÓN DE ELIMINAR PEDIDO
+        function eliminarPedidoAccion(id) {
+            if (confirm("¿Estás seguro de que deseas eliminar permanentemente este pedido?")) {
+                ejecutarAccionPost({ accion: 'eliminarPedido', id: id })
+                .then(res => {
+                    if (res.ok) cargarDesdeGoogleSheets();
+                    else alert("Error al eliminar: " + res.error);
+                });
+            }
+        }
+
         function actualizarTabla(datos) {
             const tbody = document.getElementById('tabla-pedidos');
             tbody.innerHTML = '';
 
             if (datos.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted py-4"><i class="bi bi-inbox fs-3 d-block mb-1"></i>No hay traslados para mostrar.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted py-4"><i class="bi bi-inbox fs-3 d-block mb-1"></i>No hay traslados activos para mostrar.</td></tr>`;
                 actualizarEstadisticas();
                 return;
             }
@@ -486,7 +483,7 @@
                     if (match) contactoTxt = match[1];
                 }
 
-                const esArchivado = p.archivado || String(p['Archivado']).toLowerCase() === 'sí' || String(p['Archivado']).toLowerCase() === 'true';
+                const esArchivado = p.archivado === true || String(p['Archivado']).toUpperCase() === 'SÍ' || String(p['Archivado']).toUpperCase() === 'SI' || String(p['Archivado']).toLowerCase() === 'true';
 
                 const fila = `
                     <tr class="${esArchivado ? 'fila-archivada' : ''}">
@@ -506,9 +503,10 @@
                         <td class="text-end">
                             <div class="btn-group btn-group-sm">
                                 <button class="btn btn-outline-success" onclick="cambiarEstadoAccion('${p.id}', 'Realizada')" title="Marcar como Realizada"><i class="bi bi-check-lg"></i></button>
-                                <button class="btn ${esArchivado ? 'btn-secondary' : 'btn-outline-secondary'}" onclick="alternarArchivoAccion('${p.id}')" title="${esArchivado ? 'Desarchivar' : 'Archivar'}">
+                                <button class="btn ${esArchivado ? 'btn-secondary' : 'btn-outline-secondary'}" onclick="alternarArchivoAccion('${p.id}')" title="${esArchivado ? 'Desarchivar' : 'Archivar / Ocultar'}">
                                     <i class="bi bi-archive${esArchivado ? '-fill' : ''}"></i>
                                 </button>
+                                <button class="btn btn-outline-danger" onclick="eliminarPedidoAccion('${p.id}')" title="Eliminar definitivamente"><i class="bi bi-trash"></i></button>
                             </div>
                         </td>
                     </tr>
@@ -525,8 +523,10 @@
             const verArchivados = document.getElementById('verArchivados').checked;
 
             const filtrados = pedidos.filter(p => {
-                const esArchivada = p.archivado || String(p['Archivado']).toLowerCase() === 'sí' || String(p['Archivado']).toLowerCase() === 'true';
-                if (!verArchivados && esArchivada) return false;
+                const esArchivado = p.archivado === true || String(p['Archivado']).toUpperCase() === 'SÍ' || String(p['Archivado']).toUpperCase() === 'SI' || String(p['Archivado']).toLowerCase() === 'true';
+                
+                // Si NO está marcada la casilla de ver archivados, ocultar los archivados de la parte principal
+                if (!verArchivados && esArchivado) return false;
 
                 const o = (p.origen || p['Origen'] || '').toLowerCase();
                 const d = (p.destino || p['Destino'] || '').toLowerCase();
@@ -545,11 +545,12 @@
         function limpiarFiltros() {
             document.getElementById('buscador').value = '';
             document.getElementById('filtro-estado').value = 'Todos';
+            document.getElementById('verArchivados').checked = false;
             filtrarTabla();
         }
 
         function actualizarEstadisticas() {
-            const activos = pedidos.filter(p => !(p.archivado || String(p['Archivado']).toLowerCase() === 'sí' || String(p['Archivado']).toLowerCase() === 'true'));
+            const activos = pedidos.filter(p => !(p.archivado === true || String(p['Archivado']).toUpperCase() === 'SÍ' || String(p['Archivado']).toUpperCase() === 'SI' || String(p['Archivado']).toLowerCase() === 'true'));
             document.getElementById('stat-total').innerText = activos.length;
             document.getElementById('stat-pendientes').innerText = activos.filter(p => (p.estado || p['Estado']) === 'Pendiente').length;
             document.getElementById('stat-realizadas').innerText = activos.filter(p => (p.estado || p['Estado']) === 'Realizada').length;
