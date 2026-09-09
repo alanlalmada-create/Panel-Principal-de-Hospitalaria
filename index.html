@@ -75,7 +75,6 @@
                     <label class="form-label small fw-bold text-muted mb-1"><i class="bi bi-search me-1"></i> Buscador</label>
                     <input type="text" id="buscador" class="form-control form-control-sm" placeholder="Buscar servicio, cadete..." onkeyup="filtrarTabla()">
                 </div>
-                <!-- FILTRO DE SEMANAS -->
                 <div class="col-md-2">
                     <label class="form-label small fw-bold text-muted mb-1"><i class="bi bi-calendar-week me-1"></i> Periodo / Semana</label>
                     <select id="filtro-semana" class="form-select form-select-sm" onchange="filtrarTabla()">
@@ -412,7 +411,7 @@
 
         function obtenerRangoSemana(fechaReferencia) {
             const d = new Date(fechaReferencia);
-            const diaSemana = d.getDay(); // 0: domingo, 1: lunes...
+            const diaSemana = d.getDay();
             const diffLunes = d.getDate() - diaSemana + (diaSemana === 0 ? -6 : 1);
             
             const inicioSemana = new Date(d.setDate(diffLunes));
@@ -427,7 +426,6 @@
 
         function parsearFechaTexto(textoFecha) {
             if (!textoFecha) return null;
-            // Extraer formato DD/MM/YYYY del inicio del texto
             const match = textoFecha.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
             if (match) {
                 return new Date(match[3], match[2] - 1, match[1]);
@@ -513,7 +511,6 @@
                 const coincideBusqueda = o.includes(busqueda) || d.includes(busqueda) || c.includes(busqueda);
                 const coincideEstado = estadoFiltro === "Todos" || (p.estado || p['Estado']) === estadoFiltro;
 
-                // Validación de filtro por semana
                 let coincideSemana = true;
                 const fechaPed = parsearFechaTexto(p.fechaProgramada || p['Fecha Programada']);
 
@@ -528,6 +525,18 @@
                 }
 
                 return coincideBusqueda && coincideEstado && coincideSemana;
+            });
+
+            // ORDENAMIENTO POR FECHA MÁS PRÓXIMA (Cronológico Ascendente)
+            filtrados.sort((a, b) => {
+                const fechaA = parsearFechaTexto(a.fechaProgramada || a['Fecha Programada']);
+                const fechaB = parsearFechaTexto(b.fechaProgramada || b['Fecha Programada']);
+
+                if (!fechaA && !fechaB) return 0;
+                if (!fechaA) return 1;  // Registros sin fecha van al final
+                if (!fechaB) return -1;
+
+                return fechaA - fechaB; // Ordena de menor a mayor (la fecha más próxima primero)
             });
 
             actualizarTabla(filtrados);
