@@ -301,7 +301,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // URL de tu implementación de Google Apps Script
         const URL_GOOGLE_SCRIPT = "https://script.google.com/macros/s/AKfycbxt6N6dgwkyDc_WqjRGDuaDnfq2zyRxiQzU9yA08AspVIufhDE60k7JM_WogDZKGE5V/exec";
 
         let pedidos = [];
@@ -378,7 +377,7 @@
             }
         }
 
-        // --- CONEXIÓN CON GOOGLE APPS SCRIPT (BACKEND) ---
+        // --- CONEXIÓN CON GOOGLE APPS SCRIPT ---
 
         function cargarDesdeGoogleSheets() {
             fetch(`${URL_GOOGLE_SCRIPT}?accion=obtenerDatos`)
@@ -397,7 +396,6 @@
         }
 
         function ejecutarAccionPost(payload) {
-            // Incluir claveAdmin para autenticar las peticiones que modifican la planilla
             payload.claveAdmin = claveAdmin;
 
             return fetch(URL_GOOGLE_SCRIPT, {
@@ -408,7 +406,7 @@
             .then(res => res.json());
         }
 
-        // --- GESTIÓN DE SERVICIOS ---
+        // --- SERVICIOS ---
 
         function poblarSelectsServicios() {
             const selectOrigen = document.getElementById('origen');
@@ -468,7 +466,7 @@
             });
         }
 
-        // --- GESTIÓN DE PEDIDOS ---
+        // --- PEDIDOS ---
 
         function abrirModalNuevo() {
             document.getElementById('formPedido').reset();
