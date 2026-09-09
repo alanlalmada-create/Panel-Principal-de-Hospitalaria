@@ -397,6 +397,9 @@
         }
 
         function ejecutarAccionPost(payload) {
+            // Incluir claveAdmin para autenticar las peticiones que modifican la planilla
+            payload.claveAdmin = claveAdmin;
+
             return fetch(URL_GOOGLE_SCRIPT, {
                 method: 'POST',
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -480,7 +483,6 @@
         document.getElementById('formPedido').addEventListener('submit', function(e) {
             e.preventDefault();
 
-            // Obtener el valor del destino (manual o del selector)
             let destinoValor = document.getElementById('destino').value;
             const esManualVisible = !document.getElementById('contenedorDestinoManual').classList.contains('d-none');
             if (esManualVisible) {
@@ -490,7 +492,6 @@
             const horaDesde = document.getElementById('horaDesde').value;
             const horaHasta = document.getElementById('horaHasta').value;
             
-            // Construir la franja horaria para el script
             let franjaHoraria = "";
             if (horaDesde && horaHasta) {
                 franjaHoraria = `${horaDesde} a ${horaHasta} hs`;
@@ -549,7 +550,7 @@
             ejecutarAccionPost({ accion: 'alternarArchivo', id: id })
             .then(res => {
                 if (res.ok) cargarDesdeGoogleSheets();
-                else alert("Error: " + res.error);
+                else alert("Error al archivar: " + res.error);
             });
         }
 
@@ -565,21 +566,24 @@
 
             datos.forEach(p => {
                 let badgePrioridad = 'bg-info text-dark';
-                if(p.prioridad.includes('Alta')) badgePrioridad = 'bg-danger text-white';
-                if(p.prioridad === 'Media') badgePrioridad = 'bg-warning text-dark';
+                const prio = p.prioridad || p['Prioridad'] || '';
+                if(prio.includes('Alta')) badgePrioridad = 'bg-danger text-white';
+                if(prio === 'Media') badgePrioridad = 'bg-warning text-dark';
 
-                const estadoClass = p.estado.replace(/\s+/g, '-');
+                const estadoActual = p.estado || p['Estado'] || 'Pendiente';
+                const estadoClass = estadoActual.replace(/\s+/g, '-');
                 const obs = p.observaciones || p['Observaciones'] || '-';
 
-                // Extraer contacto de la observación si existiera
                 let contactoTxt = '-';
                 if (obs.includes('[Contacto:')) {
                     const match = obs.match(/\[Contacto:\s*([^\]]+)\]/);
                     if (match) contactoTxt = match[1];
                 }
 
+                const esArchivado = p.archivado || String(p['Archivado']).toLowerCase() === 'sí' || String(p['Archivado']).toLowerCase() === 'true';
+
                 const fila = `
-                    <tr class="${p.archivado ? 'fila-archivada' : ''}">
+                    <tr class="${esArchivado ? 'fila-archivada' : ''}">
                         <td class="text-muted small">${p.fechaRegistro || p['Fecha Registro'] || '-'}</td>
                         <td><span class="fw-bold text-primary">${p.fechaProgramada || p['Fecha Programada'] || 'Sin franja'}</span></td>
                         <td>
@@ -590,13 +594,15 @@
                         <td>${p.tipo || p['Tipo']}</td>
                         <td><i class="bi bi-person me-1 text-muted"></i>${p.cadete || p['Cadete']} ${p.movil ? `<small class="text-muted">(${p.movil})</small>` : ''}</td>
                         <td><small class="text-muted"><i class="bi bi-telephone me-1"></i>${contactoTxt}</small></td>
-                        <td><span class="badge ${badgePrioridad}">${p.prioridad || p['Prioridad']}</span></td>
-                        <td><span class="badge badge-estado-${estadoClass}">${p.estado || p['Estado']}</span></td>
+                        <td><span class="badge ${badgePrioridad}">${prio}</span></td>
+                        <td><span class="badge badge-estado-${estadoClass}">${estadoActual}</span></td>
                         <td style="max-width: 140px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;" title="${obs}">${obs}</td>
                         <td class="text-end">
                             <div class="btn-group btn-group-sm">
-                                <button class="btn btn-outline-success" onclick="requerirPassword(cambiarEstadoAccion, '${p.id}', 'Realizada')" title="Finalizar"><i class="bi bi-check-lg"></i></button>
-                                <button class="btn btn-outline-secondary" onclick="requerirPassword(alternarArchivoAccion, '${p.id}')" title="Archivar/Desarchivar"><i class="bi bi-archive"></i></button>
+                                <button class="btn btn-outline-success" onclick="requerirPassword(cambiarEstadoAccion, '${p.id}', 'Realizada')" title="Marcar como Realizada"><i class="bi bi-check-lg"></i></button>
+                                <button class="btn ${esArchivado ? 'btn-secondary' : 'btn-outline-secondary'}" onclick="requerirPassword(alternarArchivoAccion, '${p.id}')" title="${esArchivado ? 'Desarchivar' : 'Archivar'}">
+                                    <i class="bi bi-archive${esArchivado ? '-fill' : ''}"></i>
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -613,7 +619,7 @@
             const verArchivados = document.getElementById('verArchivados').checked;
 
             const filtrados = pedidos.filter(p => {
-                const esArchivada = p.archivado || String(p['Archivado']).toLowerCase() === 'sí';
+                const esArchivada = p.archivado || String(p['Archivado']).toLowerCase() === 'sí' || String(p['Archivado']).toLowerCase() === 'true';
                 if (!verArchivados && esArchivada) return false;
 
                 const o = (p.origen || p['Origen'] || '').toLowerCase();
@@ -637,7 +643,7 @@
         }
 
         function actualizarEstadisticas() {
-            const activos = pedidos.filter(p => !(p.archivado || String(p['Archivado']).toLowerCase() === 'sí'));
+            const activos = pedidos.filter(p => !(p.archivado || String(p['Archivado']).toLowerCase() === 'sí' || String(p['Archivado']).toLowerCase() === 'true'));
             document.getElementById('stat-total').innerText = activos.length;
             document.getElementById('stat-pendientes').innerText = activos.filter(p => (p.estado || p['Estado']) === 'Pendiente').length;
             document.getElementById('stat-realizadas').innerText = activos.filter(p => (p.estado || p['Estado']) === 'Realizada').length;
