@@ -50,12 +50,7 @@
                 <span class="text-muted small">Gestión y control de traslados internos</span>
             </div>
             <div class="d-flex align-items-center gap-2">
-                <button class="btn btn-sm btn-outline-secondary" id="btnEstadoSeguridad" onclick="gestionarSeguridad()">
-                    <i class="bi bi-lock-fill me-1" id="iconoSeguridad"></i>
-                    <span id="textoSeguridad">Modo Lectura</span>
-                </button>
-                
-                <button class="btn btn-outline-dark btn-sm" onclick="requerirPassword(abrirModalServicios)"><i class="bi bi-building-gear me-1"></i> Gestionar Servicios</button>
+                <button class="btn btn-outline-dark btn-sm" onclick="abrirModalServicios()"><i class="bi bi-building-gear me-1"></i> Gestionar Servicios</button>
                 <div class="form-check form-switch fs-6 mb-0 ms-2">
                     <input class="form-check-input" type="checkbox" id="verArchivados" onchange="filtrarTabla()">
                     <label class="form-check-label fw-semibold" for="verArchivados"><i class="bi bi-archive me-1"></i> Ver Histórico</label>
@@ -120,7 +115,7 @@
                 <div class="col-md-3 text-end d-flex gap-1 justify-content-end">
                     <button class="btn btn-sm btn-outline-primary" onclick="cargarDesdeGoogleSheets()" title="Sincronizar con Google Sheets"><i class="bi bi-arrow-repeat"></i> Actualizar</button>
                     <button class="btn btn-sm btn-outline-secondary" onclick="limpiarFiltros()" title="Limpiar filtros"><i class="bi bi-eraser"></i></button>
-                    <button class="btn btn-sm btn-primary" onclick="requerirPassword(abrirModalNuevo)"><i class="bi bi-plus-lg me-1"></i> Nuevo Pedido</button>
+                    <button class="btn btn-sm btn-primary" onclick="abrirModalNuevo()"><i class="bi bi-plus-lg me-1"></i> Nuevo Pedido</button>
                 </div>
             </div>
         </div>
@@ -146,27 +141,6 @@
                     <!-- Se renderiza dinámicamente -->
                 </tbody>
             </table>
-        </div>
-    </div>
-
-    <!-- Modal Solicitud de Contraseña -->
-    <div class="modal fade" id="modalPassword" tabindex="-1">
-        <div class="modal-dialog modal-sm">
-            <div class="modal-content">
-                <div class="modal-header bg-danger text-white py-2">
-                    <h6 class="modal-title fw-bold"><i class="bi bi-shield-lock me-2"></i>Acceso Protegido</h6>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p class="small text-muted mb-2">Introduce la contraseña para realizar cambios:</p>
-                    <input type="password" id="inputPassAcceso" class="form-control text-center fs-5 mb-2" placeholder="••••" autofocus>
-                    <div id="errorPassAcceso" class="text-danger small d-none text-center fw-bold">Contraseña incorrecta</div>
-                </div>
-                <div class="modal-footer py-1">
-                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-sm btn-danger" onclick="validarPassword()">Ingresar</button>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -305,77 +279,13 @@
 
         let pedidos = [];
         let servicios = [];
-        let claveAdmin = localStorage.getItem('claveAdminCadeteria') || '1234';
 
         const modalPedido = new bootstrap.Modal(document.getElementById('modalPedido'));
         const modalServicios = new bootstrap.Modal(document.getElementById('modalServicios'));
-        const modalPassword = new bootstrap.Modal(document.getElementById('modalPassword'));
-
-        let callbackDespuesAutenticar = null;
 
         document.addEventListener("DOMContentLoaded", () => {
-            actualizarIndicadorSeguridad();
             cargarDesdeGoogleSheets();
-            
-            document.getElementById('inputPassAcceso').addEventListener('keyup', (e) => {
-                if (e.key === 'Enter') validarPassword();
-            });
         });
-
-        function esAdmin() {
-            return sessionStorage.getItem('adminAutenticado') === 'true';
-        }
-
-        function requerirPassword(callbackAccion, ...args) {
-            if (esAdmin()) {
-                callbackAccion(...args);
-            } else {
-                callbackDespuesAutenticar = () => callbackAccion(...args);
-                document.getElementById('inputPassAcceso').value = '';
-                document.getElementById('errorPassAcceso').classList.add('d-none');
-                modalPassword.show();
-            }
-        }
-
-        function validarPassword() {
-            const pass = document.getElementById('inputPassAcceso').value;
-            if (pass === claveAdmin) {
-                sessionStorage.setItem('adminAutenticado', 'true');
-                actualizarIndicadorSeguridad();
-                modalPassword.hide();
-                if (callbackDespuesAutenticar) {
-                    callbackDespuesAutenticar();
-                    callbackDespuesAutenticar = null;
-                }
-            } else {
-                document.getElementById('errorPassAcceso').classList.remove('d-none');
-            }
-        }
-
-        function gestionarSeguridad() {
-            if (esAdmin()) {
-                sessionStorage.removeItem('adminAutenticado');
-                actualizarIndicadorSeguridad();
-            } else {
-                requerirPassword(() => {});
-            }
-        }
-
-        function actualizarIndicadorSeguridad() {
-            const btn = document.getElementById('btnEstadoSeguridad');
-            const icono = document.getElementById('iconoSeguridad');
-            const texto = document.getElementById('textoSeguridad');
-
-            if (esAdmin()) {
-                btn.className = "btn btn-sm btn-outline-success";
-                icono.className = "bi bi-unlock-fill me-1";
-                texto.innerText = "Modo Edición";
-            } else {
-                btn.className = "btn btn-sm btn-outline-secondary";
-                icono.className = "bi bi-lock-fill me-1";
-                texto.innerText = "Modo Lectura";
-            }
-        }
 
         // --- CONEXIÓN CON GOOGLE APPS SCRIPT ---
 
@@ -396,8 +306,6 @@
         }
 
         function ejecutarAccionPost(payload) {
-            payload.claveAdmin = claveAdmin;
-
             return fetch(URL_GOOGLE_SCRIPT, {
                 method: 'POST',
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -597,8 +505,8 @@
                         <td style="max-width: 140px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;" title="${obs}">${obs}</td>
                         <td class="text-end">
                             <div class="btn-group btn-group-sm">
-                                <button class="btn btn-outline-success" onclick="requerirPassword(cambiarEstadoAccion, '${p.id}', 'Realizada')" title="Marcar como Realizada"><i class="bi bi-check-lg"></i></button>
-                                <button class="btn ${esArchivado ? 'btn-secondary' : 'btn-outline-secondary'}" onclick="requerirPassword(alternarArchivoAccion, '${p.id}')" title="${esArchivado ? 'Desarchivar' : 'Archivar'}">
+                                <button class="btn btn-outline-success" onclick="cambiarEstadoAccion('${p.id}', 'Realizada')" title="Marcar como Realizada"><i class="bi bi-check-lg"></i></button>
+                                <button class="btn ${esArchivado ? 'btn-secondary' : 'btn-outline-secondary'}" onclick="alternarArchivoAccion('${p.id}')" title="${esArchivado ? 'Desarchivar' : 'Archivar'}">
                                     <i class="bi bi-archive${esArchivado ? '-fill' : ''}"></i>
                                 </button>
                             </div>
