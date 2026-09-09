@@ -75,6 +75,16 @@
                     <label class="form-label small fw-bold text-muted mb-1"><i class="bi bi-search me-1"></i> Buscador</label>
                     <input type="text" id="buscador" class="form-control form-control-sm" placeholder="Buscar servicio, cadete..." onkeyup="filtrarTabla()">
                 </div>
+                <!-- FILTRO DE SEMANAS -->
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-muted mb-1"><i class="bi bi-calendar-week me-1"></i> Periodo / Semana</label>
+                    <select id="filtro-semana" class="form-select form-select-sm" onchange="filtrarTabla()">
+                        <option value="Todos">Todas las semanas</option>
+                        <option value="EstaSemana" selected>Esta Semana</option>
+                        <option value="ProximaSemana">Próxima Semana</option>
+                        <option value="Anteriores">Semanas Anteriores</option>
+                    </select>
+                </div>
                 <div class="col-md-2">
                     <label class="form-label small fw-bold text-muted mb-1">Estado</label>
                     <select id="filtro-estado" class="form-select form-select-sm" onchange="filtrarTabla()">
@@ -86,7 +96,7 @@
                         <option value="No realizada">No realizada</option>
                     </select>
                 </div>
-                <div class="col-md-7 text-end d-flex gap-1 justify-content-end align-items-end">
+                <div class="col-md-5 text-end d-flex gap-1 justify-content-end align-items-end">
                     <button class="btn btn-sm btn-outline-primary" onclick="cargarDesdeGoogleSheets()"><i class="bi bi-arrow-repeat"></i> Actualizar</button>
                     <button class="btn btn-sm btn-outline-secondary" onclick="limpiarFiltros()"><i class="bi bi-eraser"></i></button>
                     <button class="btn btn-sm btn-primary" onclick="abrirModalNuevo()"><i class="bi bi-plus-lg me-1"></i> Nuevo Pedido</button>
@@ -146,7 +156,6 @@
                             </div>
                         </div>
 
-                        <!-- NUEVA SECCIÓN DE FECHA Y HORARIO DE TRASLADO -->
                         <div class="row">
                             <div class="col-md-4 mb-3">
                                 <label class="form-label fw-bold">📅 Día del Traslado</label>
@@ -328,8 +337,6 @@
             document.getElementById('formPedido').reset();
             document.getElementById('pedidoId').value = '';
             document.getElementById('estado').value = 'Pendiente';
-            
-            // Establecer por defecto el día de hoy en el selector de fecha
             document.getElementById('fechaTraslado').value = new Date().toISOString().split('T')[0];
             
             activarModoDestinoSelect();
@@ -345,11 +352,10 @@
                 destinoValor = document.getElementById('destinoManual').value.trim();
             }
 
-            const fechaTr = document.getElementById('fechaTraslado').value; // Formato YYYY-MM-DD
+            const fechaTr = document.getElementById('fechaTraslado').value;
             const horaDesde = document.getElementById('horaDesde').value;
             const horaHasta = document.getElementById('horaHasta').value;
             
-            // Formatear la fecha a dd/mm/yyyy
             let fechaFormateada = fechaTr;
             if (fechaTr) {
                 const partes = fechaTr.split('-');
@@ -404,12 +410,37 @@
             }
         }
 
+        function obtenerRangoSemana(fechaReferencia) {
+            const d = new Date(fechaReferencia);
+            const diaSemana = d.getDay(); // 0: domingo, 1: lunes...
+            const diffLunes = d.getDate() - diaSemana + (diaSemana === 0 ? -6 : 1);
+            
+            const inicioSemana = new Date(d.setDate(diffLunes));
+            inicioSemana.setHours(0,0,0,0);
+            
+            const finSemana = new Date(inicioSemana);
+            finSemana.setDate(inicioSemana.getDate() + 6);
+            finSemana.setHours(23,59,59,999);
+
+            return { inicio: inicioSemana, fin: finSemana };
+        }
+
+        function parsearFechaTexto(textoFecha) {
+            if (!textoFecha) return null;
+            // Extraer formato DD/MM/YYYY del inicio del texto
+            const match = textoFecha.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+            if (match) {
+                return new Date(match[3], match[2] - 1, match[1]);
+            }
+            return null;
+        }
+
         function actualizarTabla(datos) {
             const tbody = document.getElementById('tabla-pedidos');
             tbody.innerHTML = '';
 
             if (datos.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted py-4">No hay traslados activos para mostrar.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted py-4">No hay traslados que coincidan con los filtros.</td></tr>`;
                 actualizarEstadisticas();
                 return;
             }
@@ -461,7 +492,15 @@
         function filtrarTabla() {
             const busqueda = document.getElementById('buscador').value.toLowerCase();
             const estadoFiltro = document.getElementById('filtro-estado').value;
+            const semanaFiltro = document.getElementById('filtro-semana').value;
             const verArchivados = document.getElementById('verArchivados').checked;
+
+            const hoy = new Date();
+            const semanaActual = obtenerRangoSemana(hoy);
+
+            const proximaSemanaFecha = new Date();
+            proximaSemanaFecha.setDate(hoy.getDate() + 7);
+            const semanaProxima = obtenerRangoSemana(proximaSemanaFecha);
 
             const filtrados = pedidos.filter(p => {
                 const esArchivado = p.archivado === true || String(p['Archivado']).toUpperCase() === 'SÍ' || String(p['Archivado']).toUpperCase() === 'SI' || String(p['Archivado']).toLowerCase() === 'true';
@@ -474,7 +513,21 @@
                 const coincideBusqueda = o.includes(busqueda) || d.includes(busqueda) || c.includes(busqueda);
                 const coincideEstado = estadoFiltro === "Todos" || (p.estado || p['Estado']) === estadoFiltro;
 
-                return coincideBusqueda && coincideEstado;
+                // Validación de filtro por semana
+                let coincideSemana = true;
+                const fechaPed = parsearFechaTexto(p.fechaProgramada || p['Fecha Programada']);
+
+                if (semanaFiltro !== "Todos" && fechaPed) {
+                    if (semanaFiltro === "EstaSemana") {
+                        coincideSemana = fechaPed >= semanaActual.inicio && fechaPed <= semanaActual.fin;
+                    } else if (semanaFiltro === "ProximaSemana") {
+                        coincideSemana = fechaPed >= semanaProxima.inicio && fechaPed <= semanaProxima.fin;
+                    } else if (semanaFiltro === "Anteriores") {
+                        coincideSemana = fechaPed < semanaActual.inicio;
+                    }
+                }
+
+                return coincideBusqueda && coincideEstado && coincideSemana;
             });
 
             actualizarTabla(filtrados);
@@ -483,6 +536,7 @@
         function limpiarFiltros() {
             document.getElementById('buscador').value = '';
             document.getElementById('filtro-estado').value = 'Todos';
+            document.getElementById('filtro-semana').value = 'EstaSemana';
             document.getElementById('verArchivados').checked = false;
             filtrarTabla();
         }
