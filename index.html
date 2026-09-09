@@ -1,2444 +1,585 @@
-/*******************************************************
- * PANEL PRINCIPAL DE CADETERÍA HOSPITALARIA
- * Backend - Google Apps Script
- *******************************************************/
-
-const SPREADSHEET_ID = '1CBiK12lZqQGzIIqcv3tuUQGqA4hg6BWYn1w5VsrxzhM';
-
-const SHEET_PEDIDOS = 'PEDIDOS';
-const SHEET_SERVICIOS = 'SERVICIOS';
-const SHEET_DESTINOS = 'DESTINOS';
-const SHEET_CONFIG = 'CONFIGURACION';
-
-const ESTADOS = [
-  'Pendiente',
-  'En curso',
-  'Realizada',
-  'Cancelada',
-  'No realizada'
-];
-
-const PRIORIDADES = [
-  'Baja',
-  'Media',
-  'Alta'
-];
-
-const TIPOS = [
-  'Muestras de Laboratorio',
-  'Medicamentos',
-  'Documentación / Historias Clínicas',
-  'Insumos Médicos',
-  'Equipos',
-  'Ropa',
-  'Otros'
-];
-
-const SERVICIOS_PREDETERMINADOS = [
-  'Administración',
-  'Anatomía Patológica',
-  'Banco de Sangre',
-  'Consultorios Externos',
-  'Farmacia',
-  'Guardia / Emergencias',
-  'Hemoterapia',
-  'Infectología',
-  'Kinesiología',
-  'Laboratorio',
-  'Maternidad',
-  'Pediatría',
-  'Quirófano',
-  'Radiología / Imágenes',
-  'Terapia Intensiva (UTI)'
-];
-
-const DESTINOS_PREDETERMINADOS = [
-  'Laboratorio',
-  'Farmacia',
-  'Guardia / Emergencias',
-  'Quirófano',
-  'Administración',
-  'Depósito',
-  'Internación',
-  'Maternidad',
-  'Pediatría',
-  'Terapia Intensiva (UTI)',
-  'Radiología / Imágenes',
-  'Domicilio'
-];
-
-
-/* =====================================================
-   ENTRADA WEB
-   ===================================================== */
-
-function doGet(e) {
-
-  try {
-
-    const accion =
-      e &&
-      e.parameter &&
-      e.parameter.accion
-        ? e.parameter.accion
-        : '';
-
-    if (!accion) {
-
-      return respuestaJSON_({
-        ok: true,
-        sistema: 'Panel Principal de Cadetería Hospitalaria',
-        estado: 'API funcionando correctamente',
-        mensaje: 'La API está disponible.'
-      });
-
-    }
-
-    return ejecutarAccion_(accion, e.parameter);
-
-  } catch (error) {
-
-    return respuestaJSON_({
-      ok: false,
-      error: obtenerMensajeError_(error)
-    });
-
-  }
-
-}
-
-
-/* =====================================================
-   API POST
-   ===================================================== */
-
-function doPost(e) {
-
-  try {
-
-    let datos = {};
-
-    if (
-      e &&
-      e.postData &&
-      e.postData.contents
-    ) {
-
-      try {
-
-        datos =
-          JSON.parse(
-            e.postData.contents
-          );
-
-      } catch (errorJSON) {
-
-        datos = e.parameter || {};
-
-      }
-
-    } else {
-
-      datos = e.parameter || {};
-
-    }
-
-    const accion =
-      datos.accion ||
-      datos.action ||
-      '';
-
-    if (!accion) {
-
-      return respuestaJSON_({
-        ok: false,
-        error: 'No se indicó ninguna acción.'
-      });
-
-    }
-
-    /*
-     * Compatibilidad con el formato:
-     *
-     * {
-     *   accion: "...",
-     *   parametros: {...}
-     * }
-     */
-
-    if (
-      datos.parametros &&
-      typeof datos.parametros === 'object'
-    ) {
-
-      datos =
-        Object.assign(
-          {},
-          datos,
-          datos.parametros
-        );
-
-    }
-
-    return ejecutarAccion_(
-      accion,
-      datos
-    );
-
-  } catch (error) {
-
-    return respuestaJSON_({
-      ok: false,
-      error: obtenerMensajeError_(error)
-    });
-
-  }
-
-}
-
-
-/* =====================================================
-   EJECUTOR DE ACCIONES
-   ===================================================== */
-
-function ejecutarAccion_(accion, datos) {
-
-  switch (String(accion).trim()) {
-
-    case 'obtenerDatos':
-
-      return respuestaJSON_({
-        ok: true,
-        data: obtenerDatos()
-      });
-
-
-    case 'obtenerConfiguracion':
-
-      return respuestaJSON_({
-        ok: true,
-        data: obtenerConfiguracion()
-      });
-
-
-    case 'obtenerServicios':
-
-      return respuestaJSON_({
-        ok: true,
-        data: obtenerServicios()
-      });
-
-
-    case 'obtenerDestinos':
-
-      return respuestaJSON_({
-        ok: true,
-        data: obtenerDestinos()
-      });
-
-
-    case 'guardarPedido':
-
-      return respuestaJSON_({
-        ok: true,
-        data: guardarPedido(
-          datos.pedido || datos
-        )
-      });
-
-
-    case 'iniciarPedido':
-
-      return respuestaJSON_({
-        ok: true,
-        data: iniciarPedido(
-          datos.id
-        )
-      });
-
-
-    case 'finalizarPedido':
-
-      return respuestaJSON_({
-        ok: true,
-        data: finalizarPedido(
-          datos.id,
-          datos.observacionesFinales ||
-          datos.observaciones ||
-          ''
-        )
-      });
-
-
-    case 'cambiarEstado':
-
-      return respuestaJSON_({
-        ok: true,
-        data: cambiarEstado(
-          datos.id,
-          datos.nuevoEstado ||
-          datos.estado,
-          datos.observacionesFinales ||
-          datos.observaciones ||
-          ''
-        )
-      });
-
-
-    case 'eliminarPedido':
-
-      return respuestaJSON_({
-        ok: true,
-        data: eliminarPedido(
-          datos.id
-        )
-      });
-
-
-    case 'alternarArchivo':
-
-      return respuestaJSON_({
-        ok: true,
-        data: alternarArchivo(
-          datos.id
-        )
-      });
-
-
-    case 'agregarServicio':
-
-      return respuestaJSON_({
-        ok: true,
-        data: agregarServicio(
-          datos.nombre ||
-          datos.servicio ||
-          ''
-        )
-      });
-
-
-    case 'eliminarServicio':
-
-      return respuestaJSON_({
-        ok: true,
-        data: eliminarServicio(
-          datos.id
-        )
-      });
-
-
-    case 'agregarDestino':
-
-      return respuestaJSON_({
-        ok: true,
-        data: agregarDestino(
-          datos.nombre ||
-          datos.destino ||
-          ''
-        )
-      });
-
-
-    case 'eliminarDestino':
-
-      return respuestaJSON_({
-        ok: true,
-        data: eliminarDestino(
-          datos.id
-        )
-      });
-
-
-    case 'configurarSistema':
-
-      return respuestaJSON_(
-        configurarSistema()
-      );
-
-
-    default:
-
-      return respuestaJSON_({
-        ok: false,
-        error:
-          'Acción no reconocida: ' +
-          accion
-      });
-
-  }
-
-}
-
-
-/* =====================================================
-   RESPUESTA JSON
-   ===================================================== */
-
-function respuestaJSON_(objeto) {
-
-  return ContentService
-    .createTextOutput(
-      JSON.stringify(objeto)
-    )
-    .setMimeType(
-      ContentService.MimeType.JSON
-    );
-
-}
-
-
-function obtenerMensajeError_(error) {
-
-  if (!error) {
-    return 'Error desconocido.';
-  }
-
-  if (typeof error === 'string') {
-    return error;
-  }
-
-  return (
-    error.message ||
-    error.details ||
-    String(error)
-  );
-
-}
-
-
-/* =====================================================
-   CONFIGURACIÓN INICIAL
-   ===================================================== */
-
-function configurarSistema() {
-
-  const ss =
-    SpreadsheetApp.openById(
-      SPREADSHEET_ID
-    );
-
-  crearHojaPedidos_(ss);
-  crearHojaServicios_(ss);
-  crearHojaDestinos_(ss);
-  crearHojaConfiguracion_(ss);
-
-  return {
-
-    ok: true,
-
-    mensaje:
-      'Sistema configurado correctamente.',
-
-    hojas: [
-      SHEET_PEDIDOS,
-      SHEET_SERVICIOS,
-      SHEET_DESTINOS,
-      SHEET_CONFIG
-    ]
-
-  };
-
-}
-
-
-/* =====================================================
-   DATOS PARA EL FRONTEND
-   ===================================================== */
-
-function obtenerDatos() {
-
-  const ss =
-    SpreadsheetApp.openById(
-      SPREADSHEET_ID
-    );
-
-  crearHojaPedidos_(ss);
-  crearHojaServicios_(ss);
-  crearHojaDestinos_(ss);
-  crearHojaConfiguracion_(ss);
-
-  return {
-
-    pedidos:
-      obtenerPedidos_(ss),
-
-    servicios:
-      obtenerServicios_(ss),
-
-    destinos:
-      obtenerDestinos_(ss)
-
-  };
-
-}
-
-
-/* =====================================================
-   PEDIDOS
-   ===================================================== */
-
-function guardarPedido(pedido) {
-
-  if (!pedido) {
-
-    throw new Error(
-      'No se recibió información del pedido.'
-    );
-
-  }
-
-  const ss =
-    SpreadsheetApp.openById(
-      SPREADSHEET_ID
-    );
-
-  const hoja =
-    crearHojaPedidos_(ss);
-
-  const lock =
-    LockService.getScriptLock();
-
-  lock.waitLock(30000);
-
-  try {
-
-    const encabezados =
-      obtenerEncabezados_(hoja);
-
-    const ahora =
-      new Date();
-
-    const id =
-      pedido.ID ||
-      pedido.id ||
-      generarId_();
-
-    const filaExistente =
-      buscarFilaPorId_(
-        hoja,
-        id,
-        encabezados
-      );
-
-
-    /*
-     * Si se está actualizando un pedido existente,
-     * conservamos datos anteriores cuando no vienen
-     * desde el formulario.
-     */
-
-    let datosAnteriores = {};
-
-    if (filaExistente > 0) {
-
-      encabezados.forEach(
-        function(encabezado, indice) {
-
-          datosAnteriores[encabezado] =
-            hoja
-              .getRange(
-                filaExistente,
-                indice + 1
-              )
-              .getDisplayValue();
-
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏥 Panel de Cadetería Hospitalaria</title>
+    <!-- Bootstrap 5 CSS y Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #f4f7f6;
+            font-family: system-ui, -apple-system, sans-serif;
         }
-      );
-
-    }
-
-
-    const datos = {
-
-      'ID':
-        id,
-
-      'Fecha Registro':
-        pedido['Fecha Registro'] ||
-        pedido.fechaRegistro ||
-        datosAnteriores['Fecha Registro'] ||
-        formatearFechaHora_(ahora),
-
-      'Fecha Registro ISO':
-        pedido['Fecha Registro ISO'] ||
-        pedido.fechaRegistroISO ||
-        datosAnteriores['Fecha Registro ISO'] ||
-        ahora.toISOString(),
-
-      /*
-       * Se conserva para compatibilidad
-       * con pedidos anteriores.
-       */
-
-      'Fecha Programada':
-        pedido['Fecha Programada'] ||
-        pedido.fechaProgramada ||
-        datosAnteriores['Fecha Programada'] ||
-        '',
-
-      'Desde':
-        pedido['Desde'] ||
-        pedido.desde ||
-        datosAnteriores['Desde'] ||
-        '',
-
-      'Hasta':
-        pedido['Hasta'] ||
-        pedido.hasta ||
-        datosAnteriores['Hasta'] ||
-        '',
-
-      'Numero Contacto':
-        pedido['Numero Contacto'] ||
-        pedido['Número Contacto'] ||
-        pedido.numeroContacto ||
-        pedido.numeroContacto ||
-        datosAnteriores['Numero Contacto'] ||
-        '',
-
-      'Fecha Inicio':
-        pedido['Fecha Inicio'] ||
-        pedido.fechaInicio ||
-        datosAnteriores['Fecha Inicio'] ||
-        '',
-
-      'Fecha Finalizacion':
-        pedido['Fecha Finalizacion'] ||
-        pedido.fechaFinalizacion ||
-        datosAnteriores['Fecha Finalizacion'] ||
-        '',
-
-      'Origen':
-        limpiarTexto_(
-          pedido.Origen ||
-          pedido.origen ||
-          datosAnteriores['Origen']
-        ),
-
-      'Destino':
-        limpiarTexto_(
-          pedido.Destino ||
-          pedido.destino ||
-          datosAnteriores['Destino']
-        ),
-
-      'Tipo':
-        limpiarTexto_(
-          pedido.Tipo ||
-          pedido.tipo ||
-          datosAnteriores['Tipo']
-        ),
-
-      'Cadete':
-        limpiarTexto_(
-          pedido.Cadete ||
-          pedido.cadete ||
-          datosAnteriores['Cadete']
-        ),
-
-      'Movil':
-        limpiarTexto_(
-          pedido.Movil ||
-          pedido.movil ||
-          datosAnteriores['Movil']
-        ),
-
-      'Prioridad':
-        limpiarTexto_(
-          pedido.Prioridad ||
-          pedido.prioridad ||
-          datosAnteriores['Prioridad']
-        ) || 'Media',
-
-      'Estado':
-        limpiarTexto_(
-          pedido.Estado ||
-          pedido.estado ||
-          datosAnteriores['Estado']
-        ) || 'Pendiente',
-
-      'Observaciones':
-        limpiarTexto_(
-          pedido.Observaciones ||
-          pedido.observaciones ||
-          datosAnteriores['Observaciones']
-        ),
-
-      'Observaciones Finales':
-        limpiarTexto_(
-          pedido['Observaciones Finales'] ||
-          pedido.observacionesFinales ||
-          datosAnteriores['Observaciones Finales']
-        ),
-
-      'Archivado':
-        (
-          pedido.archivado === true ||
-          pedido.Archivado === true ||
-          String(
-            pedido.Archivado ||
-            datosAnteriores['Archivado'] ||
-            ''
-          ).toLowerCase() === 'sí'
-        )
-          ? 'Sí'
-          : 'No',
-
-      'Ultima Modificacion':
-        formatearFechaHora_(ahora)
-
-    };
-
-
-    const fila = [];
-
-    encabezados.forEach(
-      function(encabezado) {
-
-        fila.push(
-
-          Object.prototype.hasOwnProperty.call(
-            datos,
-            encabezado
-          )
-            ? datos[encabezado]
-            : ''
-
-        );
-
-      }
-    );
-
-
-    if (filaExistente > 0) {
-
-      hoja
-        .getRange(
-          filaExistente,
-          1,
-          1,
-          fila.length
-        )
-        .setValues([
-          fila
-        ]);
-
-    } else {
-
-      hoja.appendRow(
-        fila
-      );
-
-    }
-
-
-    return {
-
-      ok: true,
-
-      mensaje:
-        filaExistente > 0
-          ? 'Pedido actualizado correctamente.'
-          : 'Pedido creado correctamente.',
-
-      id: id
-
-    };
-
-
-  } finally {
-
-    lock.releaseLock();
-
-  }
-
-}
-
-
-/* =====================================================
-   CAMBIAR ESTADO
-   ===================================================== */
-
-function cambiarEstado(
-  id,
-  nuevoEstado,
-  observacionesFinales
-) {
-
-  if (!id) {
-
-    throw new Error(
-      'Falta el ID del pedido.'
-    );
-
-  }
-
-  if (
-    ESTADOS.indexOf(nuevoEstado) === -1
-  ) {
-
-    throw new Error(
-      'Estado no válido.'
-    );
-
-  }
-
-  const ss =
-    SpreadsheetApp.openById(
-      SPREADSHEET_ID
-    );
-
-  const hoja =
-    crearHojaPedidos_(ss);
-
-  const lock =
-    LockService.getScriptLock();
-
-  lock.waitLock(30000);
-
-  try {
-
-    const encabezados =
-      obtenerEncabezados_(hoja);
-
-    const fila =
-      buscarFilaPorId_(
-        hoja,
-        id,
-        encabezados
-      );
-
-    if (fila === -1) {
-
-      throw new Error(
-        'No se encontró el pedido.'
-      );
-
-    }
-
-    const ahora =
-      new Date();
-
-
-    escribirPorEncabezado_(
-      hoja,
-      fila,
-      encabezados,
-      'Estado',
-      nuevoEstado
-    );
-
-
-    if (
-      nuevoEstado === 'En curso'
-    ) {
-
-      escribirPorEncabezado_(
-        hoja,
-        fila,
-        encabezados,
-        'Fecha Inicio',
-        formatearFechaHora_(ahora)
-      );
-
-    }
-
-
-    if (
-      nuevoEstado === 'Realizada'
-    ) {
-
-      escribirPorEncabezado_(
-        hoja,
-        fila,
-        encabezados,
-        'Fecha Finalizacion',
-        formatearFechaHora_(ahora)
-      );
-
-    }
-
-
-    if (
-      observacionesFinales !== undefined &&
-      observacionesFinales !== null
-    ) {
-
-      escribirPorEncabezado_(
-        hoja,
-        fila,
-        encabezados,
-        'Observaciones Finales',
-        limpiarTexto_(
-          observacionesFinales
-        )
-      );
-
-    }
-
-
-    escribirPorEncabezado_(
-      hoja,
-      fila,
-      encabezados,
-      'Ultima Modificacion',
-      formatearFechaHora_(ahora)
-    );
-
-
-    return {
-
-      ok: true,
-
-      mensaje:
-        'Estado actualizado correctamente.'
-
-    };
-
-
-  } finally {
-
-    lock.releaseLock();
-
-  }
-
-}
-
-
-function iniciarPedido(id) {
-
-  return cambiarEstado(
-    id,
-    'En curso',
-    ''
-  );
-
-}
-
-
-function finalizarPedido(
-  id,
-  observacionesFinales
-) {
-
-  return cambiarEstado(
-    id,
-    'Realizada',
-    observacionesFinales || ''
-  );
-
-}
-
-
-/* =====================================================
-   ELIMINAR PEDIDO
-   ===================================================== */
-
-function eliminarPedido(id) {
-
-  if (!id) {
-
-    throw new Error(
-      'Falta el ID del pedido.'
-    );
-
-  }
-
-  const ss =
-    SpreadsheetApp.openById(
-      SPREADSHEET_ID
-    );
-
-  const hoja =
-    crearHojaPedidos_(ss);
-
-  const encabezados =
-    obtenerEncabezados_(hoja);
-
-  const fila =
-    buscarFilaPorId_(
-      hoja,
-      id,
-      encabezados
-    );
-
-  if (fila === -1) {
-
-    throw new Error(
-      'No se encontró el pedido.'
-    );
-
-  }
-
-  hoja.deleteRow(
-    fila
-  );
-
-  return {
-
-    ok: true,
-
-    mensaje:
-      'Pedido eliminado.'
-
-  };
-
-}
-
-
-/* =====================================================
-   ARCHIVAR / DESARCHIVAR
-   ===================================================== */
-
-function alternarArchivo(id) {
-
-  if (!id) {
-
-    throw new Error(
-      'Falta el ID del pedido.'
-    );
-
-  }
-
-  const ss =
-    SpreadsheetApp.openById(
-      SPREADSHEET_ID
-    );
-
-  const hoja =
-    crearHojaPedidos_(ss);
-
-  const encabezados =
-    obtenerEncabezados_(hoja);
-
-  const fila =
-    buscarFilaPorId_(
-      hoja,
-      id,
-      encabezados
-    );
-
-  if (fila === -1) {
-
-    throw new Error(
-      'No se encontró el pedido.'
-    );
-
-  }
-
-  const actual =
-    obtenerValorPorEncabezado_(
-      hoja,
-      fila,
-      encabezados,
-      'Archivado'
-    );
-
-  const nuevoValor =
-    String(actual).toLowerCase() === 'sí'
-      ? 'No'
-      : 'Sí';
-
-
-  escribirPorEncabezado_(
-    hoja,
-    fila,
-    encabezados,
-    'Archivado',
-    nuevoValor
-  );
-
-
-  escribirPorEncabezado_(
-    hoja,
-    fila,
-    encabezados,
-    'Ultima Modificacion',
-    formatearFechaHora_(
-      new Date()
-    )
-  );
-
-
-  return {
-
-    ok: true,
-
-    archivado:
-      nuevoValor === 'Sí'
-
-  };
-
-}
-
-
-/* =====================================================
-   OBTENER PEDIDOS
-   ===================================================== */
-
-function obtenerPedidos_(ss) {
-
-  ss =
-    ss ||
-    SpreadsheetApp.openById(
-      SPREADSHEET_ID
-    );
-
-  const hoja =
-    crearHojaPedidos_(ss);
-
-
-  if (
-    !hoja ||
-    hoja.getLastRow() < 2
-  ) {
-
-    return [];
-
-  }
-
-
-  const encabezados =
-    obtenerEncabezados_(hoja);
-
-
-  const valores =
-    hoja
-      .getRange(
-        2,
-        1,
-        hoja.getLastRow() - 1,
-        hoja.getLastColumn()
-      )
-      .getDisplayValues();
-
-
-  return valores.map(
-    function(fila) {
-
-      const obj = {};
-
-
-      encabezados.forEach(
-        function(encabezado, i) {
-
-          obj[encabezado] =
-            fila[i] !== undefined
-              ? fila[i]
-              : '';
-
+        .card-kpi {
+            border: none;
+            border-left: 5px solid;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
-      );
-
-
-      obj.id =
-        obj['ID'] || '';
-
-      obj.fechaRegistro =
-        obj['Fecha Registro'] || '';
-
-      obj.fechaRegistroISO =
-        obj['Fecha Registro ISO'] || '';
-
-      obj.fechaProgramada =
-        obj['Fecha Programada'] || '';
-
-      obj.desde =
-        obj['Desde'] || '';
-
-      obj.hasta =
-        obj['Hasta'] || '';
-
-      obj.numeroContacto =
-        obj['Numero Contacto'] ||
-        obj['Número Contacto'] ||
-        '';
-
-      obj.fechaInicio =
-        obj['Fecha Inicio'] || '';
-
-      obj.fechaFinalizacion =
-        obj['Fecha Finalizacion'] || '';
-
-      obj.origen =
-        obj['Origen'] || '';
-
-      obj.destino =
-        obj['Destino'] || '';
-
-      obj.tipo =
-        obj['Tipo'] || '';
-
-      obj.cadete =
-        obj['Cadete'] || '';
-
-      obj.movil =
-        obj['Movil'] || '';
-
-      obj.prioridad =
-        obj['Prioridad'] || 'Media';
-
-      obj.estado =
-        obj['Estado'] || 'Pendiente';
-
-      obj.observaciones =
-        obj['Observaciones'] || '';
-
-      obj.observacionesFinales =
-        obj['Observaciones Finales'] || '';
-
-      obj.archivado =
-        String(
-          obj['Archivado'] || ''
-        ).toLowerCase() === 'sí';
-
-
-      return obj;
-
-    }
-  );
-
-}
-
-
-/* =====================================================
-   SERVICIOS
-   ===================================================== */
-
-function obtenerServicios(ss) {
-
-  ss =
-    ss ||
-    SpreadsheetApp.openById(
-      SPREADSHEET_ID
-    );
-
-
-  const hoja =
-    crearHojaServicios_(ss);
-
-
-  if (
-    !hoja ||
-    hoja.getLastRow() < 2
-  ) {
-
-    return [];
-
-  }
-
-
-  const valores =
-    hoja
-      .getRange(
-        2,
-        1,
-        hoja.getLastRow() - 1,
-        2
-      )
-      .getDisplayValues();
-
-
-  return valores
-
-    .filter(
-      function(fila) {
-
-        return (
-          fila[0] &&
-          fila[1]
-        );
-
-      }
-    )
-
-    .map(
-      function(fila) {
-
-        return {
-
-          id: fila[0],
-
-          nombre: fila[1]
-
-        };
-
-      }
-    );
-
-}
-
-
-function obtenerServicios_(ss) {
-
-  return obtenerServicios(ss);
-
-}
-
-
-/* =====================================================
-   AGREGAR SERVICIO
-   ===================================================== */
-
-function agregarServicio(nombre) {
-
-  nombre =
-    limpiarTexto_(nombre);
-
-
-  if (!nombre) {
-
-    throw new Error(
-      'Ingresá el nombre del servicio.'
-    );
-
-  }
-
-
-  const ss =
-    SpreadsheetApp.openById(
-      SPREADSHEET_ID
-    );
-
-
-  const hoja =
-    crearHojaServicios_(ss);
-
-
-  const servicios =
-    obtenerServicios(ss);
-
-
-  const existe =
-    servicios.some(
-      function(servicio) {
-
-        return (
-          String(
-            servicio.nombre
-          ).toLowerCase()
-          ===
-          nombre.toLowerCase()
-        );
-
-      }
-    );
-
-
-  if (existe) {
-
-    throw new Error(
-      'Ese servicio ya existe.'
-    );
-
-  }
-
-
-  const id =
-    generarId_();
-
-
-  hoja.appendRow([
-    id,
-    nombre
-  ]);
-
-
-  return {
-
-    ok: true,
-
-    id: id,
-
-    nombre: nombre
-
-  };
-
-}
-
-
-/* =====================================================
-   ELIMINAR SERVICIO
-   ===================================================== */
-
-function eliminarServicio(id) {
-
-  if (!id) {
-
-    throw new Error(
-      'Falta el ID del servicio.'
-    );
-
-  }
-
-
-  const ss =
-    SpreadsheetApp.openById(
-      SPREADSHEET_ID
-    );
-
-
-  const hoja =
-    crearHojaServicios_(ss);
-
-
-  const ultimaFila =
-    hoja.getLastRow();
-
-
-  if (
-    ultimaFila < 2
-  ) {
-
-    throw new Error(
-      'No hay servicios para eliminar.'
-    );
-
-  }
-
-
-  const valores =
-    hoja
-      .getRange(
-        2,
-        1,
-        ultimaFila - 1,
-        1
-      )
-      .getValues();
-
-
-  for (
-    let i = 0;
-    i < valores.length;
-    i++
-  ) {
-
-    if (
-      String(valores[i][0])
-      ===
-      String(id)
-    ) {
-
-      hoja.deleteRow(
-        i + 2
-      );
-
-
-      return {
-
-        ok: true,
-
-        mensaje:
-          'Servicio eliminado.'
-
-      };
-
-    }
-
-  }
-
-
-  throw new Error(
-    'No se encontró el servicio.'
-  );
-
-}
-
-
-/* =====================================================
-   DESTINOS
-   ===================================================== */
-
-function obtenerDestinos(ss) {
-
-  ss =
-    ss ||
-    SpreadsheetApp.openById(
-      SPREADSHEET_ID
-    );
-
-
-  const hoja =
-    crearHojaDestinos_(ss);
-
-
-  if (
-    !hoja ||
-    hoja.getLastRow() < 2
-  ) {
-
-    return [];
-
-  }
-
-
-  const valores =
-    hoja
-      .getRange(
-        2,
-        1,
-        hoja.getLastRow() - 1,
-        2
-      )
-      .getDisplayValues();
-
-
-  return valores
-
-    .filter(
-      function(fila) {
-
-        return (
-          fila[0] &&
-          fila[1]
-        );
-
-      }
-    )
-
-    .map(
-      function(fila) {
-
-        return {
-
-          id: fila[0],
-
-          nombre: fila[1]
-
-        };
-
-      }
-    );
-
-}
-
-
-/* =====================================================
-   AGREGAR DESTINO
-   ===================================================== */
-
-function agregarDestino(nombre) {
-
-  nombre =
-    limpiarTexto_(nombre);
-
-
-  if (!nombre) {
-
-    throw new Error(
-      'Ingresá el nombre del destino.'
-    );
-
-  }
-
-
-  const ss =
-    SpreadsheetApp.openById(
-      SPREADSHEET_ID
-    );
-
-
-  const hoja =
-    crearHojaDestinos_(ss);
-
-
-  const destinos =
-    obtenerDestinos(ss);
-
-
-  const existe =
-    destinos.some(
-      function(destino) {
-
-        return (
-          String(
-            destino.nombre
-          ).toLowerCase()
-          ===
-          nombre.toLowerCase()
-        );
-
-      }
-    );
-
-
-  if (existe) {
-
-    throw new Error(
-      'Ese destino ya existe.'
-    );
-
-  }
-
-
-  const id =
-    generarId_();
-
-
-  hoja.appendRow([
-    id,
-    nombre
-  ]);
-
-
-  return {
-
-    ok: true,
-
-    id: id,
-
-    nombre: nombre
-
-  };
-
-}
-
-
-/* =====================================================
-   ELIMINAR DESTINO
-   ===================================================== */
-
-function eliminarDestino(id) {
-
-  if (!id) {
-
-    throw new Error(
-      'Falta el ID del destino.'
-    );
-
-  }
-
-
-  const ss =
-    SpreadsheetApp.openById(
-      SPREADSHEET_ID
-    );
-
-
-  const hoja =
-    crearHojaDestinos_(ss);
-
-
-  const ultimaFila =
-    hoja.getLastRow();
-
-
-  if (
-    ultimaFila < 2
-  ) {
-
-    throw new Error(
-      'No hay destinos para eliminar.'
-    );
-
-  }
-
-
-  const valores =
-    hoja
-      .getRange(
-        2,
-        1,
-        ultimaFila - 1,
-        1
-      )
-      .getValues();
-
-
-  for (
-    let i = 0;
-    i < valores.length;
-    i++
-  ) {
-
-    if (
-      String(valores[i][0])
-      ===
-      String(id)
-    ) {
-
-      hoja.deleteRow(
-        i + 2
-      );
-
-
-      return {
-
-        ok: true,
-
-        mensaje:
-          'Destino eliminado.'
-
-      };
-
-    }
-
-  }
-
-
-  throw new Error(
-    'No se encontró el destino.'
-  );
-
-}
-
-
-/* =====================================================
-   CONFIGURACIÓN
-   ===================================================== */
-
-function obtenerConfiguracion() {
-
-  const ss =
-    SpreadsheetApp.openById(
-      SPREADSHEET_ID
-    );
-
-
-  const hoja =
-    crearHojaConfiguracion_(ss);
-
-
-  const ultimaFila =
-    hoja.getLastRow();
-
-
-  if (
-    ultimaFila < 2
-  ) {
-
-    return {};
-
-  }
-
-
-  const valores =
-    hoja
-      .getRange(
-        2,
-        1,
-        ultimaFila - 1,
-        2
-      )
-      .getDisplayValues();
-
-
-  const config = {};
-
-
-  valores.forEach(
-    function(fila) {
-
-      if (fila[0]) {
-
-        config[fila[0]] =
-          fila[1];
-
-      }
-
-    }
-  );
-
-
-  return config;
-
-}
-
-
-/* =====================================================
-   CREAR HOJA PEDIDOS
-   ===================================================== */
-
-function crearHojaPedidos_(ss) {
-
-  if (!ss) {
-
-    throw new Error(
-      'No se recibió la planilla de Google Sheets.'
-    );
-
-  }
-
-
-  let hoja =
-    ss.getSheetByName(
-      SHEET_PEDIDOS
-    );
-
-
-  const encabezadosNecesarios = [
-
-    'ID',
-    'Fecha Registro',
-    'Fecha Registro ISO',
-    'Fecha Programada',
-    'Desde',
-    'Hasta',
-    'Numero Contacto',
-    'Fecha Inicio',
-    'Fecha Finalizacion',
-    'Origen',
-    'Destino',
-    'Tipo',
-    'Cadete',
-    'Movil',
-    'Prioridad',
-    'Estado',
-    'Observaciones',
-    'Observaciones Finales',
-    'Archivado',
-    'Ultima Modificacion'
-
-  ];
-
-
-  if (!hoja) {
-
-    hoja =
-      ss.insertSheet(
-        SHEET_PEDIDOS
-      );
-
-  }
-
-
-  agregarEncabezadosFaltantes_(
-    hoja,
-    encabezadosNecesarios
-  );
-
-
-  formatearEncabezados_(
-    hoja
-  );
-
-
-  return hoja;
-
-}
-
-
-/* =====================================================
-   CREAR HOJA SERVICIOS
-   ===================================================== */
-
-function crearHojaServicios_(ss) {
-
-  if (!ss) {
-
-    throw new Error(
-      'No se recibió la planilla de Google Sheets.'
-    );
-
-  }
-
-
-  let hoja =
-    ss.getSheetByName(
-      SHEET_SERVICIOS
-    );
-
-
-  if (!hoja) {
-
-    hoja =
-      ss.insertSheet(
-        SHEET_SERVICIOS
-      );
-
-  }
-
-
-  const encabezados = [
-    'ID',
-    'Servicio'
-  ];
-
-
-  agregarEncabezadosFaltantes_(
-    hoja,
-    encabezados
-  );
-
-
-  formatearEncabezados_(
-    hoja
-  );
-
-
-  if (
-    hoja.getLastRow() < 2
-  ) {
-
-    const filas =
-      SERVICIOS_PREDETERMINADOS.map(
-        function(nombre) {
-
-          return [
-            generarId_(),
-            nombre
-          ];
-
+        .kpi-activos { border-color: #0d6efd; }
+        .kpi-pendientes { border-color: #ffc107; }
+        .kpi-realizadas { border-color: #198754; }
+        .kpi-archivados { border-color: #6c757d; }
+        
+        .table-responsive {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            padding: 15px;
         }
-      );
-
-
-    if (filas.length) {
-
-      hoja
-        .getRange(
-          2,
-          1,
-          filas.length,
-          2
-        )
-        .setValues(
-          filas
-        );
-
-    }
-
-  }
-
-
-  return hoja;
-
-}
-
-
-/* =====================================================
-   CREAR HOJA DESTINOS
-   ===================================================== */
-
-function crearHojaDestinos_(ss) {
-
-  if (!ss) {
-
-    throw new Error(
-      'No se recibió la planilla de Google Sheets.'
-    );
-
-  }
-
-
-  let hoja =
-    ss.getSheetByName(
-      SHEET_DESTINOS
-    );
-
-
-  if (!hoja) {
-
-    hoja =
-      ss.insertSheet(
-        SHEET_DESTINOS
-      );
-
-  }
-
-
-  const encabezados = [
-    'ID',
-    'Destino'
-  ];
-
-
-  agregarEncabezadosFaltantes_(
-    hoja,
-    encabezados
-  );
-
-
-  formatearEncabezados_(
-    hoja
-  );
-
-
-  if (
-    hoja.getLastRow() < 2
-  ) {
-
-    const filas =
-      DESTINOS_PREDETERMINADOS.map(
-        function(nombre) {
-
-          return [
-            generarId_(),
-            nombre
-          ];
-
+        .fila-archivada {
+            opacity: 0.7;
+            background-color: #f8f9fa;
         }
-      );
-
-
-    if (filas.length) {
-
-      hoja
-        .getRange(
-          2,
-          1,
-          filas.length,
-          2
-        )
-        .setValues(
-          filas
-        );
-
-    }
-
-  }
-
-
-  return hoja;
-
-}
-
-
-/* =====================================================
-   CREAR HOJA CONFIGURACIÓN
-   ===================================================== */
-
-function crearHojaConfiguracion_(ss) {
-
-  if (!ss) {
-
-    throw new Error(
-      'No se recibió la planilla de Google Sheets.'
-    );
-
-  }
-
-
-  let hoja =
-    ss.getSheetByName(
-      SHEET_CONFIG
-    );
-
-
-  if (!hoja) {
-
-    hoja =
-      ss.insertSheet(
-        SHEET_CONFIG
-      );
-
-  }
-
-
-  const encabezados = [
-    'Clave',
-    'Valor'
-  ];
-
-
-  agregarEncabezadosFaltantes_(
-    hoja,
-    encabezados
-  );
-
-
-  formatearEncabezados_(
-    hoja
-  );
-
-
-  return hoja;
-
-}
-
-
-/* =====================================================
-   UTILIDADES DE HOJAS
-   ===================================================== */
-
-function agregarEncabezadosFaltantes_(
-  hoja,
-  encabezadosNecesarios
-) {
-
-  const ultimaColumna =
-    hoja.getLastColumn();
-
-
-  let existentes = [];
-
-
-  if (
-    ultimaColumna > 0
-  ) {
-
-    existentes =
-      hoja
-        .getRange(
-          1,
-          1,
-          1,
-          ultimaColumna
-        )
-        .getDisplayValues()[0]
-        .map(
-          function(v) {
-
-            return String(v).trim();
-
-          }
-        );
-
-  }
-
-
-  if (
-    existentes.length === 0 ||
-    !existentes.some(Boolean)
-  ) {
-
-    hoja
-      .getRange(
-        1,
-        1,
-        1,
-        encabezadosNecesarios.length
-      )
-      .setValues([
-        encabezadosNecesarios
-      ]);
-
-    return;
-
-  }
-
-
-  encabezadosNecesarios.forEach(
-    function(encabezado) {
-
-      const existe =
-        existentes.some(
-          function(actual) {
-
-            return (
-              actual.toLowerCase()
-              ===
-              encabezado.toLowerCase()
-            );
-
-          }
-        );
-
-
-      if (!existe) {
-
-        hoja
-          .getRange(
-            1,
-            hoja.getLastColumn() + 1
-          )
-          .setValue(
-            encabezado
-          );
-
-
-        existentes.push(
-          encabezado
-        );
-
-      }
-
-    }
-  );
-
-}
-
-
-/* =====================================================
-   OBTENER ENCABEZADOS
-   ===================================================== */
-
-function obtenerEncabezados_(hoja) {
-
-  const ultimaColumna =
-    hoja.getLastColumn();
-
-
-  if (
-    ultimaColumna < 1
-  ) {
-
-    return [];
-
-  }
-
-
-  return hoja
-    .getRange(
-      1,
-      1,
-      1,
-      ultimaColumna
-    )
-    .getDisplayValues()[0]
-    .map(
-      function(v) {
-
-        return String(v).trim();
-
-      }
-    );
-
-}
-
-
-/* =====================================================
-   BUSCAR FILA POR ID
-   ===================================================== */
-
-function buscarFilaPorId_(
-  hoja,
-  id,
-  encabezados
-) {
-
-  const indice =
-    encabezados.findIndex(
-      function(encabezado) {
-
-        return (
-          encabezado.toLowerCase()
-          ===
-          'id'
-        );
-
-      }
-    );
-
-
-  if (
-    indice === -1 ||
-    hoja.getLastRow() < 2
-  ) {
-
-    return -1;
-
-  }
-
-
-  const valores =
-    hoja
-      .getRange(
-        2,
-        indice + 1,
-        hoja.getLastRow() - 1,
-        1
-      )
-      .getDisplayValues();
-
-
-  for (
-    let i = 0;
-    i < valores.length;
-    i++
-  ) {
-
-    if (
-      String(valores[i][0])
-      ===
-      String(id)
-    ) {
-
-      return i + 2;
-
-    }
-
-  }
-
-
-  return -1;
-
-}
-
-
-/* =====================================================
-   ESCRIBIR POR ENCABEZADO
-   ===================================================== */
-
-function escribirPorEncabezado_(
-  hoja,
-  fila,
-  encabezados,
-  encabezadoBuscado,
-  valor
-) {
-
-  const indice =
-    encabezados.findIndex(
-      function(encabezado) {
-
-        return (
-          encabezado.toLowerCase()
-          ===
-          encabezadoBuscado.toLowerCase()
-        );
-
-      }
-    );
-
-
-  if (indice === -1) {
-
-    throw new Error(
-      'No existe la columna "' +
-      encabezadoBuscado +
-      '".'
-    );
-
-  }
-
-
-  hoja
-    .getRange(
-      fila,
-      indice + 1
-    )
-    .setValue(
-      valor
-    );
-
-}
-
-
-/* =====================================================
-   OBTENER VALOR POR ENCABEZADO
-   ===================================================== */
-
-function obtenerValorPorEncabezado_(
-  hoja,
-  fila,
-  encabezados,
-  encabezadoBuscado
-) {
-
-  const indice =
-    encabezados.findIndex(
-      function(encabezado) {
-
-        return (
-          encabezado.toLowerCase()
-          ===
-          encabezadoBuscado.toLowerCase()
-        );
-
-      }
-    );
-
-
-  if (
-    indice === -1
-  ) {
-
-    return '';
-
-  }
-
-
-  return hoja
-    .getRange(
-      fila,
-      indice + 1
-    )
-    .getDisplayValue();
-
-}
-
-
-/* =====================================================
-   FORMATEAR ENCABEZADOS
-   ===================================================== */
-
-function formatearEncabezados_(hoja) {
-
-  const ultimaColumna =
-    hoja.getLastColumn();
-
-
-  if (
-    ultimaColumna < 1
-  ) {
-
-    return;
-
-  }
-
-
-  hoja
-    .getRange(
-      1,
-      1,
-      1,
-      ultimaColumna
-    )
-    .setFontWeight('bold')
-    .setHorizontalAlignment('center')
-    .setWrap(true);
-
-
-  hoja.setFrozenRows(1);
-
-
-  try {
-
-    hoja.autoResizeColumns(
-      1,
-      ultimaColumna
-    );
-
-  } catch (e) {
-
-    // No interrumpir por error visual.
-
-  }
-
-}
-
-
-/* =====================================================
-   UTILIDADES GENERALES
-   ===================================================== */
-
-function generarId_() {
-
-  return Utilities.getUuid();
-
-}
-
-
-function limpiarTexto_(valor) {
-
-  if (
-    valor === null ||
-    valor === undefined
-  ) {
-
-    return '';
-
-  }
-
-
-  return String(valor).trim();
-
-}
-
-
-function formatearFechaHora_(fecha) {
-
-  return Utilities.formatDate(
-
-    fecha,
-
-    Session.getScriptTimeZone()
-      || 'America/Argentina/Buenos_Aires',
-
-    'dd/MM/yyyy HH:mm:ss'
-
-  );
-
-}
+        .badge-estado-Pendiente { background-color: #fff3cd; color: #856404; font-weight: 600; }
+        .badge-estado-En-curso { background-color: #cff4fc; color: #055160; font-weight: 600; }
+        .badge-estado-Realizada { background-color: #d4edda; color: #155724; font-weight: 600; }
+        .badge-estado-Cancelada { background-color: #f8d7da; color: #721c24; font-weight: 600; }
+        .badge-estado-No-realizada { background-color: #e2e3e5; color: #41464b; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid py-4 px-4">
+        <!-- Encabezado principal -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+            <div>
+                <h3 class="text-primary fw-bold mb-0"><i class="bi bi-hospital me-2"></i>Panel Principal de Cadetería Hospitalaria</h3>
+                <span class="text-muted small">Gestión y control de traslados internos</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-sm btn-outline-secondary" id="btnEstadoSeguridad" onclick="gestionarSeguridad()">
+                    <i class="bi bi-lock-fill me-1" id="iconoSeguridad"></i>
+                    <span id="textoSeguridad">Modo Lectura</span>
+                </button>
+                
+                <button class="btn btn-outline-dark btn-sm" onclick="requerirPassword(abrirModalServicios)"><i class="bi bi-building-gear me-1"></i> Gestionar Servicios</button>
+                <div class="form-check form-switch fs-6 mb-0 ms-2">
+                    <input class="form-check-input" type="checkbox" id="verArchivados" onchange="filtrarTabla()">
+                    <label class="form-check-label fw-semibold" for="verArchivados"><i class="bi bi-archive me-1"></i> Ver Histórico</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Indicadores KPIs -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="card card-kpi kpi-activos p-3">
+                    <span class="text-muted small fw-semibold">TOTAL ACTIVOS</span>
+                    <h3 class="fw-bold mb-0 mt-1" id="stat-total">0</h3>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card card-kpi kpi-pendientes p-3">
+                    <span class="text-warning-emphasis small fw-semibold"><i class="bi bi-clock-history me-1"></i> PENDIENTES</span>
+                    <h3 class="fw-bold mb-0 mt-1" id="stat-pendientes">0</h3>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card card-kpi kpi-realizadas p-3">
+                    <span class="text-success small fw-semibold"><i class="bi bi-check-circle me-1"></i> REALIZADAS</span>
+                    <h3 class="fw-bold mb-0 mt-1" id="stat-realizadas">0</h3>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card card-kpi kpi-archivados p-3">
+                    <span class="text-secondary small fw-semibold"><i class="bi bi-archive me-1"></i> ARCHIVADOS</span>
+                    <h3 class="fw-bold mb-0 mt-1" id="stat-archivados">0</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controles y Filtros -->
+        <div class="card p-3 mb-4 shadow-sm border-0">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-muted mb-1"><i class="bi bi-search me-1"></i> Buscador</label>
+                    <input type="text" id="buscador" class="form-control form-control-sm" placeholder="Buscar por servicio, cadete o tipo..." onkeyup="filtrarTabla()">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-muted mb-1">Estado</label>
+                    <select id="filtro-estado" class="form-select form-select-sm" onchange="filtrarTabla()">
+                        <option value="Todos">Todos los estados</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="En curso">En curso</option>
+                        <option value="Realizada">Realizada</option>
+                        <option value="Cancelada">Cancelada</option>
+                        <option value="No realizada">No realizada</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-muted mb-1"><i class="bi bi-calendar-event me-1"></i> Fecha Desde</label>
+                    <input type="date" id="fecha-desde" class="form-control form-control-sm" onchange="filtrarTabla()">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-muted mb-1"><i class="bi bi-calendar-event me-1"></i> Fecha Hasta</label>
+                    <input type="date" id="fecha-hasta" class="form-control form-control-sm" onchange="filtrarTabla()">
+                </div>
+                <div class="col-md-3 text-end d-flex gap-1 justify-content-end">
+                    <button class="btn btn-sm btn-outline-primary" onclick="cargarDesdeGoogleSheets()" title="Sincronizar con Google Sheets"><i class="bi bi-arrow-repeat"></i> Actualizar</button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="limpiarFiltros()" title="Limpiar filtros"><i class="bi bi-eraser"></i></button>
+                    <button class="btn btn-sm btn-primary" onclick="requerirPassword(abrirModalNuevo)"><i class="bi bi-plus-lg me-1"></i> Nuevo Pedido</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Listado de Pedidos -->
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr class="small text-muted text-uppercase">
+                        <th>Fecha Registro</th>
+                        <th>Programado Para</th>
+                        <th>Origen <i class="bi bi-arrow-right"></i> Destino</th>
+                        <th>Tipo</th>
+                        <th>Cadete / Móvil</th>
+                        <th>Prioridad</th>
+                        <th>Estado</th>
+                        <th>Obs.</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-pedidos">
+                    <!-- Se renderiza dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal Solicitud de Contraseña -->
+    <div class="modal fade" id="modalPassword" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white py-2">
+                    <h6 class="modal-title fw-bold"><i class="bi bi-shield-lock me-2"></i>Acceso Protegido</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="small text-muted mb-2">Introduce la contraseña para realizar cambios:</p>
+                    <input type="password" id="inputPassAcceso" class="form-control text-center fs-5 mb-2" placeholder="••••" autofocus>
+                    <div id="errorPassAcceso" class="text-danger small d-none text-center fw-bold">Contraseña incorrecta</div>
+                </div>
+                <div class="modal-footer py-1">
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-sm btn-danger" onclick="validarPassword()">Ingresar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Formulario Pedido -->
+    <div class="modal fade" id="modalPedido" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="modalTitulo">Nuevo Pedido de Cadetería</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formPedido">
+                        <input type="hidden" id="pedidoId">
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">🏢 Servicio Origen</label>
+                                <select id="origen" class="form-select" required></select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">🏢 Servicio Destino</label>
+                                <select id="destino" class="form-select" required></select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">📦 Tipo de Pedido</label>
+                                <select id="tipo" class="form-select" required>
+                                    <option value="Muestras de Laboratorio">Muestras de Laboratorio</option>
+                                    <option value="Medicamentos">Medicamentos</option>
+                                    <option value="Documentación / Historias Clínicas">Documentación / Historias Clínicas</option>
+                                    <option value="Insumos Médicos">Insumos Médicos</option>
+                                    <option value="Equipos">Equipos</option>
+                                    <option value="Ropa">Ropa</option>
+                                    <option value="Otros">Otros</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">⏰ Fecha/Hora Programada</label>
+                                <input type="datetime-local" id="fechaProgramada" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">👤 Cadete Responsable</label>
+                                <input type="text" id="cadete" class="form-control" placeholder="Nombre del cadete" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">📱 Móvil / Radio</label>
+                                <input type="text" id="movil" class="form-control" placeholder="Móvil 1, etc.">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">🚨 Prioridad</label>
+                                <select id="prioridad" class="form-select" required>
+                                    <option value="Baja">Baja</option>
+                                    <option value="Media">Media</option>
+                                    <option value="Alta">Alta 🚨</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Estado</label>
+                            <select id="estado" class="form-select">
+                                <option value="Pendiente">Pendiente</option>
+                                <option value="En curso">En curso</option>
+                                <option value="Realizada">Realizada</option>
+                                <option value="Cancelada">Cancelada</option>
+                                <option value="No realizada">No realizada</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">📝 Observaciones</label>
+                            <textarea id="observaciones" class="form-control" rows="2" placeholder="Detalles adicionales..."></textarea>
+                        </div>
+
+                        <div class="text-end">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary" id="btnGuardarPedido"><i class="bi bi-floppy me-1"></i> Guardar en Google Sheets</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Gestión Servicios -->
+    <div class="modal fade" id="modalServicios" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title"><i class="bi bi-building-gear me-2"></i>Gestión de Servicios</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group mb-3">
+                        <input type="text" id="nuevoNombreServicio" class="form-control" placeholder="Nombre del nuevo servicio">
+                        <button class="btn btn-success" type="button" onclick="agregarServicio()"><i class="bi bi-plus-lg"></i> Agregar</button>
+                    </div>
+                    <h6 class="fw-bold text-muted small uppercase">Servicios Registrados</h6>
+                    <ul class="list-group list-group-flush border-top" id="listaServiciosModal"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // URL de tu implementación de Google Apps Script
+        const URL_GOOGLE_SCRIPT = "https://script.google.com/macros/s/AKfycbxt6N6dgwkyDc_WqjRGDuaDnfq2zyRxiQzU9yA08AspVIufhDE60k7JM_WogDZKGE5V/exec";
+
+        let pedidos = [];
+        let servicios = [];
+        let claveAdmin = localStorage.getItem('claveAdminCadeteria') || '1234';
+
+        const modalPedido = new bootstrap.Modal(document.getElementById('modalPedido'));
+        const modalServicios = new bootstrap.Modal(document.getElementById('modalServicios'));
+        const modalPassword = new bootstrap.Modal(document.getElementById('modalPassword'));
+
+        let callbackDespuesAutenticar = null;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            actualizarIndicadorSeguridad();
+            cargarDesdeGoogleSheets();
+            
+            document.getElementById('inputPassAcceso').addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') validarPassword();
+            });
+        });
+
+        function esAdmin() {
+            return sessionStorage.getItem('adminAutenticado') === 'true';
+        }
+
+        function requerirPassword(callbackAccion, ...args) {
+            if (esAdmin()) {
+                callbackAccion(...args);
+            } else {
+                callbackDespuesAutenticar = () => callbackAccion(...args);
+                document.getElementById('inputPassAcceso').value = '';
+                document.getElementById('errorPassAcceso').classList.add('d-none');
+                modalPassword.show();
+            }
+        }
+
+        function validarPassword() {
+            const pass = document.getElementById('inputPassAcceso').value;
+            if (pass === claveAdmin) {
+                sessionStorage.setItem('adminAutenticado', 'true');
+                actualizarIndicadorSeguridad();
+                modalPassword.hide();
+                if (callbackDespuesAutenticar) {
+                    callbackDespuesAutenticar();
+                    callbackDespuesAutenticar = null;
+                }
+            } else {
+                document.getElementById('errorPassAcceso').classList.remove('d-none');
+            }
+        }
+
+        function gestionarSeguridad() {
+            if (esAdmin()) {
+                sessionStorage.removeItem('adminAutenticado');
+                actualizarIndicadorSeguridad();
+            } else {
+                requerirPassword(() => {});
+            }
+        }
+
+        function actualizarIndicadorSeguridad() {
+            const btn = document.getElementById('btnEstadoSeguridad');
+            const icono = document.getElementById('iconoSeguridad');
+            const texto = document.getElementById('textoSeguridad');
+
+            if (esAdmin()) {
+                btn.className = "btn btn-sm btn-outline-success";
+                icono.className = "bi bi-unlock-fill me-1";
+                texto.innerText = "Modo Edición";
+            } else {
+                btn.className = "btn btn-sm btn-outline-secondary";
+                icono.className = "bi bi-lock-fill me-1";
+                texto.innerText = "Modo Lectura";
+            }
+        }
+
+        // --- CONEXIÓN CON GOOGLE APPS SCRIPT (BACKEND) ---
+
+        function cargarDesdeGoogleSheets() {
+            fetch(`${URL_GOOGLE_SCRIPT}?accion=obtenerDatos`)
+            .then(res => res.json())
+            .then(respuesta => {
+                if (respuesta.ok && respuesta.data) {
+                    pedidos = respuesta.data.pedidos || [];
+                    servicios = (respuesta.data.servicios || []).map(s => typeof s === 'object' ? s.nombre : s);
+                    poblarSelectsServicios();
+                    filtrarTabla();
+                } else {
+                    console.error("Error al obtener datos:", respuesta.error);
+                }
+            })
+            .catch(err => console.error("Error al conectar con Google Sheets:", err));
+        }
+
+        function ejecutarAccionPost(payload) {
+            return fetch(URL_GOOGLE_SCRIPT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json());
+        }
+
+        // --- GESTIÓN DE SERVICIOS ---
+
+        function poblarSelectsServicios() {
+            const selectOrigen = document.getElementById('origen');
+            const selectDestino = document.getElementById('destino');
+
+            let optionsHTML = '<option value="" disabled selected>Seleccione área...</option>';
+            servicios.forEach(s => {
+                optionsHTML += `<option value="${s}">${s}</option>`;
+            });
+
+            if (selectOrigen) selectOrigen.innerHTML = optionsHTML;
+            if (selectDestino) selectDestino.innerHTML = optionsHTML;
+        }
+
+        function abrirModalServicios() {
+            renderizarListaServiciosModal();
+            modalServicios.show();
+        }
+
+        function renderizarListaServiciosModal() {
+            const ul = document.getElementById('listaServiciosModal');
+            if (!ul) return;
+            ul.innerHTML = '';
+            servicios.forEach(s => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item d-flex justify-content-between align-items-center py-2';
+                li.innerHTML = `<span><i class="bi bi-building me-2 text-muted"></i>${s}</span>`;
+                ul.appendChild(li);
+            });
+        }
+
+        function agregarServicio() {
+            const input = document.getElementById('nuevoNombreServicio');
+            const nombre = input.value.trim();
+            if (!nombre) return;
+
+            ejecutarAccionPost({ accion: 'agregarServicio', nombre: nombre })
+            .then(res => {
+                if (res.ok) {
+                    input.value = '';
+                    cargarDesdeGoogleSheets();
+                } else {
+                    alert("Error: " + res.error);
+                }
+            });
+        }
+
+        // --- GESTIÓN DE PEDIDOS ---
+
+        function abrirModalNuevo() {
+            document.getElementById('formPedido').reset();
+            document.getElementById('pedidoId').value = '';
+            document.getElementById('estado').value = 'Pendiente';
+            
+            const ahora = new Date();
+            ahora.setMinutes(ahora.getMinutes() - ahora.getTimezoneOffset());
+            document.getElementById('fechaProgramada').value = ahora.toISOString().slice(0,16);
+
+            document.getElementById('modalTitulo').innerText = '➕ Nuevo Pedido de Cadetería';
+            modalPedido.show();
+        }
+
+        document.getElementById('formPedido').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const pedido = {
+                id: document.getElementById('pedidoId').value || "",
+                origen: document.getElementById('origen').value,
+                destino: document.getElementById('destino').value,
+                tipo: document.getElementById('tipo').value,
+                fechaProgramada: document.getElementById('fechaProgramada').value,
+                cadete: document.getElementById('cadete').value,
+                movil: document.getElementById('movil').value,
+                prioridad: document.getElementById('prioridad').value,
+                estado: document.getElementById('estado').value,
+                observaciones: document.getElementById('observaciones').value
+            };
+
+            const btnGuardar = document.getElementById('btnGuardarPedido');
+            btnGuardar.disabled = true;
+            btnGuardar.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Guardando...';
+
+            ejecutarAccionPost({ accion: 'guardarPedido', pedido: pedido })
+            .then(res => {
+                btnGuardar.disabled = false;
+                btnGuardar.innerHTML = '<i class="bi bi-floppy me-1"></i> Guardar en Google Sheets';
+                if (res.ok) {
+                    modalPedido.hide();
+                    cargarDesdeGoogleSheets();
+                } else {
+                    alert("Error al guardar: " + res.error);
+                }
+            })
+            .catch(err => {
+                btnGuardar.disabled = false;
+                btnGuardar.innerHTML = '<i class="bi bi-floppy me-1"></i> Guardar en Google Sheets';
+                alert("Error de conexión al guardar.");
+            });
+        });
+
+        function cambiarEstadoAccion(id, nuevoEstado) {
+            ejecutarAccionPost({ accion: 'cambiarEstado', id: id, nuevoEstado: nuevoEstado })
+            .then(res => {
+                if (res.ok) cargarDesdeGoogleSheets();
+                else alert("Error: " + res.error);
+            });
+        }
+
+        function alternarArchivoAccion(id) {
+            ejecutarAccionPost({ accion: 'alternarArchivo', id: id })
+            .then(res => {
+                if (res.ok) cargarDesdeGoogleSheets();
+                else alert("Error: " + res.error);
+            });
+        }
+
+        function actualizarTabla(datos) {
+            const tbody = document.getElementById('tabla-pedidos');
+            tbody.innerHTML = '';
+
+            if (datos.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-4"><i class="bi bi-inbox fs-3 d-block mb-1"></i>No hay traslados para mostrar.</td></tr>`;
+                actualizarEstadisticas();
+                return;
+            }
+
+            datos.forEach(p => {
+                let badgePrioridad = 'bg-info text-dark';
+                if(p.prioridad.includes('Alta')) badgePrioridad = 'bg-danger text-white';
+                if(p.prioridad === 'Media') badgePrioridad = 'bg-warning text-dark';
+
+                const estadoClass = p.estado.replace(/\s+/g, '-');
+
+                const fila = `
+                    <tr class="${p.archivado ? 'fila-archivada' : ''}">
+                        <td class="text-muted small">${p.fechaRegistro || p['Fecha Registro'] || '-'}</td>
+                        <td><span class="fw-bold text-primary">${p.fechaProgramada || p['Fecha Programada'] || 'Sin prog.'}</span></td>
+                        <td>
+                            <span class="fw-bold">${p.origen || p['Origen']}</span> 
+                            <i class="bi bi-arrow-right text-muted mx-1"></i> 
+                            <span class="fw-bold">${p.destino || p['Destino']}</span>
+                        </td>
+                        <td>${p.tipo || p['Tipo']}</td>
+                        <td><i class="bi bi-person me-1 text-muted"></i>${p.cadete || p['Cadete']} ${p.movil ? `<small class="text-muted">(${p.movil})</small>` : ''}</td>
+                        <td><span class="badge ${badgePrioridad}">${p.prioridad || p['Prioridad']}</span></td>
+                        <td><span class="badge badge-estado-${estadoClass}">${p.estado || p['Estado']}</span></td>
+                        <td style="max-width: 140px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;" title="${p.observaciones || p['Observaciones']}">${p.observaciones || p['Observaciones'] || '-'}</td>
+                        <td class="text-end">
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-success" onclick="requerirPassword(cambiarEstadoAccion, '${p.id}', 'Realizada')" title="Finalizar"><i class="bi bi-check-lg"></i></button>
+                                <button class="btn btn-outline-secondary" onclick="requerirPassword(alternarArchivoAccion, '${p.id}')" title="Archivar/Desarchivar"><i class="bi bi-archive"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += fila;
+            });
+
+            actualizarEstadisticas();
+        }
+
+        function filtrarTabla() {
+            const busqueda = document.getElementById('buscador').value.toLowerCase();
+            const estadoFiltro = document.getElementById('filtro-estado').value;
+            const verArchivados = document.getElementById('verArchivados').checked;
+
+            const filtrados = pedidos.filter(p => {
+                const esArchivada = p.archivado || String(p['Archivado']).toLowerCase() === 'sí';
+                if (!verArchivados && esArchivada) return false;
+
+                const o = (p.origen || p['Origen'] || '').toLowerCase();
+                const d = (p.destino || p['Destino'] || '').toLowerCase();
+                const c = (p.cadete || p['Cadete'] || '').toLowerCase();
+                const t = (p.tipo || p['Tipo'] || '').toLowerCase();
+
+                const coincideBusqueda = o.includes(busqueda) || d.includes(busqueda) || c.includes(busqueda) || t.includes(busqueda);
+                const coincideEstado = estadoFiltro === "Todos" || (p.estado || p['Estado']) === estadoFiltro;
+
+                return coincideBusqueda && coincideEstado;
+            });
+
+            actualizarTabla(filtrados);
+        }
+
+        function limpiarFiltros() {
+            document.getElementById('buscador').value = '';
+            document.getElementById('filtro-estado').value = 'Todos';
+            filtrarTabla();
+        }
+
+        function actualizarEstadisticas() {
+            const activos = pedidos.filter(p => !(p.archivado || String(p['Archivado']).toLowerCase() === 'sí'));
+            document.getElementById('stat-total').innerText = activos.length;
+            document.getElementById('stat-pendientes').innerText = activos.filter(p => (p.estado || p['Estado']) === 'Pendiente').length;
+            document.getElementById('stat-realizadas').innerText = activos.filter(p => (p.estado || p['Estado']) === 'Realizada').length;
+            document.getElementById('stat-archivados').innerText = pedidos.length - activos.length;
+        }
+    </script>
+</body>
+</html>
