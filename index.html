@@ -131,10 +131,11 @@
                 <thead class="table-light">
                     <tr class="small text-muted text-uppercase">
                         <th>Fecha Registro</th>
-                        <th>Programado Para</th>
+                        <th>Horario Programado</th>
                         <th>Origen <i class="bi bi-arrow-right"></i> Destino</th>
                         <th>Tipo</th>
                         <th>Cadete / Móvil</th>
+                        <th>Contacto</th>
                         <th>Prioridad</th>
                         <th>Estado</th>
                         <th>Obs.</th>
@@ -187,8 +188,30 @@
                                 <select id="origen" class="form-select" required></select>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">🏢 Servicio Destino</label>
-                                <select id="destino" class="form-select" required></select>
+                                <label class="form-label fw-bold">🏢 Destino</label>
+                                <div class="input-group" id="contenedorDestinoSelect">
+                                    <select id="destino" class="form-select" required></select>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="activarModoDestinoManual()" title="Escribir destino personalizado">
+                                        <i class="bi bi-pencil-plus"></i>
+                                    </button>
+                                </div>
+                                <div class="input-group d-none" id="contenedorDestinoManual">
+                                    <input type="text" id="destinoManual" class="form-control" placeholder="Escribe un destino personalizado...">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="activarModoDestinoSelect()" title="Volver a la lista de servicios">
+                                        <i class="bi bi-list-ul"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">⏰ Hora Desde</label>
+                                <input type="time" id="horaDesde" class="form-control">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">⏰ Hora Hasta</label>
+                                <input type="time" id="horaHasta" class="form-control">
                             </div>
                         </div>
 
@@ -206,8 +229,8 @@
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">⏰ Fecha/Hora Programada</label>
-                                <input type="datetime-local" id="fechaProgramada" class="form-control">
+                                <label class="form-label">📞 Número de Contacto / Teléfono</label>
+                                <input type="text" id="contacto" class="form-control" placeholder="Ej: Interno 102 / 11-xxxx-xxxx">
                             </div>
                         </div>
 
@@ -397,6 +420,18 @@
             if (selectDestino) selectDestino.innerHTML = optionsHTML;
         }
 
+        function activarModoDestinoManual() {
+            document.getElementById('contenedorDestinoSelect').classList.add('d-none');
+            document.getElementById('contenedorDestinoManual').classList.remove('d-none');
+            document.getElementById('destinoManual').focus();
+        }
+
+        function activarModoDestinoSelect() {
+            document.getElementById('contenedorDestinoManual').classList.add('d-none');
+            document.getElementById('contenedorDestinoSelect').classList.remove('d-none');
+            document.getElementById('destinoManual').value = '';
+        }
+
         function abrirModalServicios() {
             renderizarListaServiciosModal();
             modalServicios.show();
@@ -436,11 +471,8 @@
             document.getElementById('formPedido').reset();
             document.getElementById('pedidoId').value = '';
             document.getElementById('estado').value = 'Pendiente';
+            activarModoDestinoSelect();
             
-            const ahora = new Date();
-            ahora.setMinutes(ahora.getMinutes() - ahora.getTimezoneOffset());
-            document.getElementById('fechaProgramada').value = ahora.toISOString().slice(0,16);
-
             document.getElementById('modalTitulo').innerText = '➕ Nuevo Pedido de Cadetería';
             modalPedido.show();
         }
@@ -448,17 +480,39 @@
         document.getElementById('formPedido').addEventListener('submit', function(e) {
             e.preventDefault();
 
+            // Obtener el valor del destino (manual o del selector)
+            let destinoValor = document.getElementById('destino').value;
+            const esManualVisible = !document.getElementById('contenedorDestinoManual').classList.contains('d-none');
+            if (esManualVisible) {
+                destinoValor = document.getElementById('destinoManual').value.trim();
+            }
+
+            const horaDesde = document.getElementById('horaDesde').value;
+            const horaHasta = document.getElementById('horaHasta').value;
+            
+            // Construir la franja horaria para el script
+            let franjaHoraria = "";
+            if (horaDesde && horaHasta) {
+                franjaHoraria = `${horaDesde} a ${horaHasta} hs`;
+            } else if (horaDesde) {
+                franjaHoraria = `Desde ${horaDesde} hs`;
+            } else if (horaHasta) {
+                franjaHoraria = `Hasta ${horaHasta} hs`;
+            }
+
+            const contacto = document.getElementById('contacto').value;
+
             const pedido = {
                 id: document.getElementById('pedidoId').value || "",
                 origen: document.getElementById('origen').value,
-                destino: document.getElementById('destino').value,
+                destino: destinoValor,
                 tipo: document.getElementById('tipo').value,
-                fechaProgramada: document.getElementById('fechaProgramada').value,
+                fechaProgramada: franjaHoraria,
                 cadete: document.getElementById('cadete').value,
                 movil: document.getElementById('movil').value,
                 prioridad: document.getElementById('prioridad').value,
                 estado: document.getElementById('estado').value,
-                observaciones: document.getElementById('observaciones').value
+                observaciones: contacto ? `[Contacto: ${contacto}] ${document.getElementById('observaciones').value}` : document.getElementById('observaciones').value
             };
 
             const btnGuardar = document.getElementById('btnGuardarPedido');
@@ -504,7 +558,7 @@
             tbody.innerHTML = '';
 
             if (datos.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-4"><i class="bi bi-inbox fs-3 d-block mb-1"></i>No hay traslados para mostrar.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted py-4"><i class="bi bi-inbox fs-3 d-block mb-1"></i>No hay traslados para mostrar.</td></tr>`;
                 actualizarEstadisticas();
                 return;
             }
@@ -515,11 +569,19 @@
                 if(p.prioridad === 'Media') badgePrioridad = 'bg-warning text-dark';
 
                 const estadoClass = p.estado.replace(/\s+/g, '-');
+                const obs = p.observaciones || p['Observaciones'] || '-';
+
+                // Extraer contacto de la observación si existiera
+                let contactoTxt = '-';
+                if (obs.includes('[Contacto:')) {
+                    const match = obs.match(/\[Contacto:\s*([^\]]+)\]/);
+                    if (match) contactoTxt = match[1];
+                }
 
                 const fila = `
                     <tr class="${p.archivado ? 'fila-archivada' : ''}">
                         <td class="text-muted small">${p.fechaRegistro || p['Fecha Registro'] || '-'}</td>
-                        <td><span class="fw-bold text-primary">${p.fechaProgramada || p['Fecha Programada'] || 'Sin prog.'}</span></td>
+                        <td><span class="fw-bold text-primary">${p.fechaProgramada || p['Fecha Programada'] || 'Sin franja'}</span></td>
                         <td>
                             <span class="fw-bold">${p.origen || p['Origen']}</span> 
                             <i class="bi bi-arrow-right text-muted mx-1"></i> 
@@ -527,9 +589,10 @@
                         </td>
                         <td>${p.tipo || p['Tipo']}</td>
                         <td><i class="bi bi-person me-1 text-muted"></i>${p.cadete || p['Cadete']} ${p.movil ? `<small class="text-muted">(${p.movil})</small>` : ''}</td>
+                        <td><small class="text-muted"><i class="bi bi-telephone me-1"></i>${contactoTxt}</small></td>
                         <td><span class="badge ${badgePrioridad}">${p.prioridad || p['Prioridad']}</span></td>
                         <td><span class="badge badge-estado-${estadoClass}">${p.estado || p['Estado']}</span></td>
-                        <td style="max-width: 140px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;" title="${p.observaciones || p['Observaciones']}">${p.observaciones || p['Observaciones'] || '-'}</td>
+                        <td style="max-width: 140px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;" title="${obs}">${obs}</td>
                         <td class="text-end">
                             <div class="btn-group btn-group-sm">
                                 <button class="btn btn-outline-success" onclick="requerirPassword(cambiarEstadoAccion, '${p.id}', 'Realizada')" title="Finalizar"><i class="bi bi-check-lg"></i></button>
